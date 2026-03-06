@@ -1,6 +1,9 @@
 import os
 import pymysql
 
+from lib.mysql_interface.venues import venues
+from lib.mysql_interface.events import events
+
 
 class MySQLInterface:
     def __init__(self):
@@ -49,21 +52,12 @@ class MySQLInterface:
 
     def get_venue_by_id(self, venue_id):
         conn = self._get_connection()
-        with conn.cursor() as cursor:
-            cursor.execute("SELECT * FROM venues WHERE id = %s", (venue_id,))
-            return cursor.fetchone()
+        return venues.get_venue_by_id(conn, venue_id)
 
     def get_all_venues(self):
         conn = self._get_connection()
-        with conn.cursor() as cursor:
-            cursor.execute("SELECT * FROM venues")
-            return cursor.fetchall()
+        return venues.get_all_venues(conn)
 
     def get_events_by_venue(self, venue_id):
         conn = self._get_connection()
-        with conn.cursor() as cursor:
-            cursor.execute(
-                "SELECT * FROM events WHERE venue_id = %s AND date > NOW()",
-                (venue_id,)
-            )
-            return cursor.fetchall()
+        return events.get_events_by_venue(conn, venue_id)
