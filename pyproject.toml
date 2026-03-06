@@ -7,3 +7,6 @@ name = "agro"
 version = "0.1.0"
 description = "Event Aggregator CLI"
 requires-python = ">=3.11"
+dependencies = [
+    "pytest>=7.0",
+]
