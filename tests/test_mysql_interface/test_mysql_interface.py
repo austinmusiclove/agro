@@ -21,7 +21,12 @@ def test_get_all_venues_has_id_and_name(db):
 
 def test_get_venue_by_id_returns_dict(db):
     result = db.get_venue_by_id(1)
-    assert result is isinstance(result, dict)
+    assert isinstance(result, dict)
+
+
+def test_get_venue_by_id_returns_none_when_not_found(db):
+    result = db.get_venue_by_id(0)
+    assert result is None
 
 
 def test_get_venue_by_id_has_id_and_name(db):

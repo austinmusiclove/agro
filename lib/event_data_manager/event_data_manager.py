@@ -43,7 +43,8 @@ class EventDataManager:
 
     def _get_venues(self, venue_id=None):
         if venue_id is not None:
-            return [self.mysql_interface.get_venue_by_id(venue_id)]
+            venue = self.mysql_interface.get_venue_by_id(venue_id)
+            return [venue] if venue is not None else None
         else:
             return self.mysql_interface.get_all_venues()
 
