@@ -22,7 +22,7 @@ Required environment variables to run this project:
 
 2. Install dependencies:
    ```bash
-   pip install -r requirements.txt
+   pip3 install -r requirements.txt
    ```
 
 3. Set environment variables:
