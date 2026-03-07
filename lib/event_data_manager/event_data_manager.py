@@ -5,7 +5,7 @@ class EventDataManager:
         self.llm_interface = llm_interface
 
     def get_new_event_data(self, venue_id=None):
-        # venues = self._get_venues(venue_id)
+        venues = self._get_venues(venue_id)
         # FOR each Venue:
         #     Pull events URL from venue DB
         #     Crawl all Event List Pages
@@ -28,7 +28,7 @@ class EventDataManager:
         pass
 
     def update_event_data(self, venue_id=None):
-        # venues = self._get_venues(venue_id)
+        venues = self._get_venues(venue_id)
         # FOR each Venue:
         #     Get all events from DB that are not past
         #     FOR each Event:
@@ -42,10 +42,8 @@ class EventDataManager:
         pass
 
     def _get_venues(self, venue_id=None):
-        # IF venue_id is provided:
-        #     Get single venue from DB by ID
-        # ELSE:
-        #     Get all venues from DB
-        # RETURN venues
-        pass
+        if venue_id is not None:
+            return [self.mysql_interface.get_venue_by_id(venue_id)]
+        else:
+            return self.mysql_interface.get_all_venues()
 

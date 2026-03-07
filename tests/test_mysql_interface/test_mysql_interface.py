@@ -19,9 +19,9 @@ def test_get_all_venues_has_id_and_name(db):
         assert "name" in result[0]
 
 
-def test_get_venue_by_id_returns_dict_or_none(db):
+def test_get_venue_by_id_returns_dict(db):
     result = db.get_venue_by_id(1)
-    assert result is None or isinstance(result, dict)
+    assert result is isinstance(result, dict)
 
 
 def test_get_venue_by_id_has_id_and_name(db):
