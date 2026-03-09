@@ -1,7 +1,7 @@
-class LlmInterface:
-    def __init__(self):
-        pass
+from abc import ABC, abstractmethod
 
+
+class LlmInterface(ABC):
+    @abstractmethod
     def get_next_page_url(self, markdown):
-        # Take markdown and return the URL of the next page button/link
         pass

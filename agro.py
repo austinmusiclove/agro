@@ -2,7 +2,7 @@ import argparse
 
 from lib.fetcher.fetcher import Fetcher
 from lib.mysql_interface.mysql_interface import MySQLInterface
-from lib.llm_interface.llm_interface import LlmInterface
+from lib.llm_interface.ollama import OllamaLlm
 from lib.event_data_manager.event_data_manager import EventDataManager
 
 
@@ -19,7 +19,7 @@ def main():
     args = parser.parse_args()
 
     mysql_interface = MySQLInterface()
-    llm_interface = LlmInterface()
+    llm_interface = OllamaLlm()
     fetcher = Fetcher(llm_interface)
     event_data_manager = EventDataManager(fetcher, mysql_interface, llm_interface)
 
