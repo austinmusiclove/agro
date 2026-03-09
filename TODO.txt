@@ -2,6 +2,7 @@ CLI
 EventDataManager
 MySqlInterface
 Fetcher
+    Accept 301 redirects
 LlmInterface
 Get event data from Event Page URL
 Get Event Page URLs from Venue Events Page

@@ -1,11 +1,22 @@
+import urllib.request
+from urllib.error import URLError, HTTPError
+
+
 class Fetcher:
     def __init__(self):
         pass
 
     def fetch(self, url):
-        # Fetch HTML from URL
-        # RETURN HTML
-        pass
+        try:
+            with urllib.request.urlopen(url) as response:
+                if response.status == 200:
+                    return response.read().decode('utf-8')
+                else:
+                    raise HTTPError(url, response.status, "Non-200 response", {}, None)
+        except HTTPError:
+            raise
+        except URLError as e:
+            raise URLError(f"Failed to fetch {url}: {e.reason}") from e
 
     def fetch_with_pagination(self, url, max_pages=10):
         # Fetch the initial page using fetch()
