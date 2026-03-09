@@ -2,6 +2,7 @@ CLI
 EventDataManager
 MySqlInterface
 Fetcher
+    Try to load more results by scrolling or finding load more button
     Accept 301 redirects
 LlmInterface
 Get event data from Event Page URL
