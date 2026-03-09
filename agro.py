@@ -18,9 +18,9 @@ def main():
 
     args = parser.parse_args()
 
-    fetcher = Fetcher()
     mysql_interface = MySQLInterface()
     llm_interface = LlmInterface()
+    fetcher = Fetcher(llm_interface)
     event_data_manager = EventDataManager(fetcher, mysql_interface, llm_interface)
 
     if args.command == "get-new-event-data":

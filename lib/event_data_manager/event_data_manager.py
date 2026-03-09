@@ -8,10 +8,9 @@ class EventDataManager:
         venues = self._get_venues(venue_id)
         for venue in venues:
             events_url = venue.get("website_events_url")
-            event_list_pages = self.fetcher.fetch_with_pagination(events_url)
-            for event_list_page_html in event_list_pages:
+            event_list_pages = self.fetcher.fetch_all_pages(events_url, 10)
+            for event_list_page in event_list_pages:
                 pass
-        #         Convert HTML to Markdown
         #         Use LLM to find Event Page URLs in Markdown
         #     FOR each Event Page URL:
         #         Is URL in DB?

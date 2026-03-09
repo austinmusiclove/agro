@@ -10,8 +10,8 @@ class TestEventDataManager:
         mock_db = MockMySQLInterface()
         mock_db.venues = [{"id": 1, "name": "Venue 1"}]
 
-        fetcher = MockFetcher()
         llm = MockLlmInterface()
+        fetcher = MockFetcher(llm)
         manager = EventDataManager(fetcher, mock_db, llm)
 
         result = manager._get_venues(venue_id=1)
@@ -22,8 +22,8 @@ class TestEventDataManager:
         mock_db = MockMySQLInterface()
         mock_db.venues = [{"id": 1}, {"id": 2}]
 
-        fetcher = MockFetcher()
         llm = MockLlmInterface()
+        fetcher = MockFetcher(llm)
         manager = EventDataManager(fetcher, mock_db, llm)
 
         result = manager._get_venues()
@@ -34,8 +34,8 @@ class TestEventDataManager:
         mock_db = MockMySQLInterface()
         mock_db.venues = []
 
-        fetcher = MockFetcher()
         llm = MockLlmInterface()
+        fetcher = MockFetcher(llm)
         manager = EventDataManager(fetcher, mock_db, llm)
 
         result = manager._get_venues(venue_id=999)
