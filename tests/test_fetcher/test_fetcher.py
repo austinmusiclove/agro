@@ -2,6 +2,7 @@ import pytest
 from urllib.error import HTTPError
 from lib.fetcher.fetcher import Fetcher
 from tests.mocks.mock_llm_interface import MockLlmInterface
+from lib.llm_interface.ollama import OllamaLlm
 
 
 @pytest.fixture
@@ -35,3 +36,11 @@ def test_fetch_returns_markdown_without_html_tags(fetcher):
     result = fetcher.fetch("https://hiremusicians.com", return_markdown=True)
     assert "<html" not in result.lower()
     assert "<!doctype" not in result.lower()
+
+
+# TODO: Implement with a proper URL that has pagination
+# def test_fetch_all_pages_integration():
+#     fetcher = Fetcher(OllamaLlm())
+#     result = fetcher.fetch_all_pages("https://hiremusicians.com", max_pages=2)
+#     assert isinstance(result, list)
+#     assert len(result) >= 1

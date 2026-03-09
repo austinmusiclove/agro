@@ -24,17 +24,21 @@ class Fetcher:
 
     # Returns a list of pages as markdown. Returns the URL plus all pages if there is pagination up until the max_pages limit
     def fetch_all_pages(self, url, max_pages=10):
-        # Fetch the initial page using fetch()
-        markdown = self.fetch(url, True)
+        pages = []
+        current_url = url
 
-        # Use LLM to find next page button in Markdown
-        next_page_url = self.llm_interface.get_next_page_url(markdown)
-        # FOR each pagination link:
-        #     Fetch the page using fetch()
-        #     Stop if max_pages limit reached
+        for _ in range(max_pages):
+            markdown = self.fetch(current_url, return_markdown=True)
+            pages.append(markdown)
 
-        # RETURN list of pages
-        pass
+            next_page_url = self.llm_interface.get_next_page_url(markdown)
+
+            if not next_page_url:
+                break
+
+            current_url = next_page_url
+
+        return pages
 
     def _convert_html_to_markdown(self, html):
         converter = html2text.HTML2Text()
