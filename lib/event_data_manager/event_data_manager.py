@@ -6,10 +6,11 @@ class EventDataManager:
 
     def get_new_event_data(self, venue_id=None):
         venues = self._get_venues(venue_id)
-        # FOR each Venue:
-        #     Pull events URL from venue DB
-        #     Crawl all Event List Pages
-        #     FOR each Event List Page:
+        for venue in venues:
+            events_url = venue.get("website_events_url")
+            event_list_pages = self.fetcher.fetch_with_pagination(events_url)
+            for event_list_page_html in event_list_pages:
+                pass
         #         Convert HTML to Markdown
         #         Use LLM to find Event Page URLs in Markdown
         #     FOR each Event Page URL:
@@ -29,7 +30,8 @@ class EventDataManager:
 
     def update_event_data(self, venue_id=None):
         venues = self._get_venues(venue_id)
-        # FOR each Venue:
+        for venue in venues:
+            pass
         #     Get all events from DB that are not past
         #     FOR each Event:
         #         Get the Event Page URL
@@ -47,4 +49,3 @@ class EventDataManager:
             return [venue] if venue is not None else None
         else:
             return self.mysql_interface.get_all_venues()
-
