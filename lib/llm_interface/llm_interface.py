@@ -8,8 +8,10 @@ class LlmInterface(ABC):
         pass
 
     def get_next_page_url(self, markdown):
-        prompt = f"""Find the next page link in this markdown.
-Return only the URL if found, or return nothing if there is no next page.
+        prompt = f"""This is the markdown of a web page that may or may not have pagination.
+Find the next page link.
+If found, return only the URL.
+If not found, return nothing.
 Markdown:
 {markdown}"""
 
