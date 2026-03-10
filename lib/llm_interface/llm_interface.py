@@ -15,7 +15,10 @@ If not found, return nothing.
 Markdown:
 {markdown}"""
 
-        result = self._prompt_llm(prompt).strip()
+        print(prompt)
+        response = self._prompt_llm(prompt)
+        print(response)
+        result = response.strip() if response else ""
         return self._clean_url(result)
 
     def _clean_url(self, url):

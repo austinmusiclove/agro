@@ -1,11 +1,5 @@
 import pytest
-from lib.llm_interface.ollama import OllamaLlm
 from pathlib import Path
-
-
-@pytest.fixture
-def llm():
-    return OllamaLlm()
 
 
 def test_04center_calendar_nopaging(llm):

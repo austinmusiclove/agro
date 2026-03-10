@@ -1,8 +1,10 @@
 import argparse
+import os
 
 from lib.fetcher.fetcher import Fetcher
 from lib.mysql_interface.mysql_interface import MySQLInterface
 from lib.llm_interface.ollama import OllamaLlm
+from lib.llm_interface.gemini import GeminiLlm
 from lib.event_data_manager.event_data_manager import EventDataManager
 
 
@@ -19,7 +21,13 @@ def main():
     args = parser.parse_args()
 
     mysql_interface = MySQLInterface()
-    llm_interface = OllamaLlm()
+
+    llm_provider = os.getenv("AGRO_LLM_PROVIDER", "ollama").lower()
+    if llm_provider == "gemini":
+        llm_interface = GeminiLlm()
+    else:
+        llm_interface = OllamaLlm()
+
     fetcher = Fetcher(llm_interface)
     event_data_manager = EventDataManager(fetcher, mysql_interface, llm_interface)
 
