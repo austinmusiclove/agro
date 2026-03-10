@@ -16,7 +16,7 @@ def test_cactuscafe_events_lastpage(llm):
 
 def test_cactuscafe_events_page1(llm):
     markdown = Path("tests/assets/markdown/cactuscafe_events_page1.md").read_text()
-    result = llm.get_next_page_url(markdown)
+    result = llm.get_next_page_url(markdown, current_url="https://universityunions.utexas.edu/events?location=40&type=All")
     assert result is not None
     assert result.startswith("http")
 

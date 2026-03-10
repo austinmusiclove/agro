@@ -31,7 +31,7 @@ class Fetcher:
             markdown = self.fetch(current_url, return_markdown=True)
             pages.append(markdown)
 
-            next_page_url = self.llm_interface.get_next_page_url(markdown)
+            next_page_url = self.llm_interface.get_next_page_url(markdown, current_url)
 
             if not next_page_url:
                 break
