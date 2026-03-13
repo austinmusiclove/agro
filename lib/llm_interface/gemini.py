@@ -1,10 +1,17 @@
 import os
 import json
+from pydantic import BaseModel, Field
 from urllib.parse import urljoin
 from google import genai
 from google.genai import types
 
 from lib.llm_interface.llm_interface import LlmInterface
+
+
+class NextPageResult(BaseModel):
+    next_url: str = Field(
+        description="The exact URL or relative path to the next page of results. Return an empty string '' if no next page link is found."
+    )
 
 
 class GeminiLlm(LlmInterface):
@@ -13,34 +20,48 @@ class GeminiLlm(LlmInterface):
         # The client automatically picks up the GEMINI_API_KEY environment variable.
         self.client = genai.Client()
 
-    def _prompt_llm(self, prompt, expect_json=False):
-        config = types.GenerateContentConfig(
-            response_mime_type="application/json"
-        ) if expect_json else None
+    def _prompt_llm(self, prompt):
 
         response = self.client.models.generate_content(
             model=self.model,
             contents=prompt,
-            config=config,
+        )
+        return response.text
+
+    def _prompt_llm_structured_output(self, prompt, response_schema=None):
+
+        response = self.client.models.generate_content(
+            model=self.model,
+            contents=prompt,
+            config={
+                "response_mime_type": "application/json",
+                "response_schema": response_schema,
+            },
         )
         return response.text
 
     def get_next_page_url(self, markdown, current_url=None):
-        prompt = f"""You are a strict data extractor. Analyze the following markdown of a web page and find the link to the next page of results (e.g., pagination "Next", ">", "Next Page", etc.). \
-            Return ONLY a JSON object with a single key "next_page_link". \
-            If you find a next page link, set the value to the exact link found in the markdown. Do not guess or invent links. \
-            The link may be just a path instead of a full URL. \
-            If you cannot find a next page link, set the value to null. \
-            Markdown: \
-            {markdown}"""
 
-        print("Extracting next page URL...")
-        response_text = self._prompt_llm(prompt, expect_json=True)
-        print(f"LLM Response: {response_text}")
+        prompt = f"""You are an automated data extraction system. Your sole purpose is to parse HTML/Markdown and extract specific links. You MUST output strictly in the requested JSON format. You do not explain, you do not converse.
+Find the link to the next page of results (e.g., "Next", ">").
+Extract the *exact* URL or path found in the markdown link.
+If no next page link is found, return an empty string.
+
+<MARKDOWN_DATA>
+{markdown}
+</MARKDOWN_DATA>"""
+
+        response_text = self._prompt_llm_structured_output(
+            prompt,
+            response_schema=NextPageResult,
+        )
 
         try:
             data = json.loads(response_text)
-            result = data.get("next_page_link")
+            result = data.get("next_url")
+            # Convert empty string back to None to match expectations
+            if result == "":
+                result = None
         except (json.JSONDecodeError, TypeError):
             print("Error: Failed to parse JSON response from LLM.")
             result = None

@@ -18,7 +18,7 @@ def test_cactuscafe_events_page1(llm):
     markdown = Path("tests/assets/markdown/cactuscafe_events_page1.md").read_text()
     result = llm.get_next_page_url(markdown, current_url="https://universityunions.utexas.edu/events?location=40&type=All")
     assert result is not None
-    assert result.startswith("http")
+    assert result == "https://universityunions.utexas.edu/events?location=40&type=All&page=1"
 
 
 def test_cherrywoodcoffeehouse_events_loadmore(llm):
@@ -54,4 +54,31 @@ def test_theabgb_events_nopaging(llm):
 def test_thesaxonpub_events_loadmore(llm):
     markdown = Path("tests/assets/markdown/thesaxonpub_events_loadmore.md").read_text()
     result = llm.get_next_page_url(markdown)
+    assert result is None
+
+
+def test_antonesnightclub_page1(llm):
+    markdown = Path("tests/assets/markdown/antonesnightclub_page1.md").read_text()
+    result = llm.get_next_page_url(markdown, current_url="https://antonesnightclub.com/")
+    assert result is not None
+    assert result == "https://antonesnightclub.com/page/2/"
+
+
+def test_antonesnightclub_page2(llm):
+    markdown = Path("tests/assets/markdown/antonesnightclub_page2.md").read_text()
+    result = llm.get_next_page_url(markdown, current_url="https://antonesnightclub.com/page/2/")
+    assert result is not None
+    assert result == "https://antonesnightclub.com/page/3/"
+
+
+def test_antonesnightclub_page3(llm):
+    markdown = Path("tests/assets/markdown/antonesnightclub_page3.md").read_text()
+    result = llm.get_next_page_url(markdown, current_url="https://antonesnightclub.com/page/3/")
+    assert result is not None
+    assert result == "https://antonesnightclub.com/page/4/"
+
+
+def test_antonesnightclub_lastpage(llm):
+    markdown = Path("tests/assets/markdown/antonesnightclub_lastpage.md").read_text()
+    result = llm.get_next_page_url(markdown, current_url="https://antonesnightclub.com/page/4/")
     assert result is None

@@ -8,14 +8,12 @@ class OllamaLlm(LlmInterface):
         self.model = model
         self.url = "http://localhost:11434/api/generate"
 
-    def _prompt_llm(self, prompt, expect_json=False):
+    def _prompt_llm(self, prompt):
         payload = {
             "model": self.model,
             "prompt": prompt,
             "stream": False
         }
-        if expect_json:
-            payload["format"] = "json"
 
         response = requests.post(self.url, json=payload)
         return response.json().get("response", "")
@@ -28,9 +26,7 @@ class OllamaLlm(LlmInterface):
             Markdown: \
             {markdown}"""
 
-        print("Extracting next page URL...")
-        response_text = self._prompt_llm(prompt, expect_json=False)
-        print(f"LLM Response: {response_text}")
+        response_text = self._prompt_llm(prompt)
 
         result = response_text.strip() if response_text else ""
         return self._clean_url(result)
