@@ -10,10 +10,11 @@ class EventDataManager:
             events_url = venue.get("website_events_url")
             event_list_pages = self.fetcher.fetch_all_pages(events_url, 10)
             for event_list_page in event_list_pages:
-                pass
-        #         Use LLM to find Event Page URLs in Markdown
-        #     FOR each Event Page URL:
-        #         Is URL in DB?
+                event_urls = self.llm_interface.get_event_page_urls(event_list_page, current_url=events_url)
+                for event_url in event_urls:
+                    pass
+            #     FOR each Event Page URL:
+            #         Is URL in DB?
         #             Yes:
         #                 Was it updated since last crawled?
         #                     Yes:

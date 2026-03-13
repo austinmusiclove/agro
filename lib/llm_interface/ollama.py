@@ -15,8 +15,7 @@ class OllamaLlm(LlmInterface):
             "stream": False
         }
 
-        response = requests.post(self.url, json=payload)
-        return response.json().get("response", "")
+        return response
 
     def get_next_page_url(self, markdown, current_url=None):
         prompt = f"""This is the markdown of a web page that may or may not have pagination. \
@@ -30,3 +29,6 @@ class OllamaLlm(LlmInterface):
 
         result = response_text.strip() if response_text else ""
         return self._clean_url(result)
+
+    def get_event_page_urls(self, markdown, current_url=None) -> list[str]:
+        pass
