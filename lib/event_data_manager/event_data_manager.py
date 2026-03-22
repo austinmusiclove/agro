@@ -1,18 +1,18 @@
 class EventDataManager:
-    def __init__(self, fetcher, mysql_interface, llm_interface):
-        self.fetcher = fetcher
+    def __init__(self, scraper, mysql_interface):
+        self.scraper = scraper
         self.mysql_interface = mysql_interface
-        self.llm_interface = llm_interface
 
     def scrape_event_list_pages(self, venue_id=None):
         venues = self._get_venues(venue_id)
         for venue in venues:
             events_url = venue.get("website_events_url")
-            event_list_pages = self.fetcher.fetch_all_pages(events_url, 10)
-            for event_list_page in event_list_pages:
-                event_urls = self.llm_interface.get_event_page_urls(event_list_page, current_url=events_url)
-                for event_url in event_urls:
-                    pass
+            # TODO: replace with scraper usage once interface methods are defined
+            # event_list_pages = self.fetcher.fetch_all_pages(events_url, 10)
+            # for event_list_page in event_list_pages:
+            #     event_urls = self.llm_interface.get_event_page_urls(event_list_page, current_url=events_url)
+            #     for event_url in event_urls:
+            #         pass
             #     FOR each Event Page URL:
             #         Is URL in DB?
         #             Yes:
@@ -28,7 +28,7 @@ class EventDataManager:
         #                     No: Convert to Markdown → LLM → Save
         pass
 
-    def update_event_data(self, venue_id=None):
+    def scrape_event_pages(self, venue_id=None, date=None):
         venues = self._get_venues(venue_id)
         for venue in venues:
             pass

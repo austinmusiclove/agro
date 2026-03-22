@@ -1,15 +1,8 @@
-Scraper
-    add scraper class abstract and firecrawl scraper
-Env
-    move accessing env vars to determine which class to instantiate to factory class
 EventDataManager
     change procedure
         scrape event list pages
         scrape event pages
         scrape one event page
-Structure
-    change LLM interface to DataExtractorInterface
-    Scraper interface that uses fetcher and data extractor; event data manager uses scraper
 Firecrawl
     install firecrawl locally
     FirecrawlFetcher
@@ -17,12 +10,6 @@ Firecrawl
     add proxy to firecrawl
     get permission from venues to crawl and do some crawling through a proxy firecrawl and some through a stable permissioned ip
     install firecrawl in separate instance with no proxy
-Fetcher
-    Try to load more results by scrolling or finding load more button
-    Accept 301 redirects
-DataExtractor
-    make sure it uses any event schema that exists
-    compare has of most recent crawl to the hash passed into extractor and do not extract if it is a match
 Event Schema
     last crawl
     event page url, hash, screenshot, highlighted screenshot, html
@@ -31,5 +18,14 @@ Event Schema
 Manual review app
     flag new events and updated events with pending and pending_update status so that
     create an interface for easily reviewing the data side by side with a screenshot of where the data came from so that it is easy to review the AI's work with human eyes
-
+Structure
+    change LLM interface to DataExtractorInterface
+    LLM with factory class that is like scraper
+    Basic Scraper interface that uses fetcher and data extractor; event data manager uses scraper
+        DataExtractor
+            make sure it uses any event schema that exists
+            compare has of most recent crawl to the hash passed into extractor and do not extract if it is a match
+        Fetcher
+            Try to load more results by scrolling or finding load more button
+            Accept 301 redirects
 Classification algo to replace LLM
