@@ -1,17 +1,5 @@
 # Agro - Event Aggregator
 
-## Environment Variables
-
-Create .env in the root of this repo with this template
-
-export AGRO_MYSQL_DATABASE=
-export AGRO_MYSQL_HOST=
-export AGRO_MYSQL_PORT=
-export AGRO_MYSQL_USER=
-export AGRO_MYSQL_PASSWORD=
-export AGRO_LLM_PROVIDER=
-export GEMINI_API_KEY=
-
 ## Setup
 
 1. Create virtual environment:
@@ -26,13 +14,19 @@ export GEMINI_API_KEY=
    ```
 
 3. Set environment variables:
-   ```bash
-   export AGRO_MYSQL_HOST=localhost
-   export AGRO_MYSQL_PORT=3306
-   export AGRO_MYSQL_USER=root
-   export AGRO_MYSQL_PASSWORD=your_password
-   export AGRO_MYSQL_DATABASE=agro
-   ```
+
+    Create .env in the root of this repo with this template
+
+    ```bash
+    export AGRO_MYSQL_DATABASE=
+    export AGRO_MYSQL_HOST=
+    export AGRO_MYSQL_PORT=
+    export AGRO_MYSQL_USER=
+    export AGRO_MYSQL_PASSWORD=
+    export AGRO_LLM_PROVIDER=
+    export AGRO_SCRAPER="firecrawl"
+    export GEMINI_API_KEY=
+    ```
 
 ## Usage
 

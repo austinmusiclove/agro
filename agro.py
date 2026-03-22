@@ -1,5 +1,8 @@
 import argparse
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 from lib.fetcher.fetcher import Fetcher
 from lib.mysql_interface.mysql_interface import MySQLInterface

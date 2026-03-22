@@ -1,5 +1,6 @@
+Scraper
+    add scraper class abstract and firecrawl scraper
 Env
-    use .env file in repo and a template for it in readme
     move accessing env vars to determine which class to instantiate to factory class
 EventDataManager
     change procedure
