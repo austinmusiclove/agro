@@ -22,13 +22,11 @@ class FirecrawlScraper(ScraperInterface):
                 # We use the Firecrawl scrape endpoint with JSON formatting to structure the data using our schema
                 res = self.firecrawl.scrape(
                     current_url,
-                    params={
-                        "formats": ["json"],
-                        "jsonOptions": {
-                            "prompt": "Extract the list of upcoming events from this page, as well as the link to the next page of events if one exists.",
-                            "schema": EventListSchema.model_json_schema()
-                        }
-                    }
+                    formats=[{
+                        "type": "json",
+                        "prompt": "Extract the list of upcoming events from this page, as well as the link to the next page of events if one exists.",
+                        "schema": EventListSchema.model_json_schema()
+                    }]
                 )
 
                 if res and res.get("success"):

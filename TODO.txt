@@ -1,10 +1,8 @@
 Firecrawl
     install firecrawl locally
-    FirecrawlFetcher
-    FirecrawlLLM
+    install firecrawl in separate instance with no proxy
     add proxy to firecrawl
     get permission from venues to crawl and do some crawling through a proxy firecrawl and some through a stable permissioned ip
-    install firecrawl in separate instance with no proxy
 Event Schema
     last crawl
     event page url, hash, screenshot, highlighted screenshot, html
