@@ -22,7 +22,7 @@ class EventUrlsResult(BaseModel):
 
 
 class GeminiLlm(LlmInterface):
-    def __init__(self, model="gemini-1.5-pro"):
+    def __init__(self, model="gemini-2.5-flash"):
         self.model = model
         self.client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
 

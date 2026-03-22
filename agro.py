@@ -12,7 +12,7 @@ def main():
     parser = argparse.ArgumentParser(description="Agro CLI")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    get_parser = subparsers.add_parser("get-new-event-data", help="Fetch new event data")
+    get_parser = subparsers.add_parser("scrape-event-list-pages", help="Fetch new event data")
     get_parser.add_argument("--venue-id", type=str, help="Specific venue ID")
 
     update_parser = subparsers.add_parser("update-event-data", help="Update existing event data")
@@ -31,10 +31,8 @@ def main():
     fetcher = Fetcher(llm_interface)
     event_data_manager = EventDataManager(fetcher, mysql_interface, llm_interface)
 
-    if args.command == "get-new-event-data":
-        event_data_manager.get_new_event_data(args.venue_id)
-    elif args.command == "update-event-data":
-        event_data_manager.update_event_data(args.venue_id)
+    if args.command == "scrape-event-list-pages":
+        event_data_manager.scrape_event_list_pages(args.venue_id)
 
 
 if __name__ == "__main__":

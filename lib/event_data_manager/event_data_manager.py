@@ -4,7 +4,7 @@ class EventDataManager:
         self.mysql_interface = mysql_interface
         self.llm_interface = llm_interface
 
-    def get_new_event_data(self, venue_id=None):
+    def scrape_event_list_pages(self, venue_id=None):
         venues = self._get_venues(venue_id)
         for venue in venues:
             events_url = venue.get("website_events_url")

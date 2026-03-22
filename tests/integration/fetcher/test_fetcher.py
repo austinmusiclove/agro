@@ -35,11 +35,3 @@ def test_fetch_returns_markdown_without_html_tags(fetcher):
     result = fetcher.fetch("https://hiremusicians.com", return_markdown=True)
     assert "<html" not in result.lower()
     assert "<!doctype" not in result.lower()
-
-
-# TODO: Implement with a proper URL that has pagination
-# def test_fetch_all_pages_integration():
-#     fetcher = Fetcher(MockLlmInterface())
-#     result = fetcher.fetch_all_pages("https://example.com", max_pages=2)
-#     assert isinstance(result, list)
-#     assert len(result) >= 1

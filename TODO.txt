@@ -1,9 +1,34 @@
-CLI
+Env
+    use .env file in repo and a template for it in readme
+    move accessing env vars to determine which class to instantiate to factory class
 EventDataManager
-MySqlInterface
+    change procedure
+        scrape event list pages
+        scrape event pages
+        scrape one event page
+Structure
+    change LLM interface to DataExtractorInterface
+    Scraper interface that uses fetcher and data extractor; event data manager uses scraper
+Firecrawl
+    install firecrawl locally
+    FirecrawlFetcher
+    FirecrawlLLM
+    add proxy to firecrawl
+    get permission from venues to crawl and do some crawling through a proxy firecrawl and some through a stable permissioned ip
+    install firecrawl in separate instance with no proxy
 Fetcher
     Try to load more results by scrolling or finding load more button
     Accept 301 redirects
-LlmInterface
-Get event data from Event Page URL
-Get Event Page URLs from Venue Events Page
+DataExtractor
+    make sure it uses any event schema that exists
+    compare has of most recent crawl to the hash passed into extractor and do not extract if it is a match
+Event Schema
+    last crawl
+    event page url, hash, screenshot, highlighted screenshot, html
+    event list page url, hash, screenshot, highlighted screenshot, html
+    status: pending-review, pending-update, published
+Manual review app
+    flag new events and updated events with pending and pending_update status so that
+    create an interface for easily reviewing the data side by side with a screenshot of where the data came from so that it is easy to review the AI's work with human eyes
+
+Classification algo to replace LLM
