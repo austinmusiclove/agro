@@ -7,40 +7,22 @@ class EventDataManager:
         venues = self._get_venues(venue_id)
         for venue in venues:
             events_url = venue.get("website_events_url")
-            # TODO: replace with scraper usage once interface methods are defined
-            # event_list_pages = self.fetcher.fetch_all_pages(events_url, 10)
-            # for event_list_page in event_list_pages:
-            #     event_urls = self.llm_interface.get_event_page_urls(event_list_page, current_url=events_url)
-            #     for event_url in event_urls:
-            #         pass
-            #     FOR each Event Page URL:
-            #         Is URL in DB?
-        #             Yes:
-        #                 Was it updated since last crawled?
-        #                     Yes:
-        #                         Is there sitemap entry?
-        #                             Yes: Extract or LLM → Save
-        #                             No: Do Nothing
-        #                     No: Do Nothing
-        #             No (new):
-        #                 Is there Event Schema?
-        #                     Yes: Parse Schema → Save
-        #                     No: Convert to Markdown → LLM → Save
+            # get events from scraper(events_url, paginate=true)
+            # if there are events get all events from db for this venue; else continue
+            # events = merge_events(scraped_events, current_events); this function will delete events that are no longer appearing in scrape, update events that are in scrape and db, and add events that are in scrape but not db
         pass
 
     def scrape_event_pages(self, venue_id=None, date=None):
         venues = self._get_venues(venue_id)
         for venue in venues:
+            # Get all events from DB that have event page url and are not past
+            # for each event
+                # scrape to get structured data
+                # merge scraped data with db record
             pass
-        #     Get all events from DB that are not past
-        #     FOR each Event:
-        #         Get the Event Page URL
-        #         Was it updated since last crawled?
-        #             Yes:
-        #                 Is there Event Schema?
-        #                     Yes: Parse Schema → Update DB
-        #                     No: Convert to Markdown → LLM → Update DB
-        #             No: Do Nothing
+        pass
+
+    def scrape_event_page(self, event_page_url):
         pass
 
     def _get_venues(self, venue_id=None):
