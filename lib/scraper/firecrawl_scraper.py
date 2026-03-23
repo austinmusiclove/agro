@@ -13,10 +13,13 @@ class FirecrawlScraper(ScraperInterface):
 
     def scrape_event_list_page(self, url: str, paginate: bool = True, max_pages = 10) -> list[dict]:
         all_events = []
+        scraped_urls = set()
         current_url = url
         page_count = 0
 
         while current_url and page_count < max_pages:
+            scraped_urls.add(current_url)
+
             try:
                 print(f"Scraping event list page: {current_url}")
                 # We use the Firecrawl scrape endpoint with JSON formatting to structure the data using our schema
@@ -45,8 +48,13 @@ class FirecrawlScraper(ScraperInterface):
                     all_events.extend(events_on_page)
 
                     if paginate:
-                        current_url = json_data.get("next_page_url")
-                        page_count += 1
+                        next_url = json_data.get("next_page_url")
+                        if next_url and next_url not in scraped_urls:
+                            current_url = next_url
+                            page_count += 1
+                        else:
+                            print(f"No new next page URL found or URL already scraped. Stopping pagination.")
+                            break
                     else:
                         break
                 else:

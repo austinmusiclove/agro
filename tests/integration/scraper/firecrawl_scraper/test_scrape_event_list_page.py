@@ -37,6 +37,7 @@ def test_scrape_event_list_page_from_local_html():
         'event_list_page_url': 'https://www.stillaustin.com/antones-stage',
         'event_page_url': 'https://antonesnightclub.com/tm-event/antones-stage-at-still-austin-monica-valli-single-release/'
     }
+    print(first_event)
 
     # Field-by-field assertions
     assert first_event["title"] == correct_first_event["title"], "Event title is incorrect"
@@ -60,6 +61,8 @@ def test_scrape_event_list_page_pagination():
     test_url = "https://austinmusiclove.github.io/agro/antonesnightclub_page1.html"
     # Act: Scrape with pagination enabled
     events = scraper.scrape_event_list_page(test_url, paginate=True)
+    print('total events: ')
+    print(len(events))
     # Assert
     assert events is not None, "Events list should not be None"
     assert isinstance(events, list), "Events should be a list"
