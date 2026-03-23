@@ -1,6 +1,6 @@
 Tests
-    Test 3 different event list pages
-    Test getting events where there is pagination
+    Test getting data from event url
+    Consistency testing with multiple runs on same test run to check consistency level as a percentage
 Event Schema
     create new events table with new schema
         last crawl
@@ -8,6 +8,7 @@ Event Schema
         event list page url, hash, screenshot, highlighted screenshot, html
         status: pending-review, pending-update, published
 Manual review app
+    somehow review the total events found on a page
     flag new events and updated events with pending and pending_update status so that
     create an interface for easily reviewing the data side by side with a screenshot of where the data came from so that it is easy to review the AI's work with human eyes
 Firecrawl

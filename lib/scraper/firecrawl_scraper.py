@@ -1,5 +1,6 @@
 import os
 from firecrawl import FirecrawlApp
+from firecrawl.v2.types import ScrapeOptions
 from .interface import ScraperInterface
 from lib.schemas.event_list import EventListSchema
 
@@ -27,7 +28,7 @@ class FirecrawlScraper(ScraperInterface):
                     current_url,
                     formats=[{
                         "type": "json",
-                        "prompt": "Extract the list of upcoming events from this page, as well as the link to the next page of events if one exists.",
+                        "prompt": "Extract the list of events from this page, as well as the link to the next page of events if one exists. Make sure to get every event. Do not skip events.",
                         "schema": EventListSchema.model_json_schema()
                     }],
                 )
