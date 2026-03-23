@@ -26,13 +26,20 @@ class FirecrawlScraper(ScraperInterface):
                         "type": "json",
                         "prompt": "Extract the list of upcoming events from this page, as well as the link to the next page of events if one exists.",
                         "schema": EventListSchema.model_json_schema()
-                    }]
+                    }],
                 )
 
-                if res and res.get("success"):
-                    data = res.get("data", {})
-                    # The json output is inside the json key of the data dict
-                    json_data = data.get("json", {})
+                if res:
+                    # In python SDK v2, scrape() returns a Document Pydantic model
+                    json_data = res.json if hasattr(res, 'json') else {}
+                    if not json_data and hasattr(res, 'model_dump'):
+                        # Maybe it is nested inside the dict dump
+                        dumped = res.model_dump()
+                        json_data = dumped.get("json", {})
+
+                    if not json_data:
+                        # Fallback if it acts like a dict in some versions
+                        json_data = res.get("json", {}) if isinstance(res, dict) else {}
 
                     events_on_page = json_data.get("events", [])
                     all_events.extend(events_on_page)
@@ -43,7 +50,7 @@ class FirecrawlScraper(ScraperInterface):
                     else:
                         break
                 else:
-                    print(f"Failed to scrape {current_url}: {res.get('error')}")
+                    print(f"Failed to scrape {current_url}: No JSON data returned from Firecrawl.")
                     break
 
             except Exception as e:

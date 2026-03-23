@@ -1,16 +1,19 @@
-Firecrawl
-    install firecrawl locally
-    install firecrawl in separate instance with no proxy
-    add proxy to firecrawl
-    get permission from venues to crawl and do some crawling through a proxy firecrawl and some through a stable permissioned ip
+Tests
+    Test 3 different event list pages
+    Test getting events where there is pagination
 Event Schema
-    last crawl
-    event page url, hash, screenshot, highlighted screenshot, html
-    event list page url, hash, screenshot, highlighted screenshot, html
-    status: pending-review, pending-update, published
+    create new events table with new schema
+        last crawl
+        event page url, hash, screenshot, highlighted screenshot, html
+        event list page url, hash, screenshot, highlighted screenshot, html
+        status: pending-review, pending-update, published
 Manual review app
     flag new events and updated events with pending and pending_update status so that
     create an interface for easily reviewing the data side by side with a screenshot of where the data came from so that it is easy to review the AI's work with human eyes
+Firecrawl
+    install firecrawl in separate instance with no proxy
+    add proxy to firecrawl
+    get permission from venues to crawl and do some crawling through a proxy firecrawl and some through a stable permissioned ip
 Structure
     change LLM interface to DataExtractorInterface
     LLM with factory class that is like scraper

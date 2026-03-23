@@ -1,61 +1,67 @@
-import threading
-import http.server
-import socketserver
-from pathlib import Path
 import pytest
 from dotenv import load_dotenv
 
 from lib.scraper.firecrawl_scraper import FirecrawlScraper
 
-@pytest.fixture(scope="module")
-def local_server():
-    """Starts a local HTTP server serving the tests/assets/html directory."""
-    # Ensure env vars are loaded (specifically for FIRECRAWL_API_URL if needed)
+@pytest.mark.integration
+def test_scrape_event_list_page_from_local_html():
     load_dotenv(override=True)
 
-    # tests/integration/scraper/firecrawl_scraper/test_... -> tests/assets/html
-    html_dir = Path(__file__).parent.parent.parent.parent / "assets" / "html"
-
-    class Handler(http.server.SimpleHTTPRequestHandler):
-        def __init__(self, *args, **kwargs):
-            super().__init__(*args, directory=str(html_dir), **kwargs)
-
-        # Suppress log messages for cleaner test output
-        def log_message(self, format, *args):
-            pass
-
-    # Find an open port
-    httpd = socketserver.TCPServer(("", 0), Handler)
-    port = httpd.server_address[1]
-
-    # Run the server in a separate daemon thread
-    server_thread = threading.Thread(target=httpd.serve_forever, daemon=True)
-    server_thread.start()
-
-    # Yield the base URL to the test
-    yield f"http://localhost:{port}"
-
-    # Cleanup after tests
-    httpd.shutdown()
-    httpd.server_close()
-    server_thread.join(timeout=1)
-
-@pytest.mark.integration
-def test_scrape_event_list_page_from_local_html(local_server):
     scraper = FirecrawlScraper()
-    test_url = f"{local_server}/antonesnightclub_page1.html"
+    # This URL points to the test asset we deployed to the gh-pages branch
+    test_url = "https://austinmusiclove.github.io/agro/antonesnightclub_page1.html"
 
-    # Act: Scrape the local URL (disable pagination for a single file test)
+    # Act: Scrape the GitHub Pages URL (disable pagination for a single file test)
     events = scraper.scrape_event_list_page(test_url, paginate=False)
-    print(events)
 
     # Assert
     assert events is not None, "Events list should not be None"
     assert isinstance(events, list), "Events should be a list"
-    assert len(events) > 0, "No events were found in the HTML asset."
+    assert len(events) > 0, "No events were found."
+    assert len(events) == 20, f"Events were found but not exactly 20, got {len(events)}."
 
-    # Validate the first event matches our schema structure
+    # Validate the first event data
     first_event = events[0]
-    assert "title" in first_event, "Event is missing a title"
-    assert "event_page_url" in first_event, "Event is missing event_page_url"
-    assert first_event["title"], "Event title should not be empty"
+    correct_first_event = {
+        'title': "Antone's Stage at Still Austin: Monica Valli (Single Release)",
+        'start_date': '2026-03-13',
+        'end_date': None,
+        'start_time': '8:00pm',
+        'end_time': None,
+        'image': 'https://antonesnightclub.com/wp-content/uploads/2026/02/BarbaraFG_MonicaValli_Feb2026_2048x1152.jpg',
+        'venue_name': "Antone's Stage at Still Austin",
+        'performer_names': ['Monica Valli'],
+        'indoor_outdoor': 'outdoor',
+        'ages': 'All Ages',
+        'price': 'Free',
+        'event_list_page_url': 'https://www.stillaustin.com/antones-stage',
+        'event_page_url': 'https://antonesnightclub.com/tm-event/antones-stage-at-still-austin-monica-valli-single-release/'
+    }
+
+    # Field-by-field assertions
+    assert first_event["title"] == correct_first_event["title"], "Event title is incorrect"
+    assert first_event["start_date"] == correct_first_event["start_date"], "start_date is incorrect"
+    assert first_event["end_date"] == correct_first_event["end_date"], "end_date is incorrect"
+    assert first_event["start_time"] == correct_first_event["start_time"], "start_time is incorrect"
+    assert first_event["end_time"] == correct_first_event["end_time"], "end_time is incorrect"
+    assert first_event["image"] == correct_first_event["image"], "image is incorrect"
+    assert first_event["venue_name"] == correct_first_event["venue_name"], "venue_name is incorrect"
+    assert first_event["performer_names"] == correct_first_event["performer_names"], "performer_names is incorrect"
+    assert first_event["indoor_outdoor"] == correct_first_event["indoor_outdoor"], "indoor_outdoor is incorrect"
+    assert first_event["ages"] == correct_first_event["ages"], "ages is incorrect"
+    assert first_event["price"] == correct_first_event["price"], "price is incorrect"
+    assert first_event["event_list_page_url"] == correct_first_event["event_list_page_url"], "event_list_page_url is incorrect"
+    assert first_event["event_page_url"] == correct_first_event["event_page_url"], "event_page_url is incorrect"
+
+@pytest.mark.integration
+def test_scrape_event_list_page_pagination():
+    load_dotenv(override=True)
+    scraper = FirecrawlScraper()
+    test_url = "https://austinmusiclove.github.io/agro/antonesnightclub_page1.html"
+    # Act: Scrape with pagination enabled
+    events = scraper.scrape_event_list_page(test_url, paginate=True)
+    # Assert
+    assert events is not None, "Events list should not be None"
+    assert isinstance(events, list), "Events should be a list"
+    assert len(events) > 0, "No events were found."
+    assert len(events) == 68, f"Expected 68 events across all pages, got {len(events)}"
