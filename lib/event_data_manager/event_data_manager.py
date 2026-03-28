@@ -20,12 +20,7 @@ class EventDataManager:
 
             if scraped_events:
                 print(f"Scraped {len(scraped_events)} events.")
-                # TODO: Retrieve all events from db for this venue
-                # current_events = self.mysql_interface.get_events_by_venue(venue.get("id"))
-
-                # TODO: merge_events(scraped_events, current_events)
-                # this function will delete events that are no longer appearing in scrape,
-                # update events that are in scrape and db, and add events that are in scrape but not db
+                self._merge_events(venue_id, scraped_events)
             else:
                 print(f"No events scraped for {venue.get('name', venue.get('id'))}")
                 continue
@@ -49,3 +44,9 @@ class EventDataManager:
             return [venue] if venue is not None else None
         else:
             return self.mysql_interface.get_all_venues()
+
+    def _merge_events(self, venue_id, scraped_events):
+        """ Updates events in database given a fresh set of scraped events for one venue """
+        # current_events = self.mysql_interface.get_events_by_venue(venue.get("id"))
+        # add any events that are not in current events
+        # create proposed updates for any existing events in a separate table for review

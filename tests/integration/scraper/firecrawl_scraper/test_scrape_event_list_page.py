@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from lib.scraper.firecrawl_scraper import FirecrawlScraper
 
 @pytest.mark.integration
-def test_scrape_event_list_page_from_local_html():
+def test_scrape_event_list_page():
     load_dotenv(override=True)
 
     scraper = FirecrawlScraper()

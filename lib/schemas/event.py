@@ -14,3 +14,7 @@ class Event(BaseModel):
     ages: Optional[Literal["21+", "18+", "All Ages"]] = Field(default=None, description="Age requirement for the event if any")
     price: Optional[str] = Field(default=None, description="Price or price range for the event.")
     event_page_url: str = Field(description="The absolute URL to the details page for this event.")
+
+    def clean(self) -> "Event":
+        self.title = self.title.replace("'", "'")
+        return self

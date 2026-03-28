@@ -7,6 +7,13 @@ Event Schema
         event page url, hash, screenshot, highlighted screenshot, html
         event list page url, hash, screenshot, highlighted screenshot, html
         status: pending-review, pending-update, published
+Event Data Manager
+    collect screenshots
+    Merge events
+        create events db table
+        create event modification db
+    Get data from event page
+        Check hash against db to skip scrape of event page url if it has not changed
 Manual review app
     somehow review the total events found on a page
     flag new events and updated events with pending and pending_update status so that
