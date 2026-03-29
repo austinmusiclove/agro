@@ -1,5 +1,3 @@
-Remove all llm interface and llm interface tests
-    Create gemini data extractor
 Fetcher
     Add HttpInterface so that we can pass a mock into the fetcher to test but use the same interface as the package used now
     Get page (takes url, returns html or markdown and screenshot option)
