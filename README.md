@@ -18,14 +18,17 @@
     Create .env in the root of this repo with this template
 
     ```bash
-    export AGRO_MYSQL_DATABASE=
-    export AGRO_MYSQL_HOST=
-    export AGRO_MYSQL_PORT=
-    export AGRO_MYSQL_USER=
-    export AGRO_MYSQL_PASSWORD=
-    export AGRO_LLM_PROVIDER=
-    export AGRO_SCRAPER="firecrawl"
-    export GEMINI_API_KEY=
+    AGRO_ENV=
+    AGRO_MYSQL_DATABASE=
+    AGRO_MYSQL_HOST=
+    AGRO_MYSQL_PORT=
+    AGRO_MYSQL_USER=
+    AGRO_MYSQL_PASSWORD=
+    FIRECRAWL_API_KEY=""
+    FIRECRAWL_LOCAL_API_URL=""
+    FIRECRAWL_API_URL=""
+    GEMINI_API_KEY=""
+    OPENAI_API_KEY=""
     ```
 
 ## Usage

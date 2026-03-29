@@ -23,8 +23,10 @@ def main():
 
     args = parser.parse_args()
 
+    config_loader = YamlConfigLoader()
+    scraper_factory = ScraperFactory(config_loader)
+    scraper = scraper_factory.create()
     mysql_interface = MySQLInterface()
-    scraper = ScraperFactory.get_scraper()
     event_data_manager = EventDataManager(scraper, mysql_interface)
 
     if args.command == "scrape-event-list":

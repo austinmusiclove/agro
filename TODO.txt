@@ -10,10 +10,6 @@ Fetcher
     venue config to do certain amount of waiting or other actions on pages
         Try to load more results by scrolling or finding load more button
     Accept 301 redirects
-DataExtractor
-    Add DataExtractorFactory that will use config.yaml to select the default extractor or take a extractor name arg to output that kind
-    in agro.py get the factory and pass it into the event data manager; event data manager will get the appropriate extractor for the job
-    Classification algo extractor to replace LLM extractors
 Scraper
     Create Scraper that takes FetcherFactory and DataExtractorFactory
     pass scraper factory into event data manager and event data manager will get the appropriate scraper for the job
@@ -47,20 +43,21 @@ MySQL
 Tests
     figure out structure based on how i can run unit only or integration only or tests that cost money as well; maybe decorators can be used to mark tests
     Classes to test
-        EventDataManager
-        OpenAiDataExtractor
-        GeminiDataExtractor
-        Fetcher
-        FirecrawlFetcher
-        Scraper
-        FirecrawlScraper
-        MySqlInterface
         Event
         EventList
+        Fetcher
+        FirecrawlFetcher
+        OpenAiDataExtractor
+        Scraper
+        MySqlInterface
+        FirecrawlScraper
+        EventDataManager
     Test getting data from event url
     Consistency testing with multiple runs on same test run to check consistency level as a percentage
 Deploy
     use/install python3.11 on ec2
+DataExtractor
+    Classification algo extractor to replace LLM extractors
 Manual review app
     create rest api to serve up suggested transactions and accept transaction approvals to update the RDS
     expose rest api service publicly from ec2

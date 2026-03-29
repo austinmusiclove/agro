@@ -1,0 +1,4 @@
+scraper:
+  default: firecrawl
+data_extractor:
+  default: gemini
