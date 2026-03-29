@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+from lib.config.yaml_config_loader import YamlConfigLoader
 from lib.scraper.factory import ScraperFactory
 from lib.mysql_interface.mysql_interface import MySQLInterface
 from lib.event_data_manager.event_data_manager import EventDataManager

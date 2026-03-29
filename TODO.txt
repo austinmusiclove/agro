@@ -1,35 +1,84 @@
-Tests
-    Test getting data from event url
-    Consistency testing with multiple runs on same test run to check consistency level as a percentage
-Event Schema
+Config
+    make sure when it loads env vars from .env it overrides any existing env vars
+Remove all llm interface and llm interface tests
+    Create gemini data extractor
+Fetcher
+    Add HttpInterface so that we can pass a mock into the fetcher to test but use the same interface as the package used now
+    Get page (takes url, returns html or markdown and screenshot option)
+    Create PlaywrightFetcher or other name to get screenshot
+        store screenshots in S3
+    Create FirecrawlFetcher
+    implement proxy server use
+    get permission from venues to crawl and do some crawling through a proxy firecrawl and some through a stable permissioned ip
+    Extract all schema and return it as well
+    venue config to do certain amount of waiting or other actions on pages
+        Try to load more results by scrolling or finding load more button
+    Accept 301 redirects
+DataExtractor
+    Add DataExtractorFactory that will use config.yaml to select the default extractor or take a extractor name arg to output that kind
+    in agro.py get the factory and pass it into the event data manager; event data manager will get the appropriate extractor for the job
+    Classification algo extractor to replace LLM extractors
+Scraper
+    Create Scraper that takes FetcherFactory and DataExtractorFactory
+    pass scraper factory into event data manager and event data manager will get the appropriate scraper for the job
+    pass data extractor factory to scraper and scraper decides which extractor to use for the job based on scraper config
+Event Data Manager
+    Merge events function
+    Skip data extraction if hash from previous scrape matches
+    Submit updates to a separate table to be reviewed before they are committed to events table
+    Make sure to use schema if fetcher returns any and skip extraction if there is sufficient data or include extraction as well and have both in suggested_transaction entry
+MySQL
+    Create local mysql to connect to for local env testing
     create new events table with new schema
         last crawl
         event page url, hash, screenshot, highlighted screenshot, html
         event list page url, hash, screenshot, highlighted screenshot, html
         status: pending-review, pending-update, published
-Event Data Manager
-    collect screenshots
-    Merge events
-        create events db table
-        create event modification db
-    Get data from event page
-        Check hash against db to skip scrape of event page url if it has not changed
-Manual review app
-    somehow review the total events found on a page
-    flag new events and updated events with pending and pending_update status so that
-    create an interface for easily reviewing the data side by side with a screenshot of where the data came from so that it is easy to review the AI's work with human eyes
-Firecrawl
-    install firecrawl in separate instance with no proxy
-    add proxy to firecrawl
-    get permission from venues to crawl and do some crawling through a proxy firecrawl and some through a stable permissioned ip
-Structure
-    change LLM interface to DataExtractorInterface
-    LLM with factory class that is like scraper
-    Basic Scraper interface that uses fetcher and data extractor; event data manager uses scraper
-        DataExtractor
-            make sure it uses any event schema that exists
-            compare has of most recent crawl to the hash passed into extractor and do not extract if it is a match
+        performances; one for each performer with start and end time and link to artists db
+    transaction_suggestion table
+        table (events)
+        current data row id (if update or delete)
+        suggested data (maybe this is a row in the actual data table that has a new id and a disabled status)
+        transaction type (create, update, delete)
+        data index (order this data appeared on the page if this is not the only data found on the page)
+        screenshot(s)
+        schema
+    logs table
+        timestamp
+        application
+        log type
+        message
+Tests
+    figure out structure based on how i can run unit only or integration only or tests that cost money as well; maybe decorators can be used to mark tests
+    Classes to test
+        EventDataManager
+        OpenAiDataExtractor
+        GeminiDataExtractor
         Fetcher
-            Try to load more results by scrolling or finding load more button
-            Accept 301 redirects
-Classification algo to replace LLM
+        FirecrawlFetcher
+        Scraper
+        FirecrawlScraper
+        MySqlInterface
+        Event
+        EventList
+    Test getting data from event url
+    Consistency testing with multiple runs on same test run to check consistency level as a percentage
+Manual review app
+    create rest api to serve up suggested transactions and accept transaction approvals to update the RDS
+    expose rest api service publicly from ec2
+    create web app for reviewing and approving or rejecting or modifying each suggestion (that way i can get a VA to do it at some point)
+        show screenshots, event schema, and other raw data on the left and the suggestion on the right along with any current state of the data
+        you can edit the suggested data
+        button for approve, reject; approve changes to approve with changes when changes made, and revert changes which is disabled until change is made
+        button for reject and re-scrape
+        differences between current and suggested data are highlighted
+        log the approvals, rejections, and approvals with changes so that i can see which venues have issues and manually fix or improve accuracy with venue configs
+Logging
+    create Logger class and it should be able to print and add logs to the db
+    configure logger with the application and other constants
+    keep track of 404s, ip blocked, 301s, any other failures
+    create application that allows me to easily see alerts for issues that come up daily
+    purge logs after certain time (maybe 3 months)
+Instagram
+    Get posts for the venue and detect if they have event data or not using classification algo
+    posts with event data get analyzed for data extraction and transaction_suggestions are created

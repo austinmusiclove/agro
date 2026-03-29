@@ -1,0 +1,9 @@
+openai:
+  model: gpt-4o-mini
+  api_key_env: OPENAI_API_KEY
+  rate_limit_delay: 0.5
+  retry:
+    max_attempts: 3
+    initial_delay: 1
+    max_delay: 30
+    exponential_base: 2

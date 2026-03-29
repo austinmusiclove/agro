@@ -10,7 +10,7 @@ class FirecrawlScraper(ScraperInterface):
         # We allow connecting to a local instance by grabbing the API URL from the environment
         # as well as the API key, providing defaults if they are missing.
         api_key = os.getenv("FIRECRAWL_API_KEY", "local-dev-key")
-        api_url = os.getenv("FIRECRAWL_API_URL", "http://localhost:3002")
+        api_url = os.getenv("FIRECRAWL_LOCAL_API_URL", "http://localhost:3002")
         self.firecrawl = FirecrawlApp(api_key=api_key, api_url=api_url)
 
     def scrape_event_list_page(self, url: str, paginate: bool = True, max_pages = 10) -> list[dict]:
@@ -33,7 +33,7 @@ class FirecrawlScraper(ScraperInterface):
                         "prompt": "Extract the list of events from this page, as well as the link to the next page of events if one exists. Make sure to get every event. Do not skip events.",
                         "schema": EventListSchema.model_json_schema()
                         },
-                        #{ "type": "screenshot", "fullPage": True, "quality": 80 },
+                        { "type": "screenshot", "fullPage": True, "quality": 80 },
                     ],
                 )
 
@@ -53,7 +53,7 @@ class FirecrawlScraper(ScraperInterface):
                     for event_dict in events_on_page:
                         event = Event(**event_dict)
                         event.clean()
-                        all_events.append(event)
+                        all_events.append(event.model_dump())
 
                     if paginate:
                         next_url = json_data.get("next_page_url")

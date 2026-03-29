@@ -7,7 +7,7 @@ class Fetcher:
     def __init__(self, llm_interface):
         self.llm_interface = llm_interface
 
-    def fetch(self, url, return_markdown=False):
+    def fetch(self, url, return_markdown=False, return_screenshot=False):
         try:
             with urllib.request.urlopen(url) as response:
                 if response.status == 200:

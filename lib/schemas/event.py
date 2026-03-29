@@ -16,5 +16,6 @@ class Event(BaseModel):
     event_page_url: str = Field(description="The absolute URL to the details page for this event.")
 
     def clean(self) -> "Event":
-        self.title = self.title.replace("'", "'")
+        self.title = self.title.replace("’", "'")
+        self.venue_name = self.venue_name.replace("’", "'")
         return self
