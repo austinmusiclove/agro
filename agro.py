@@ -2,7 +2,7 @@ import argparse
 import os
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(override=True)
 
 from lib.config.yaml_config_loader import YamlConfigLoader
 from lib.scraper.factory import ScraperFactory

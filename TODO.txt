@@ -1,5 +1,3 @@
-Config
-    make sure when it loads env vars from .env it overrides any existing env vars
 Remove all llm interface and llm interface tests
     Create gemini data extractor
 Fetcher
@@ -63,6 +61,8 @@ Tests
         EventList
     Test getting data from event url
     Consistency testing with multiple runs on same test run to check consistency level as a percentage
+Deploy
+    use/install python3.11 on ec2
 Manual review app
     create rest api to serve up suggested transactions and accept transaction approvals to update the RDS
     expose rest api service publicly from ec2
