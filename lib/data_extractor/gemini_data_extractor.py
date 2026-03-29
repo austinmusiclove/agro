@@ -1,13 +1,15 @@
 import os
 import time
-from openai import OpenAI, APIError, RateLimitError, Timeout
+import json
+from google import genai
+from google.genai import types
 
 from lib.schemas.event import Event
 from lib.schemas.event_list import EventList
 from lib.data_extractor.interface import DataExtractorInterface
 
 
-class OpenAiDataExtractor(DataExtractorInterface):
+class GeminiDataExtractor(DataExtractorInterface):
     def __init__(self, config_loader):
         self._config_loader = config_loader
         self._load_config()
@@ -15,39 +17,46 @@ class OpenAiDataExtractor(DataExtractorInterface):
         self._last_request_time = 0
 
     def _load_config(self) -> None:
-        config = self._config_loader.get_config("openai")
+        config = self._config_loader.get_config("gemini")
 
-        self.model = config.get("openai", {}).get("model", "gpt-4o-mini")
-        api_key_env = config.get("openai", {}).get("api_key_env", "OPENAI_API_KEY")
+        self.model = config.get("gemini", {}).get("model", "gemini-2.5-flash")
+        api_key_env = config.get("gemini", {}).get("api_key_env", "GEMINI_API_KEY")
 
-        self.client = OpenAI(api_key=os.getenv(api_key_env))
+        self.client = genai.Client(api_key=os.getenv(api_key_env))
 
-        retry_config = config.get("openai", {}).get("retry", {})
+        retry_config = config.get("gemini", {}).get("retry", {})
         self.max_attempts = retry_config.get("max_attempts", 3)
         self.initial_delay = retry_config.get("initial_delay", 1)
         self.max_delay = retry_config.get("max_delay", 30)
         self.exponential_base = retry_config.get("exponential_base", 2)
 
-        self.rate_limit_delay = config.get("openai", {}).get("rate_limit_delay", 0.5)
+        self.rate_limit_delay = config.get("gemini", {}).get("rate_limit_delay", 0.5)
 
-    def _call_openai(self, system_prompt: str, user_prompt: str, response_format):
+    def _call_gemini(self, system_prompt: str, user_prompt: str, response_schema):
         self._apply_rate_limit()
 
         retry_decorator = self._get_retry_decorator()
         decorated_func = retry_decorator(self._make_api_call)
-        return decorated_func(system_prompt, user_prompt, response_format)
+        return decorated_func(system_prompt, user_prompt, response_schema)
 
-    def _make_api_call(self, system_prompt: str, user_prompt: str, response_format):
-        response = self.client.chat.completions.create(
+    def _make_api_call(self, system_prompt: str, user_prompt: str, response_schema):
+        config = types.GenerateContentConfig(
+            response_mime_type="application/json",
+            response_schema=response_schema,
+        )
+
+        response = self.client.models.generate_content(
             model=self.model,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt}
-            ],
-            response_format=response_format,
-            temperature=0
+            contents=f"{system_prompt}\n\n{user_prompt}",
+            config=config,
         )
         return response
+
+    def _parse_response(self, response_text: str, schema_class):
+        data = json.loads(response_text)
+        instance = schema_class(**data)
+        instance.clean()
+        return instance
 
     def extract_event_list(self, markdown: str) -> dict:
         system_prompt = """You are an expert at extracting structured event data from markdown content.
@@ -58,15 +67,13 @@ Extract the events into the specified JSON schema format."""
 Markdown content:
 {markdown}"""
 
-        response = self._call_openai(
+        response = self._call_gemini(
             system_prompt=system_prompt,
             user_prompt=user_prompt,
-            response_format=EventList
+            response_schema=EventList
         )
 
-        event_list = response.choices[0].message.parsed
-        event_list.clean()
-
+        event_list = self._parse_response(response.text, EventList)
         return event_list.model_dump()
 
     def extract_event(self, markdown: str) -> dict:
@@ -79,13 +86,11 @@ Return the data in the Event schema format.
 Markdown content:
 {markdown}"""
 
-        response = self._call_openai(
+        response = self._call_gemini(
             system_prompt=system_prompt,
             user_prompt=user_prompt,
-            response_format=Event
+            response_schema=Event
         )
 
-        event = response.choices[0].message.parsed
-        event.clean()
-
+        event = self._parse_response(response.text, Event)
         return event.model_dump()

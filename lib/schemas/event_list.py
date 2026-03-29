@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field
 from typing import List, Optional
 from lib.schemas.event import Event
 
-class EventListSchema(BaseModel):
+class EventList(BaseModel):
     events: List[Event]
     next_page_url: Optional[str] = Field(
         default=None,

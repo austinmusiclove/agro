@@ -2,7 +2,7 @@ import os
 from firecrawl import FirecrawlApp
 from firecrawl.v2.types import ScrapeOptions
 from .interface import ScraperInterface
-from lib.schemas.event_list import EventListSchema
+from lib.schemas.event_list import EventList
 from lib.schemas.event import Event
 
 class FirecrawlScraper(ScraperInterface):
@@ -31,7 +31,7 @@ class FirecrawlScraper(ScraperInterface):
                         {
                         "type": "json",
                         "prompt": "Extract the list of events from this page, as well as the link to the next page of events if one exists. Make sure to get every event. Do not skip events.",
-                        "schema": EventListSchema.model_json_schema()
+                        "schema": EventList.model_json_schema()
                         },
                         { "type": "screenshot", "fullPage": True, "quality": 80 },
                     ],

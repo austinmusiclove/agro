@@ -1,0 +1,9 @@
+gemini:
+  model: gemini-2.5-flash
+  api_key_env: GEMINI_API_KEY
+  rate_limit_delay: 0.5
+  retry:
+    max_attempts: 3
+    initial_delay: 1
+    max_delay: 30
+    exponential_base: 2
