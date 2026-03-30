@@ -1,4 +1,6 @@
 scraper:
   default: firecrawl
+fetcher:
+  default: simple
 data_extractor:
   default: gemini

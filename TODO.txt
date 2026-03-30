@@ -1,8 +1,11 @@
 Fetcher
+    Create PlaywrightFetcher or other name to get screenshot
+        test for screenshot fetch
+        image storage class
+        store scrrenshots in local storage
+        store screenshots in S3
     Add HttpInterface so that we can pass a mock into the fetcher to test but use the same interface as the package used now
     Get page (takes url, returns html or markdown and screenshot option)
-    Create PlaywrightFetcher or other name to get screenshot
-        store screenshots in S3
     Create FirecrawlFetcher
     implement proxy server use
     get permission from venues to crawl and do some crawling through a proxy firecrawl and some through a stable permissioned ip

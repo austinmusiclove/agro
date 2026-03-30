@@ -1,12 +1,11 @@
 import pytest
 from urllib.error import HTTPError
-from lib.fetcher.fetcher import Fetcher
-from tests.mocks.mock_llm_interface import MockLlmInterface
+from lib.fetcher.simple_fetcher import SimpleFetcher
 
 
 @pytest.fixture
 def fetcher():
-    return Fetcher(MockLlmInterface())
+    return SimpleFetcher()
 
 
 def test_fetch_returns_string(fetcher):

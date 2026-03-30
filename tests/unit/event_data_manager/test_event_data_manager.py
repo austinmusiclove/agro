@@ -1,8 +1,7 @@
 import pytest
 from lib.event_data_manager.event_data_manager import EventDataManager
 from tests.mocks.mock_mysql_interface import MockMySQLInterface
-from tests.mocks.mock_fetcher import MockFetcher
-from tests.mocks.mock_llm_interface import MockLlmInterface
+from lib.fetcher.simple_fetcher import SimpleFetcher
 
 
 class TestEventDataManager:
@@ -10,9 +9,8 @@ class TestEventDataManager:
         mock_db = MockMySQLInterface()
         mock_db.venues = [{"id": 1, "name": "Venue 1"}]
 
-        llm = MockLlmInterface()
-        fetcher = MockFetcher(llm)
-        manager = EventDataManager(fetcher, mock_db, llm)
+        fetcher = SimpleFetcher()
+        manager = EventDataManager(fetcher, mock_db)
 
         result = manager._get_venues(venue_id=1)
 
@@ -22,9 +20,8 @@ class TestEventDataManager:
         mock_db = MockMySQLInterface()
         mock_db.venues = [{"id": 1}, {"id": 2}]
 
-        llm = MockLlmInterface()
-        fetcher = MockFetcher(llm)
-        manager = EventDataManager(fetcher, mock_db, llm)
+        fetcher = SimpleFetcher()
+        manager = EventDataManager(fetcher, mock_db)
 
         result = manager._get_venues()
 
@@ -34,9 +31,8 @@ class TestEventDataManager:
         mock_db = MockMySQLInterface()
         mock_db.venues = []
 
-        llm = MockLlmInterface()
-        fetcher = MockFetcher(llm)
-        manager = EventDataManager(fetcher, mock_db, llm)
+        fetcher = SimpleFetcher()
+        manager = EventDataManager(fetcher, mock_db)
 
         result = manager._get_venues(venue_id=999)
 
