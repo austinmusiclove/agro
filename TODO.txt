@@ -44,7 +44,6 @@ MySQL
         log type
         message
 Tests
-    figure out structure based on how i can run unit only or integration only or tests that cost money as well; maybe decorators can be used to mark tests
     Classes to test
         Event
         EventList
