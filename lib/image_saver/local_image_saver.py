@@ -1,0 +1,54 @@
+import os
+import uuid
+from pathlib import Path
+
+from .interface import ImageSaverInterface, ImageSaverError
+
+
+class LocalImageSaver(ImageSaverInterface):
+    def __init__(self, config_loader):
+        self._config_loader = config_loader
+        self._load_config()
+
+    def _load_config(self) -> None:
+        config = self._config_loader.get_config("agro")
+        image_saver_config = config.get("image_saver", {})
+        self._images_dir = image_saver_config.get("images_dir", "./images")
+        self._ensure_directory_exists()
+
+    def _ensure_directory_exists(self) -> None:
+        Path(self._images_dir).mkdir(parents=True, exist_ok=True)
+
+    def save(self, image_bytes: bytes, name_hint: str = None) -> str:
+        self._ensure_directory_exists()
+
+        unique_id = uuid.uuid4().hex
+        if name_hint:
+            safe_hint = "".join(c if c.isalnum() or c in "-_" else "-" for c in name_hint)
+            filename = f"{safe_hint}_{unique_id}"
+        else:
+            filename = unique_id
+
+        extension = self._detect_extension(image_bytes)
+        full_filename = f"{filename}.{extension}" if extension else filename
+        filepath = os.path.join(self._images_dir, full_filename)
+
+        try:
+            with open(filepath, "wb") as f:
+                f.write(image_bytes)
+        except IOError as e:
+            raise ImageSaverError(f"Failed to write image to {filepath}: {e}") from e
+
+        return os.path.abspath(filepath)
+
+    def _detect_extension(self, image_bytes: bytes) -> str:
+        if len(image_bytes) >= 8:
+            if image_bytes[:8] == b"\x89PNG\r\n\x1a\n":
+                return "png"
+            if image_bytes[:2] == b"\xff\xd8":
+                return "jpg"
+            if image_bytes[:6] in (b"GIF87a", b"GIF89a"):
+                return "gif"
+            if image_bytes[:4] == b"RIFF" and image_bytes[8:12] == b"WEBP":
+                return "webp"
+        return "bin"

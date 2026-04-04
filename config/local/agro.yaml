@@ -1,6 +1,9 @@
 scraper:
   default: firecrawl
 fetcher:
-  default: simple
+  default: drission_page
 data_extractor:
   default: gemini
+image_saver:
+  default: local
+  images_dir: "./images"
