@@ -1,6 +1,7 @@
 import atexit
 from DrissionPage import ChromiumPage, ChromiumOptions
-from .interface import FetcherInterface
+from DrissionPage.errors import PageDisconnectedError
+from .interface import FetcherInterface, FetchError
 
 
 _browser_instance = None
@@ -29,18 +30,32 @@ class DrissionPageFetcher(FetcherInterface):
         pass
 
     def fetch(self, url, return_markdown=False, return_screenshot=False):
-        browser = _get_shared_browser()
-        browser.get(url)
-        browser.wait.doc_loaded()
-        html = browser.html
+        try:
+            browser = _get_shared_browser()
+            browser.listen.start(targets=True)
+            browser.get(url)
+            browser.wait.doc_loaded()
+            response = browser.listen.wait()
+            status_code = response.response.status if response else None
 
-        if return_screenshot:
-            screenshot_bytes = browser.get_screenshot(as_bytes=True)
-            return {
-                "html": self._convert_html_to_markdown(html) if return_markdown else html,
-                "screenshot": screenshot_bytes
-            }
+            if status_code and status_code != 200:
+                raise FetchError(url, status_code)
 
-        if return_markdown:
-            return self._convert_html_to_markdown(html)
-        return html
+            html = browser.html
+
+            if return_screenshot:
+                screenshot_bytes = browser.get_screenshot(as_bytes=True)
+                return {
+                    "html": self._convert_html_to_markdown(html) if return_markdown else html,
+                    "screenshot": screenshot_bytes
+                }
+
+            if return_markdown:
+                return self._convert_html_to_markdown(html)
+            return html
+        except PageDisconnectedError as e:
+            raise FetchError(url, reason="Connection lost") from e
+        except FetchError:
+            raise
+        except Exception as e:
+            raise FetchError(url, reason=str(e)) from e

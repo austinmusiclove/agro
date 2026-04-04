@@ -1,6 +1,6 @@
 import urllib.request
 from urllib.error import URLError, HTTPError
-from .interface import FetcherInterface
+from .interface import FetcherInterface, FetchError
 
 
 class SimpleFetcher(FetcherInterface):
@@ -18,8 +18,8 @@ class SimpleFetcher(FetcherInterface):
                         return self._convert_html_to_markdown(html)
                     return html
                 else:
-                    raise HTTPError(url, response.status, "Non-200 response", {}, None)
-        except HTTPError:
-            raise
+                    raise FetchError(url, response.status, "Non-200 response")
+        except HTTPError as e:
+            raise FetchError(url, e.code, e.reason)
         except URLError as e:
-            raise URLError(f"Failed to fetch {url}: {e.reason}") from e
+            raise FetchError(url, reason=str(e.reason)) from e
