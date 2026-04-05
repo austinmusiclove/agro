@@ -4,8 +4,8 @@ from .interface import FetcherInterface, FetchError
 
 
 class SimpleFetcher(FetcherInterface):
-    def __init__(self):
-        pass
+    def __init__(self, config_loader=None):
+        super().__init__(config_loader)
 
     def fetch(self, url, return_markdown=False, return_screenshot=False):
         if return_screenshot:

@@ -1,4 +1,5 @@
 import argparse
+import json
 import os
 from dotenv import load_dotenv
 
@@ -12,6 +13,7 @@ from lib.event_data_manager.event_data_manager import EventDataManager
 
 def main():
     parser = argparse.ArgumentParser(description="Agro CLI")
+
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     get_parser = subparsers.add_parser("scrape-event-list", help="Fetch event data from venue event list pages")
@@ -23,7 +25,7 @@ def main():
 
     args = parser.parse_args()
 
-    config_loader = YamlConfigLoader()
+    config_loader = YamlConfigLoader(config_overrides={})
     scraper_factory = ScraperFactory(config_loader)
     scraper = scraper_factory.create()
     mysql_interface = MySQLInterface()

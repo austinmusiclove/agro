@@ -7,8 +7,6 @@ from PIL import Image
 from .interface import FetcherInterface, FetchError
 
 
-MAX_SCREENSHOT_HEIGHT = 16000
-
 _browser_instance = None
 
 
@@ -31,8 +29,11 @@ atexit.register(_close_shared_browser)
 
 
 class DrissionPageFetcher(FetcherInterface):
-    def __init__(self):
-        pass
+    DEFAULT_MAX_SCREENSHOT_HEIGHT = 16000
+
+    def __init__(self, config_loader=None):
+        super().__init__(config_loader)
+        self.max_screenshot_height = self._config.get("drission_page", {}).get("max_screenshot_height", self.DEFAULT_MAX_SCREENSHOT_HEIGHT)
 
     def fetch(self, url, return_markdown=False, return_screenshot=False):
         try:
@@ -69,7 +70,7 @@ class DrissionPageFetcher(FetcherInterface):
                 ''')
                 viewport_height = browser.rect.viewport_size[1]
 
-                if page_height <= MAX_SCREENSHOT_HEIGHT:
+                if page_height <= self.max_screenshot_height:
                     screenshot_bytes = browser.get_screenshot(as_bytes=True, full_page=True)
                 else:
                     self._hide_sticky_elements(browser)
@@ -128,7 +129,7 @@ class DrissionPageFetcher(FetcherInterface):
                 window._originalStickyPositions = [];
                 const fixedElements = document.querySelectorAll('[style*="position: fixed"], [style*="position: sticky"], [class*="sticky"], [class*="fixed"], [id*="sticky"], [id*="fixed"]');
                 const allElements = document.getElementsByTagName('*');
-                
+
                 for (let el of allElements) {
                     const style = window.getComputedStyle(el);
                     if (style.position === 'fixed' || style.position === 'sticky') {

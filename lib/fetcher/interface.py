@@ -15,6 +15,15 @@ class FetchError(Exception):
 
 
 class FetcherInterface(ABC):
+    def __init__(self, config_loader=None):
+        self._config_loader = config_loader
+        self._config = self._load_config()
+
+    def _load_config(self) -> dict:
+        if self._config_loader:
+            return self._config_loader.get_config("agro").get("fetcher", {})
+        return {}
+
     @abstractmethod
     def fetch(self, url: str, return_markdown: bool = False, return_screenshot: bool = False):
         pass

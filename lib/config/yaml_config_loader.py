@@ -1,23 +1,14 @@
 import os
 import yaml
+from copy import deepcopy
 
 
 class YamlConfigLoader:
-    _instance = None
-
-    def __new__(cls, base_config_dir: str = "config"):
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-            cls._instance._initialized = False
-        return cls._instance
-
-    def __init__(self, base_config_dir: str = "config"):
-        if self._initialized:
-            return
+    def __init__(self, base_config_dir: str = "config", config_overrides: dict = None):
         env = os.getenv("AGRO_ENV", "local")
         self._config_dir = os.path.join(base_config_dir, env)
         self._cache = {}
-        self._initialized = True
+        self._config_overrides = config_overrides or {}
 
     def get_config(self, config_name: str) -> dict:
         if config_name in self._cache:
@@ -31,5 +22,23 @@ class YamlConfigLoader:
         with open(config_path, "r") as f:
             config = yaml.safe_load(f)
 
+        config = self._merge_overrides(config)
+
         self._cache[config_name] = config
         return config
+
+    def _merge_overrides(self, config: dict) -> dict:
+        if not self._config_overrides:
+            return config
+        
+        merged = deepcopy(config)
+        
+        def merge_dict(base: dict, overrides: dict):
+            for key, value in overrides.items():
+                if key in base and isinstance(base[key], dict) and isinstance(value, dict):
+                    merge_dict(base[key], value)
+                else:
+                    base[key] = value
+        
+        merge_dict(merged, self._config_overrides)
+        return merged

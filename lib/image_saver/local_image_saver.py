@@ -6,18 +6,9 @@ from .interface import ImageSaverInterface, ImageSaverError
 
 
 class LocalImageSaver(ImageSaverInterface):
-    def __init__(self, config_loader, config_overrides: dict = None):
-        self._config_loader = config_loader
-        self._config_overrides = config_overrides or {}
-        self._load_config()
-
-    def _load_config(self) -> None:
-        config = self._config_loader.get_config("agro")
-        image_saver_config = config.get("image_saver", {})
-        self._images_dir = self._config_overrides.get(
-            "images_dir",
-            image_saver_config.get("images_dir", "./images")
-        )
+    def __init__(self, config_loader):
+        super().__init__(config_loader)
+        self._images_dir = self._config.get("local", {}).get("images_dir", "./images")
         self._ensure_directory_exists()
 
     def _ensure_directory_exists(self) -> None:

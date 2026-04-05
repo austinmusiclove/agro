@@ -2,6 +2,8 @@ scraper:
   default: firecrawl
 fetcher:
   default: drission_page
+  drission_page:
+    max_screenshot_height: 16000
 data_extractor:
   default: gemini
 image_saver:

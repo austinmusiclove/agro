@@ -1,6 +1,5 @@
 Fetcher
     Drission Page Fetcher
-        move MAX_SCREENSHOT_HEIGHT to config
         browser.wait.doc_loaded() redundant once
         config sleep times
         need to be able to return markdown or html with screenshot
@@ -13,6 +12,8 @@ Fetcher
     Accept 301 redirects
     Sometimes 404 test does not work for drission page scraper because it gets 200s back somehow
     Create FirecrawlFetcher
+Config Loader
+    Need testing for overrides
 Image Saver
     S3 Image Saver
 DataExtractor
