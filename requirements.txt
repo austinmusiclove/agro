@@ -10,3 +10,4 @@ openai>=1.0.0
 tenacity>=8.0.0
 pyyaml>=6.0
 DrissionPage>=4.1.1
+Pillow>=10.0.0

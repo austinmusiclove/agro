@@ -1,9 +1,13 @@
 import atexit
+import io
 import time
 from DrissionPage import ChromiumPage, ChromiumOptions
 from DrissionPage.errors import PageDisconnectedError
+from PIL import Image
 from .interface import FetcherInterface, FetchError
 
+
+MAX_SCREENSHOT_HEIGHT = 16000
 
 _browser_instance = None
 
@@ -52,7 +56,26 @@ class DrissionPageFetcher(FetcherInterface):
                 browser.wait.doc_loaded()
                 browser.scroll.to_top()
                 time.sleep(1)
-                screenshot_bytes = browser.get_screenshot(as_bytes=True, full_page=True)
+
+                page_height = browser.run_js('''
+                    return Math.max(
+                        document.body.scrollHeight,
+                        document.documentElement.scrollHeight,
+                        document.body.offsetHeight,
+                        document.documentElement.offsetHeight,
+                        document.body.clientHeight,
+                        document.documentElement.clientHeight
+                    );
+                ''')
+                viewport_height = browser.rect.viewport_size[1]
+
+                if page_height <= MAX_SCREENSHOT_HEIGHT:
+                    screenshot_bytes = browser.get_screenshot(as_bytes=True, full_page=True)
+                else:
+                    self._hide_sticky_elements(browser)
+                    screenshot_bytes = self._capture_screenshot_chunked(browser, viewport_height, page_height)
+                    self._restore_sticky_elements(browser)
+
                 return {
                     "html": self._convert_html_to_markdown(html) if return_markdown else html,
                     "screenshot": screenshot_bytes
@@ -67,3 +90,63 @@ class DrissionPageFetcher(FetcherInterface):
             raise
         except Exception as e:
             raise FetchError(url, reason=str(e)) from e
+
+    def _capture_screenshot_chunked(self, browser, viewport_height, page_height):
+        viewport_width = browser.rect.viewport_size[0]
+
+        chunks = []
+        y_offset = 0
+
+        while y_offset < page_height:
+            browser.run_js(f'window.scrollTo(0, {y_offset});')
+            time.sleep(0.3)
+
+            chunk_bytes = browser.get_screenshot(as_bytes=True, full_page=False)
+            chunk_image = Image.open(io.BytesIO(chunk_bytes))
+            chunks.append(chunk_image)
+
+            y_offset += viewport_height
+
+        full_image = Image.new('RGB', (viewport_width, page_height))
+
+        y_position = 0
+        for chunk in chunks:
+            if y_position + chunk.height > page_height:
+                cropped = chunk.crop((0, 0, viewport_width, page_height - y_position))
+                full_image.paste(cropped, (0, y_position))
+            else:
+                full_image.paste(chunk, (0, y_position))
+            y_position += chunk.height
+
+        output = io.BytesIO()
+        full_image.save(output, format='PNG')
+        return output.getvalue()
+
+    def _hide_sticky_elements(self, browser):
+        browser.run_js('''
+            (function() {
+                window._originalStickyPositions = [];
+                const fixedElements = document.querySelectorAll('[style*="position: fixed"], [style*="position: sticky"], [class*="sticky"], [class*="fixed"], [id*="sticky"], [id*="fixed"]');
+                const allElements = document.getElementsByTagName('*');
+                
+                for (let el of allElements) {
+                    const style = window.getComputedStyle(el);
+                    if (style.position === 'fixed' || style.position === 'sticky') {
+                        el.style.position = 'absolute';
+                        window._originalStickyPositions.push({el: el, originalPosition: style.position});
+                    }
+                }
+            })();
+        ''')
+
+    def _restore_sticky_elements(self, browser):
+        browser.run_js('''
+            (function() {
+                if (window._originalStickyPositions) {
+                    for (let item of window._originalStickyPositions) {
+                        item.el.style.removeProperty('position');
+                    }
+                    window._originalStickyPositions = null;
+                }
+            })();
+        ''')

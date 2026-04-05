@@ -15,7 +15,7 @@ def image_bytes():
 
 @pytest.fixture
 def png_bytes():
-    test_file = Path(__file__).parent.parent.parent / "assets" / "images" / "bytes" / "sample_screenshot.png"
+    test_file = Path(__file__).parent.parent.parent / "assets" / "images" / "bytes" / "screenshot_sample.png"
     return test_file.read_bytes()
 
 

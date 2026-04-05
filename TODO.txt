@@ -1,16 +1,23 @@
 Fetcher
-    Add HttpInterface so that we can pass a mock into the fetcher to test but use the same interface as the package used now
+    Drission Page Fetcher
+        move MAX_SCREENSHOT_HEIGHT to config
+        browser.wait.doc_loaded() redundant once
+        config sleep times
+        need to be able to return markdown or html with screenshot
     Get page (takes url, returns html or markdown and screenshot option)
-    Create FirecrawlFetcher
     implement proxy server use
     get permission from venues to crawl and do some crawling through a proxy firecrawl and some through a stable permissioned ip
-    Extract all schema and return it as well
     venue config to do certain amount of waiting or other actions on pages
         Try to load more results by scrolling or finding load more button
+    Add HttpInterface so that we can pass a mock into the fetcher to test but use the same interface as the package used now
     Accept 301 redirects
     Sometimes 404 test does not work for drission page scraper because it gets 200s back somehow
+    Create FirecrawlFetcher
 Image Saver
     S3 Image Saver
+DataExtractor
+    Extract all schema and return it as well
+    Classification algo extractor to replace LLM extractors
 Scraper
     Create Scraper that takes FetcherFactory and DataExtractorFactory
     pass scraper factory into event data manager and event data manager will get the appropriate scraper for the job
@@ -56,8 +63,6 @@ Tests
     Consistency testing with multiple runs on same test run to check consistency level as a percentage
 Deploy
     use/install python3.11 on ec2
-DataExtractor
-    Classification algo extractor to replace LLM extractors
 Manual review app
     create rest api to serve up suggested transactions and accept transaction approvals to update the RDS
     expose rest api service publicly from ec2
