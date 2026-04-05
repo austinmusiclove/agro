@@ -1,8 +1,4 @@
 Fetcher
-    Drission Page Fetcher
-        browser.wait.doc_loaded() redundant once
-        config sleep times
-        need to be able to return markdown or html with screenshot
     Get page (takes url, returns html or markdown and screenshot option)
     implement proxy server use
     get permission from venues to crawl and do some crawling through a proxy firecrawl and some through a stable permissioned ip

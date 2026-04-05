@@ -48,49 +48,50 @@ class DrissionPageFetcher(FetcherInterface):
                 raise FetchError(url, status_code)
 
             html = browser.html
+            markdown = self._convert_html_to_markdown(html) if return_markdown else None
+            screenshot = self._capture_screenshot(browser) if return_screenshot else None
 
-            if return_screenshot:
-                browser.wait.doc_loaded()
-                time.sleep(2)
-                browser.scroll.to_bottom()
-                time.sleep(2)
-                browser.wait.doc_loaded()
-                browser.scroll.to_top()
-                time.sleep(1)
+            return {
+                "html": html,
+                "markdown": markdown,
+                "screenshot": screenshot
+            }
 
-                page_height = browser.run_js('''
-                    return Math.max(
-                        document.body.scrollHeight,
-                        document.documentElement.scrollHeight,
-                        document.body.offsetHeight,
-                        document.documentElement.offsetHeight,
-                        document.body.clientHeight,
-                        document.documentElement.clientHeight
-                    );
-                ''')
-                viewport_height = browser.rect.viewport_size[1]
-
-                if page_height <= self.max_screenshot_height:
-                    screenshot_bytes = browser.get_screenshot(as_bytes=True, full_page=True)
-                else:
-                    self._hide_sticky_elements(browser)
-                    screenshot_bytes = self._capture_screenshot_chunked(browser, viewport_height, page_height)
-                    self._restore_sticky_elements(browser)
-
-                return {
-                    "html": self._convert_html_to_markdown(html) if return_markdown else html,
-                    "screenshot": screenshot_bytes
-                }
-
-            if return_markdown:
-                return self._convert_html_to_markdown(html)
-            return html
         except PageDisconnectedError as e:
             raise FetchError(url, reason="Connection lost") from e
         except FetchError:
             raise
         except Exception as e:
             raise FetchError(url, reason=str(e)) from e
+
+    def _capture_screenshot(self, browser):
+        time.sleep(2)
+        browser.scroll.to_bottom()
+        time.sleep(2)
+        browser.wait.doc_loaded()
+        browser.scroll.to_top()
+        time.sleep(1)
+
+        page_height = browser.run_js('''
+            return Math.max(
+                document.body.scrollHeight,
+                document.documentElement.scrollHeight,
+                document.body.offsetHeight,
+                document.documentElement.offsetHeight,
+                document.body.clientHeight,
+                document.documentElement.clientHeight
+            );
+        ''')
+        viewport_height = browser.rect.viewport_size[1]
+
+        if page_height <= self.max_screenshot_height:
+            screenshot_bytes = browser.get_screenshot(as_bytes=True, full_page=True)
+        else:
+            self._hide_sticky_elements(browser)
+            screenshot_bytes = self._capture_screenshot_chunked(browser, viewport_height, page_height)
+            self._restore_sticky_elements(browser)
+
+        return screenshot_bytes
 
     def _capture_screenshot_chunked(self, browser, viewport_height, page_height):
         viewport_width = browser.rect.viewport_size[0]

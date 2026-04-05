@@ -8,7 +8,7 @@ class FetcherFactory:
 
     def __init__(self, config_loader):
         self._config_loader = config_loader
-        self._default_implementation = config_loader.get_config("agro").get("fetcher", {}).get("default", DEFAULT_IMPLEMENTATION)
+        self._default_implementation = config_loader.get_config("agro").get("fetcher", {}).get("default", self.DEFAULT_IMPLEMENTATION)
 
     def create(self, implementation: str = None) -> FetcherInterface:
         if implementation is None:
