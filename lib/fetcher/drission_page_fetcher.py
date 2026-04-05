@@ -1,4 +1,5 @@
 import atexit
+import time
 from DrissionPage import ChromiumPage, ChromiumOptions
 from DrissionPage.errors import PageDisconnectedError
 from .interface import FetcherInterface, FetchError
@@ -44,7 +45,14 @@ class DrissionPageFetcher(FetcherInterface):
             html = browser.html
 
             if return_screenshot:
-                screenshot_bytes = browser.get_screenshot(as_bytes=True)
+                browser.wait.doc_loaded()
+                time.sleep(2)
+                browser.scroll.to_bottom()
+                time.sleep(2)
+                browser.wait.doc_loaded()
+                browser.scroll.to_top()
+                time.sleep(1)
+                screenshot_bytes = browser.get_screenshot(as_bytes=True, full_page=True)
                 return {
                     "html": self._convert_html_to_markdown(html) if return_markdown else html,
                     "screenshot": screenshot_bytes

@@ -1,9 +1,4 @@
 Fetcher
-    Create PlaywrightFetcher or other name to get screenshot
-        image storage class
-            store scrrenshots in local storage
-            store screenshots in S3
-        test for screenshot fetch
     Add HttpInterface so that we can pass a mock into the fetcher to test but use the same interface as the package used now
     Get page (takes url, returns html or markdown and screenshot option)
     Create FirecrawlFetcher
@@ -14,6 +9,8 @@ Fetcher
         Try to load more results by scrolling or finding load more button
     Accept 301 redirects
     Sometimes 404 test does not work for drission page scraper because it gets 200s back somehow
+Image Saver
+    S3 Image Saver
 Scraper
     Create Scraper that takes FetcherFactory and DataExtractorFactory
     pass scraper factory into event data manager and event data manager will get the appropriate scraper for the job

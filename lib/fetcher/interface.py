@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-import html2text
 
 
 class FetchError(Exception):
@@ -21,6 +20,7 @@ class FetcherInterface(ABC):
         pass
 
     def _convert_html_to_markdown(self, html: str) -> str:
+        import html2text
         converter = html2text.HTML2Text()
         converter.ignore_links = False
         return converter.handle(html)

@@ -1,9 +1,8 @@
 import os
 import yaml
-from lib.config.config_loader_interface import ConfigLoaderInterface
 
 
-class YamlConfigLoader(ConfigLoaderInterface):
+class YamlConfigLoader:
     _instance = None
 
     def __new__(cls, base_config_dir: str = "config"):
