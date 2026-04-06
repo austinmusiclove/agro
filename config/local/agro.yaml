@@ -1,11 +1,11 @@
 scraper:
-  default: firecrawl
+  default: agro
 fetcher:
   default: drission_page
   drission_page:
     max_screenshot_height: 16000
 data_extractor:
-  default: gemini
+  default: openai
 image_saver:
   default: local
   images_dir: "./images"

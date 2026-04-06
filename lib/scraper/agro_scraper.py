@@ -1,0 +1,65 @@
+from .interface import ScraperInterface
+from lib.schemas.event import Event
+
+
+class AgroScraper(ScraperInterface):
+    def __init__(self, fetcher_factory, data_extractor_factory, config_loader):
+        self._fetcher_factory = fetcher_factory
+        self._data_extractor_factory = data_extractor_factory
+        self._config_loader = config_loader
+
+    def scrape_event_list_page(self, url: str, paginate: bool = True, max_pages: int = 10) -> dict:
+        all_events = []
+        screenshots = []
+        scraped_urls = set()
+        current_url = url
+        page_count = 0
+
+        fetcher = self._fetcher_factory.create()
+        data_extractor = self._data_extractor_factory.create()
+
+        while current_url and page_count < max_pages:
+            scraped_urls.add(current_url)
+
+            try:
+                print(f"Scraping event list page: {current_url}")
+
+                result = fetcher.fetch(current_url, return_markdown=True, return_screenshot=True)
+
+                markdown = result.get("markdown")
+                screenshot = result.get("screenshot")
+
+                if screenshot:
+                    screenshots.append(screenshot)
+
+                if markdown:
+                    extracted = data_extractor.extract_event_list(markdown)
+
+                    events_on_page = extracted.get("events", [])
+                    for event_dict in events_on_page:
+                        event = Event(**event_dict)
+                        event.clean()
+                        all_events.append(event.model_dump())
+
+                    if paginate:
+                        next_url = extracted.get("next_page_url")
+                        if next_url and next_url not in scraped_urls:
+                            current_url = next_url
+                            page_count += 1
+                        else:
+                            print(f"No new next page URL found or URL already scraped. Stopping pagination.")
+                            break
+                    else:
+                        break
+                else:
+                    print(f"Failed to scrape {current_url}: No markdown returned from fetcher.")
+                    break
+
+            except Exception as e:
+                print(f"Error scraping {current_url}: {e}")
+                break
+
+        return {
+            "events": all_events,
+            "screenshots": screenshots
+        }

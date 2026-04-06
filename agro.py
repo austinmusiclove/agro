@@ -7,12 +7,15 @@ load_dotenv(override=True)
 
 from lib.config.yaml_config_loader import YamlConfigLoader
 from lib.scraper.factory import ScraperFactory
+from lib.fetcher.factory import FetcherFactory
+from lib.data_extractor.factory import DataExtractorFactory
 from lib.mysql_interface.mysql_interface import MySQLInterface
 from lib.event_data_manager.event_data_manager import EventDataManager
 
 
 def main():
     parser = argparse.ArgumentParser(description="Agro CLI")
+    parser.add_argument("--config-override", type=str, help="JSON string of config overrides")
 
     subparsers = parser.add_subparsers(dest="command", required=True)
 
@@ -25,11 +28,21 @@ def main():
 
     args = parser.parse_args()
 
-    config_loader = YamlConfigLoader(config_overrides={})
-    scraper_factory = ScraperFactory(config_loader)
-    scraper = scraper_factory.create()
-    mysql_interface = MySQLInterface()
-    event_data_manager = EventDataManager(scraper, mysql_interface)
+    config_overrides = {}
+    if args.config_override:
+        try:
+            config_overrides = json.loads(args.config_override)
+        except json.JSONDecodeError as e:
+            print(f"Error parsing --config-override: {e}")
+            return
+
+    config_loader          = YamlConfigLoader(config_overrides=config_overrides)
+    fetcher_factory        = FetcherFactory(config_loader)
+    data_extractor_factory = DataExtractorFactory(config_loader)
+    scraper_factory        = ScraperFactory(config_loader, fetcher_factory, data_extractor_factory)
+    scraper                = scraper_factory.create()
+    mysql_interface        = MySQLInterface()
+    event_data_manager     = EventDataManager(scraper, mysql_interface)
 
     if args.command == "scrape-event-list":
         event_data_manager.scrape_event_list_pages(args.venue_id)

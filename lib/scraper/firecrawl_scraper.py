@@ -13,8 +13,9 @@ class FirecrawlScraper(ScraperInterface):
         api_url = os.getenv("FIRECRAWL_LOCAL_API_URL", "http://localhost:3002")
         self.firecrawl = FirecrawlApp(api_key=api_key, api_url=api_url)
 
-    def scrape_event_list_page(self, url: str, paginate: bool = True, max_pages = 10) -> list[dict]:
+    def scrape_event_list_page(self, url: str, paginate: bool = True, max_pages: int = 10) -> dict:
         all_events = []
+        screenshots = []
         scraped_urls = set()
         current_url = url
         page_count = 0
@@ -73,4 +74,4 @@ class FirecrawlScraper(ScraperInterface):
                 print(f"Error scraping {current_url}: {e}")
                 break
 
-        return all_events
+        return {"events": all_events, "screenshots": []}

@@ -6,13 +6,27 @@ Scraper
     pass scraper factory into event data manager and event data manager will get the appropriate scraper for the job
     pass data extractor factory to scraper and scraper decides which extractor to use for the job based on scraper config
 MySQL
-    Create local mysql to connect to for local env testing
-    create new events table with new schema
-        last crawl
-        event page url, hash, screenshot, highlighted screenshot, html
-        event list page url, hash, screenshot, highlighted screenshot, html
-        status: pending-review, pending-update, published
-        performances; one for each performer with start and end time and link to artists db
+    mysql interface
+        config local env connection
+    events table
+        event name, venue name, start/end date, start/end time, ages
+        venue id, stage id
+        performers string, stage string, price string
+        status: pending-review, published, disabled, suggestion
+        updated timestamp, expiration timestamp, last crawl timestamp
+        event page url, ticket url
+        event page scrape id, event list page scrape id
+            hash, screenshot id, html
+        supporting tables
+            stages table
+                venue id, indoor/outdoor, capacity, name, description of how to find it in the venue
+            offers table
+                price, event id, description
+            performance table
+                performer name, event id, artist/performer id
+                start/end date and time
+            performers table
+                merge together artists table and hire musicians profile data
     transaction_suggestion table
         table (events)
         current data row id (if update or delete)
