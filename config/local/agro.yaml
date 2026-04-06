@@ -8,4 +8,5 @@ data_extractor:
   default: openai
 image_saver:
   default: local
-  images_dir: "./images"
+  local:
+    images_dir: "./images"

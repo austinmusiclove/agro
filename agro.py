@@ -9,6 +9,7 @@ from lib.config.yaml_config_loader import YamlConfigLoader
 from lib.scraper.factory import ScraperFactory
 from lib.fetcher.factory import FetcherFactory
 from lib.data_extractor.factory import DataExtractorFactory
+from lib.image_saver.factory import ImageSaverFactory
 from lib.mysql_interface.mysql_interface import MySQLInterface
 from lib.event_data_manager.event_data_manager import EventDataManager
 
@@ -16,7 +17,7 @@ from lib.event_data_manager.event_data_manager import EventDataManager
 def main():
     parser = argparse.ArgumentParser(description="Agro CLI")
     parser.add_argument("--config-override", type=str, help="JSON string of config overrides")
-
+    
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     get_parser = subparsers.add_parser("scrape-event-list", help="Fetch event data from venue event list pages")
@@ -41,8 +42,10 @@ def main():
     data_extractor_factory = DataExtractorFactory(config_loader)
     scraper_factory        = ScraperFactory(config_loader, fetcher_factory, data_extractor_factory)
     scraper                = scraper_factory.create()
+    image_saver_factory   = ImageSaverFactory(config_loader)
+    image_saver           = image_saver_factory.create()
     mysql_interface        = MySQLInterface()
-    event_data_manager     = EventDataManager(scraper, mysql_interface)
+    event_data_manager     = EventDataManager(scraper, mysql_interface, image_saver)
 
     if args.command == "scrape-event-list":
         event_data_manager.scrape_event_list_pages(args.venue_id)

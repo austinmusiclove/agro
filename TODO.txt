@@ -1,19 +1,18 @@
 Scraper
-    Create AgroScraper that takes FetcherFactory and DataExtractorFactory
-        fetches html, markdown, structured data, and screenshot for an event list or event page
-            scrape_event_list_page
-            scrape_event_page
+    *add screenshot ref in event data
+    add event page scrape
     pass scraper factory into event data manager and event data manager will get the appropriate scraper for the job
     pass data extractor factory to scraper and scraper decides which extractor to use for the job based on scraper config
 MySQL
     mysql interface
         config local env connection
-    events table
+    *events table
         event name, venue name, start/end date, start/end time, ages
         venue id, stage id
         performers string, stage string, price string
         status: pending-review, published, disabled, suggestion
         updated timestamp, expiration timestamp, last crawl timestamp
+        data source
         event page url, ticket url
         event page scrape id, event list page scrape id
             hash, screenshot id, html
@@ -27,10 +26,8 @@ MySQL
                 start/end date and time
             performers table
                 merge together artists table and hire musicians profile data
-    transaction_suggestion table
-        table (events)
-        current data row id (if update or delete)
-        suggested data (maybe this is a row in the actual data table that has a new id and a disabled status)
+    *transaction_suggestion table
+        table (events), current data row id (if update or delete), suggested data row id
         transaction type (create, update, delete)
         data index (order this data appeared on the page if this is not the only data found on the page)
         screenshot(s)
