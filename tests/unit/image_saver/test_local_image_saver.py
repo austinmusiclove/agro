@@ -14,7 +14,7 @@ def image_bytes():
 
 
 @pytest.fixture
-def png_bytes():
+def screenshot_bytes_1():
     test_file = Path(__file__).parent.parent.parent / "assets" / "images" / "bytes" / "screenshot_sample.png"
     return test_file.read_bytes()
 
@@ -64,7 +64,7 @@ def test_save_returns_unique_paths(tmp_path, image_bytes, config_loader):
     assert path1 != path2
 
 
-def test_save_detects_png_extension(tmp_path, png_bytes, config_loader):
+def test_save_detects_png_extension(tmp_path, screenshot_bytes_1, config_loader):
     saver = LocalImageSaver(config_loader)
-    path = saver.save(png_bytes)
+    path = saver.save(screenshot_bytes_1)
     assert path.endswith(".png")

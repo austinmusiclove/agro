@@ -1,29 +1,10 @@
-Fetcher
-    Get page (takes url, returns html or markdown and screenshot option)
-    implement proxy server use
-    get permission from venues to crawl and do some crawling through a proxy firecrawl and some through a stable permissioned ip
-    venue config to do certain amount of waiting or other actions on pages
-        Try to load more results by scrolling or finding load more button
-    Add HttpInterface so that we can pass a mock into the fetcher to test but use the same interface as the package used now
-    Accept 301 redirects
-    Sometimes 404 test does not work for drission page scraper because it gets 200s back somehow
-    Create FirecrawlFetcher
-Config Loader
-    Need testing for overrides
-Image Saver
-    S3 Image Saver
-DataExtractor
-    Extract all schema and return it as well
-    Classification algo extractor to replace LLM extractors
 Scraper
-    Create Scraper that takes FetcherFactory and DataExtractorFactory
+    Create AgroScraper that takes FetcherFactory and DataExtractorFactory
+        fetches html, markdown, structured data, and screenshot for an event list or event page
+            scrape_event_list_page
+            scrape_event_page
     pass scraper factory into event data manager and event data manager will get the appropriate scraper for the job
     pass data extractor factory to scraper and scraper decides which extractor to use for the job based on scraper config
-Event Data Manager
-    Merge events function
-    Skip data extraction if hash from previous scrape matches
-    Submit updates to a separate table to be reviewed before they are committed to events table
-    Make sure to use schema if fetcher returns any and skip extraction if there is sufficient data or include extraction as well and have both in suggested_transaction entry
 MySQL
     Create local mysql to connect to for local env testing
     create new events table with new schema
@@ -45,6 +26,33 @@ MySQL
         application
         log type
         message
+DataExtractor
+    Extract all schema and return it as well
+    Classification algo extractor to replace LLM extractors
+CLI
+    create cli to write a image bytes file and html and markdown file for a url
+    create cli to convert bytes file to image
+Fetcher
+    Tests
+        rename sample screenshot to proper website page
+        test create screen shot for two other pages
+    implement proxy server use
+    get permission from venues to crawl and do some crawling through a proxy firecrawl and some through a stable permissioned ip
+    venue config to do certain amount of waiting or other actions on pages
+        Try to load more results by scrolling or finding load more button
+    Add HttpInterface so that we can pass a mock into the fetcher to test but use the same interface as the package used now
+    Accept 301 redirects
+    Sometimes 404 test does not work for drission page scraper because it gets 200s back somehow
+    Create FirecrawlFetcher
+Config Loader
+    Need testing for overrides
+Image Saver
+    S3 Image Saver
+Event Data Manager
+    Merge events function
+    Skip data extraction if hash from previous scrape matches
+    Submit updates to a separate table to be reviewed before they are committed to events table
+    Make sure to use schema if fetcher returns any and skip extraction if there is sufficient data or include extraction as well and have both in suggested_transaction entry
 Tests
     Classes to test
         Event

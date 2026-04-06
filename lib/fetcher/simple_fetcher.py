@@ -14,9 +14,12 @@ class SimpleFetcher(FetcherInterface):
             with urllib.request.urlopen(url) as response:
                 if response.status == 200:
                     html = response.read().decode('utf-8')
-                    if return_markdown:
-                        return self._convert_html_to_markdown(html)
-                    return html
+                    markdown = self._convert_html_to_markdown(html) if return_markdown else None
+                    return {
+                        "html": html,
+                        "markdown": markdown,
+                        "screenshot": None
+                    }
                 else:
                     raise FetchError(url, response.status, "Non-200 response")
         except HTTPError as e:
