@@ -7,7 +7,7 @@ class Event(BaseModel):
     end_date: Optional[str] = Field(default=None, description="End date of the event, if applicable.")
     start_time: Optional[str] = Field(default=None, description="Start time of the event.")
     end_time: Optional[str] = Field(default=None, description="End time of the event, if applicable.")
-    image: Optional[str] = Field(default=None, description="URL to an image or poster for the event.")
+    image_url: Optional[str] = Field(default=None, description="URL to an image or poster for the event.")
     venue_name: Optional[str] = Field(default=None, description="Name of the venue where the event is taking place.")
     performer_names: Optional[List[str]] = Field(default=None, description="List of performer or band names.")
     indoor_outdoor: Optional[Literal["indoor", "outdoor"]] = Field(default=None, description="'indoor', 'outdoor', or None if unknown.")

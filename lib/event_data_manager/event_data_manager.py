@@ -24,7 +24,7 @@ class EventDataManager:
 
             if events:
                 print(f"Scraped {len(events)} events.")
-                self._merge_events(venue_id, events)
+                self._get_event_transactions(venue_id, events)
 
                 if screenshots and self.image_saver:
                     for idx, screenshot_bytes in enumerate(screenshots):
@@ -54,7 +54,7 @@ class EventDataManager:
         else:
             return self.mysql_interface.get_all_venues()
 
-    def _merge_events(self, venue_id, scraped_events):
+    def _get_event_transactions(self, venue_id, scraped_events):
         """ Updates events in database given a fresh set of scraped events for one venue """
         # current_events = self.mysql_interface.get_events_by_venue(venue.get("id"))
         # add any events that are not in current events

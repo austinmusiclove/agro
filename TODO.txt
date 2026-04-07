@@ -1,4 +1,11 @@
+High level plan
+    Have event data manager save events and staged transactions
+    Create test that adds events for first time
+    Create test that adds events after they already are in db
+    Implement merge events function
+    Implement S3 image saver
 Scraper
+    *save event suggestions
     *add screenshot ref in event data
     add event page scrape
     pass scraper factory into event data manager and event data manager will get the appropriate scraper for the job
@@ -9,29 +16,31 @@ MySQL
     *events table
         event name, venue name, start/end date, start/end time, ages
         venue id, stage id
-        performers string, stage string, price string
+        performers string, stage name, price range
         status: pending-review, published, disabled, suggestion
-        updated timestamp, expiration timestamp, last crawl timestamp
+        updated timestamp, last crawl timestamp
         data source
         event page url, ticket url
-        event page scrape id, event list page scrape id
-            hash, screenshot id, html
-        supporting tables
-            stages table
-                venue id, indoor/outdoor, capacity, name, description of how to find it in the venue
-            offers table
-                price, event id, description
-            performance table
-                performer name, event id, artist/performer id
-                start/end date and time
-            performers table
-                merge together artists table and hire musicians profile data
-    *transaction_suggestion table
+        event image file (stored in S3)
+    *staged_transactions table
         table (events), current data row id (if update or delete), suggested data row id
         transaction type (create, update, delete)
         data index (order this data appeared on the page if this is not the only data found on the page)
-        screenshot(s)
-        schema
+        screenshot (S3 ref)
+        schema (as in Event Schema and other web schemas; json blob)
+        expiration timestamp, create timestamp
+        scrape url, scrape html hash, scrape markdown hash
+    supporting tables
+        stages table
+            venue id, indoor/outdoor, capacity, name, description of how to find it in the venue
+        offers table
+            price, event id, description
+        performance table
+            performer id, event id
+            start/end date and time
+        performers table
+            merge together artists table and hire musicians profile data
+            taxonomy tables for genre and more
     logs table
         timestamp
         application
