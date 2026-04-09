@@ -34,7 +34,8 @@ class EventDataManager:
                         screenshot_refs[idx] = img_ref
 
                 # Get transactions and process
-                transactions = self._get_event_transactions(venue.get("id"), events, screenshot_refs)
+                existing_events = self.mysql_interface.get_future_events_by_venue(venue.get("id"))
+                transactions = self._get_event_transactions(existing_events, events)
                 print(f"Processing {len(transactions)} transactions...")
                 for txn in transactions:
                     self._process_transaction(txn, venue.get("id"), event_list_url, screenshot_refs)
@@ -43,14 +44,20 @@ class EventDataManager:
                 continue
 
     def _process_transaction(self, txn, venue_id, event_list_url, screenshot_refs):
-        # Prepare event data
+        """
+        Process a single transaction by inserting the event and creating a staged transaction record.
+
+        Args:
+            txn: Transaction dict containing 'transaction_type', 'existing_event_id', and 'event_data'
+            venue_id: The ID of the venue this event belongs to
+            event_list_url: The URL of the event list page that was scraped
+            screenshot_refs: Dict mapping screenshot indices to file paths
+        """
         event_data = txn["event_data"].copy()
 
-        # Map screenshot_index to screenshot ref
         screenshot_idx = event_data.get("screenshot_index")
         screenshot_ref = screenshot_refs.get(screenshot_idx) if screenshot_idx is not None else None
 
-        # Map fields to database schema
         event_data["event_name"] = event_data.pop("title", None)
         event_data["event_image_url"] = event_data.pop("image_url", None)
         event_data["event_image_ref"] = screenshot_ref
@@ -58,15 +65,12 @@ class EventDataManager:
         event_data["status"] = "staged"
         event_data["data_source"] = "agro_scraper"
 
-        # Remove fields not in DB schema
         event_data.pop("screenshot_index", None)
         event_data.pop("performer_names", None)
         event_data.pop("indoor_outdoor", None)
 
-        # Insert event
         staged_event_id = self.mysql_interface.insert_event(event_data)
 
-        # Insert staged transaction
         staged_txn = {
             "target_table": "events",
             "current_data_row_id": txn.get("existing_event_id"),
@@ -99,9 +103,27 @@ class EventDataManager:
         else:
             return self.mysql_interface.get_all_venues()
 
-    def _get_event_transactions(self, venue_id, scraped_events, screenshot_refs):
-        # Get existing future events for this venue
-        existing_events = self.mysql_interface.get_future_events_by_venue(venue_id)
+    def _get_event_transactions(self, existing_events, scraped_events):
+        """
+        Compare scraped events against existing events in the database to determine what changes need to be made.
+
+        Matching logic:
+        - First tries to match by event_page_url
+        - If no event_page_url, matches by start_date
+        - If a scraped event matches an existing event: transaction_type = 'update'
+        - If a scraped event has no match: transaction_type = 'create'
+        - If an existing event has no match in scraped events: transaction_type = 'delete'
+
+        Args:
+            existing_events: List of existing event dicts
+            scraped_events: List of event dicts from the scraper
+
+        Returns:
+            List of transaction dicts, each containing:
+                - transaction_type: 'create', 'update', or 'delete'
+                - existing_event_id: ID of matching existing event (None for create)
+                - event_data: Event dict for create/update, None for delete
+        """
 
         # Build lookup maps
         existing_by_url = {e["event_page_url"]: e for e in existing_events if e.get("event_page_url")}

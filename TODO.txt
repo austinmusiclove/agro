@@ -1,6 +1,5 @@
 High level plan
     Have event data manager save events and staged transactions
-        need to add delete case
         add doc strings for get transactions and process transactions
         event insert
             create event transaction object instead of modifying event_data
