@@ -109,11 +109,13 @@ class EventDataManager:
 
         transactions = []
         scraped_urls = set()
+        matched_existing_ids = set()
 
         # Classify scraped events
         for event in scraped_events:
             event_page_url = event_dict.get("event_page_url")
 
+            match = None
             if event_page_url:
                 match = existing_by_url.get(event_page_url)
                 scraped_urls.add(event_page_url)
@@ -122,6 +124,7 @@ class EventDataManager:
                 match = existing_by_date.get(str(start_date)) if start_date else None
 
             if match:
+                matched_existing_ids.add(match["id"])
                 txn_type = "update"
                 existing_id = match["id"]
             else:
@@ -133,5 +136,14 @@ class EventDataManager:
                 "existing_event_id": existing_id,
                 "event_data": event_dict
             })
+
+        # Add delete transactions for existing events not in scraped
+        for existing in existing_events:
+            if existing["id"] not in matched_existing_ids:
+                transactions.append({
+                    "transaction_type": "delete",
+                    "existing_event_id": existing["id"],
+                    "event_data": None
+                })
 
         return transactions
