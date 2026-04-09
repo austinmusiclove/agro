@@ -38,6 +38,14 @@ class EventDataManager:
                 transactions = self._get_event_transactions(existing_events, events)
                 print(f"Processing {len(transactions)} transactions...")
                 for txn in transactions:
+                    # set up event in schema for db
+                    db_event = txn["event_data"].copy()
+                    screenshot_idx = db_event.get("screenshot_index")
+                    screenshot_ref = screenshot_refs.get(screenshot_idx) if screenshot_idx is not None else None
+                    db_event["image_ref"] = screenshot_ref
+                    db_event["venue_id"] = venue_id
+                    db_event["status"] = "staged"
+                    # call a mysql interface function for saving staged data
                     self._process_transaction(txn, venue.get("id"), event_list_url, screenshot_refs)
             else:
                 print(f"No events scraped for {venue.get('name', venue.get('id'))}")
@@ -58,12 +66,9 @@ class EventDataManager:
         screenshot_idx = event_data.get("screenshot_index")
         screenshot_ref = screenshot_refs.get(screenshot_idx) if screenshot_idx is not None else None
 
-        event_data["event_name"] = event_data.pop("title", None)
-        event_data["event_image_url"] = event_data.pop("image_url", None)
         event_data["event_image_ref"] = screenshot_ref
         event_data["venue_id"] = venue_id
         event_data["status"] = "staged"
-        event_data["data_source"] = "agro_scraper"
 
         event_data.pop("screenshot_index", None)
         event_data.pop("performer_names", None)

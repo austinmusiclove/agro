@@ -12,8 +12,9 @@ class Event(BaseModel):
     performer_names: Optional[List[str]] = Field(default=None, description="List of performer or band names.")
     indoor_outdoor: Optional[Literal["indoor", "outdoor"]] = Field(default=None, description="'indoor', 'outdoor', or None if unknown.")
     ages: Optional[Literal["21+", "18+", "All Ages"]] = Field(default=None, description="Age requirement for the event if any")
-    price: Optional[str] = Field(default=None, description="Price or price range for the event.")
+    price_range: Optional[str] = Field(default=None, description="Price or price range for the event.")
     event_page_url: str = Field(description="The absolute URL to the details page for this event.")
+    ticket_url: str = Field(description="The absolute URL to the page where you can buy tickets for this event.")
 
     def clean(self) -> "Event":
         self.title = self.title.replace("’", "'")

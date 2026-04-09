@@ -1,9 +1,6 @@
 High level plan
     Have event data manager save events and staged transactions
-        add doc strings for get transactions and process transactions
-        event insert
-            create event transaction object instead of modifying event_data
-            add fields to event database insert - (start_date, end_date, start_time, end_time, ages, price_range event_page_url, ticket_url
+        add staged transaction method to replace process transaction
         staged transaction insert
             data index is not right
             scrape_url needs to come from event data itself
