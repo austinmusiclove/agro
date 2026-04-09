@@ -24,15 +24,60 @@ class EventDataManager:
 
             if events:
                 print(f"Scraped {len(events)} events.")
-                self._get_event_transactions(venue_id, events)
 
+                # Save screenshots first and get refs
+                screenshot_refs = {}
+                venue_name = venue.get("name", "unknown").replace(" ", "_").lower()
                 if screenshots and self.image_saver:
                     for idx, screenshot_bytes in enumerate(screenshots):
-                        venue_name = venue.get("name", "unknown").replace(" ", "_").lower()
-                        self.image_saver.save(screenshot_bytes, name_hint=f"{venue_name}_event_list_{idx}")
+                        img_ref = self.image_saver.save(screenshot_bytes, name_hint=f"{venue_name}_event_list_{idx}")
+                        screenshot_refs[idx] = img_ref
+
+                # Get transactions and process
+                transactions = self._get_event_transactions(venue.get("id"), events, screenshot_refs)
+                print(f"Processing {len(transactions)} transactions...")
+                for txn in transactions:
+                    self._process_transaction(txn, venue.get("id"), event_list_url, screenshot_refs)
             else:
                 print(f"No events scraped for {venue.get('name', venue.get('id'))}")
                 continue
+
+    def _process_transaction(self, txn, venue_id, event_list_url, screenshot_refs):
+        # Prepare event data
+        event_data = txn["event_data"].copy()
+
+        # Map screenshot_index to screenshot ref
+        screenshot_idx = event_data.get("screenshot_index")
+        screenshot_ref = screenshot_refs.get(screenshot_idx) if screenshot_idx is not None else None
+
+        # Map fields to database schema
+        event_data["event_name"] = event_data.pop("title", None)
+        event_data["event_image_url"] = event_data.pop("image_url", None)
+        event_data["event_image_ref"] = screenshot_ref
+        event_data["venue_id"] = venue_id
+        event_data["status"] = "staged"
+        event_data["data_source"] = "agro_scraper"
+
+        # Remove fields not in DB schema
+        event_data.pop("screenshot_index", None)
+        event_data.pop("performer_names", None)
+        event_data.pop("indoor_outdoor", None)
+
+        # Insert event
+        staged_event_id = self.mysql_interface.insert_event(event_data)
+
+        # Insert staged transaction
+        staged_txn = {
+            "target_table": "events",
+            "current_data_row_id": txn.get("existing_event_id"),
+            "staged_data_id": staged_event_id,
+            "transaction_type": txn["transaction_type"],
+            "data_index": screenshot_idx,
+            "screenshot": screenshot_ref,
+            "schema_blob": None,
+            "scrape_url": event_list_url
+        }
+        self.mysql_interface.insert_staged_transaction(staged_txn)
 
     def scrape_event_pages(self, venue_id=None, date=None):
         venues = self._get_venues(venue_id)
@@ -54,9 +99,39 @@ class EventDataManager:
         else:
             return self.mysql_interface.get_all_venues()
 
-    def _get_event_transactions(self, venue_id, scraped_events):
-        """ Updates events in database given a fresh set of scraped events for one venue """
-        # current_events = self.mysql_interface.get_events_by_venue(venue.get("id"))
-        # add any events that are not in current events
-        # create proposed updates for any existing events in a separate table for review
-        return scraped_events
+    def _get_event_transactions(self, venue_id, scraped_events, screenshot_refs):
+        # Get existing future events for this venue
+        existing_events = self.mysql_interface.get_future_events_by_venue(venue_id)
+
+        # Build lookup maps
+        existing_by_url = {e["event_page_url"]: e for e in existing_events if e.get("event_page_url")}
+        existing_by_date = {str(e["start_date"]): e for e in existing_events if e.get("start_date")}
+
+        transactions = []
+        scraped_urls = set()
+
+        # Classify scraped events
+        for event in scraped_events:
+            event_page_url = event_dict.get("event_page_url")
+
+            if event_page_url:
+                match = existing_by_url.get(event_page_url)
+                scraped_urls.add(event_page_url)
+            else:
+                start_date = event_dict.get("start_date")
+                match = existing_by_date.get(str(start_date)) if start_date else None
+
+            if match:
+                txn_type = "update"
+                existing_id = match["id"]
+            else:
+                txn_type = "create"
+                existing_id = None
+
+            transactions.append({
+                "transaction_type": txn_type,
+                "existing_event_id": existing_id,
+                "event_data": event_dict
+            })
+
+        return transactions

@@ -38,6 +38,7 @@ class AgroScraper(ScraperInterface):
                     events_on_page = extracted.get("events", [])
                     for event_dict in events_on_page:
                         event = Event(**event_dict)
+                        event.screenshot_index = page_count
                         event.clean()
                         all_events.append(event.model_dump())
 

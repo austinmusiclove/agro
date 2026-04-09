@@ -1,8 +1,10 @@
 import os
+import json
 import pymysql
 
 from lib.mysql_interface.venues import venues
 from lib.mysql_interface.events import events
+from lib.mysql_interface.staged_transactions import staged_transactions
 
 
 class MySQLInterface:
@@ -58,6 +60,14 @@ class MySQLInterface:
         conn = self._get_connection()
         return venues.get_all_venues(conn)
 
-    def get_events_by_venue(self, venue_id):
+    def get_future_events_by_venue(self, venue_id):
         conn = self._get_connection()
-        return events.get_events_by_venue(conn, venue_id)
+        return events.get_future_events_by_venue(conn, venue_id)
+
+    def insert_event(self, event_data):
+        conn = self._get_connection()
+        return events.insert_event(conn, event_data)
+
+    def insert_staged_transaction(self, transaction_data):
+        conn = self._get_connection()
+        return staged_transactions.insert_staged_transaction(conn, transaction_data)

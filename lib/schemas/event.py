@@ -17,5 +17,6 @@ class Event(BaseModel):
 
     def clean(self) -> "Event":
         self.title = self.title.replace("’", "'")
-        self.venue_name = self.venue_name.replace("’", "'")
+        if self.venue_name:
+            self.venue_name = self.venue_name.replace("’", "'")
         return self

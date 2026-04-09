@@ -17,8 +17,9 @@ CREATE TABLE events (
     data_source VARCHAR(100),
     event_page_url TEXT,
     ticket_url TEXT,
-    event_image TEXT, -- S3 Object key
+    event_image_ref TEXT, -- S3 Object key
     event_image_url TEXT,
 
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );

@@ -2,7 +2,7 @@ CREATE TABLE staged_transactions (
     id SERIAL PRIMARY KEY,
     target_table VARCHAR(50),
     current_data_row_id INT,
-    suggested_data_id INT,
+    staged_data_id INT,
 
     transaction_type ENUM('create', 'update', 'delete') NOT NULL,
     data_index INT,
@@ -14,5 +14,6 @@ CREATE TABLE staged_transactions (
     scrape_html_hash VARCHAR(64),
     scrape_markdown_hash VARCHAR(64),
 
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );

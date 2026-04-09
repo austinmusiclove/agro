@@ -50,9 +50,14 @@ class FirecrawlScraper(ScraperInterface):
                         # Fallback if it acts like a dict in some versions
                         json_data = res.get("json", {}) if isinstance(res, dict) else {}
 
+                    # Capture screenshot if available
+                    if hasattr(res, 'screenshot') and res.screenshot:
+                        screenshots.append(res.screenshot)
+
                     events_on_page = json_data.get("events", [])
                     for event_dict in events_on_page:
                         event = Event(**event_dict)
+                        event.screenshot_index = page_count
                         event.clean()
                         all_events.append(event.model_dump())
 
