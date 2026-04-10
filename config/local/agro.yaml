@@ -16,3 +16,9 @@ image_saver:
     aws_secret_access_key_env: "AWS_SECRET_ACCESS_KEY"
   local:
     images_dir: "./images"
+mysql:
+  host_env: "AGRO_MYSQL_HOST"
+  port_env: "AGRO_MYSQL_PORT"
+  user_env: "AGRO_MYSQL_USER"
+  password_env: "AGRO_MYSQL_PASSWORD"
+  database_env: "AGRO_MYSQL_DATABASE"

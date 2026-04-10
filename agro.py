@@ -44,7 +44,7 @@ def main():
     scraper                = scraper_factory.create()
     image_saver_factory   = ImageSaverFactory(config_loader)
     image_saver           = image_saver_factory.create()
-    mysql_interface        = MySQLInterface()
+    mysql_interface        = MySQLInterface(config_loader)
     event_data_manager     = EventDataManager(scraper, mysql_interface, image_saver)
 
     if args.command == "scrape-event-list":

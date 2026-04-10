@@ -8,33 +8,21 @@ from lib.mysql_interface.staged_transactions import staged_transactions
 
 
 class MySQLInterface:
-    def __init__(self):
-        self.host = os.environ.get("AGRO_MYSQL_HOST")
-        self.port = os.environ.get("AGRO_MYSQL_PORT")
-        self.user = os.environ.get("AGRO_MYSQL_USER")
-        self.password = os.environ.get("AGRO_MYSQL_PASSWORD")
-        self.database = os.environ.get("AGRO_MYSQL_DATABASE")
+    def __init__(self, config_loader):
+        mysql_config = config_loader.get_config("agro").get("mysql", {})
+        self._host_env = mysql_config.get("host_env", "AGRO_MYSQL_HOST")
+        self._port_env = mysql_config.get("port_env", "AGRO_MYSQL_PORT")
+        self._user_env = mysql_config.get("user_env", "AGRO_MYSQL_USER")
+        self._password_env = mysql_config.get("password_env", "AGRO_MYSQL_PASSWORD")
+        self._database_env = mysql_config.get("database_env", "AGRO_MYSQL_DATABASE")
 
-        self._validate_env_vars()
+        self.host = os.getenv(self._host_env)
+        self.port = os.getenv(self._port_env)
+        self.user = os.getenv(self._user_env)
+        self.password = os.getenv(self._password_env)
+        self.database = os.getenv(self._database_env)
+
         self._connection = None
-
-    def _validate_env_vars(self):
-        missing = []
-        if not self.host:
-            missing.append("AGRO_MYSQL_HOST")
-        if not self.port:
-            missing.append("AGRO_MYSQL_PORT")
-        if not self.user:
-            missing.append("AGRO_MYSQL_USER")
-        if not self.password:
-            missing.append("AGRO_MYSQL_PASSWORD")
-        if not self.database:
-            missing.append("AGRO_MYSQL_DATABASE")
-
-        if missing:
-            raise ValueError(f"Missing required environment variables: {', '.join(missing)}")
-
-        self.port = int(self.port)
 
     def _get_connection(self):
         if self._connection is None or not self._connection.open:
@@ -96,13 +84,10 @@ class MySQLInterface:
         data_with_status = data.copy()
         data_with_status["status"] = "staged"
         txn_type = txn_data.get("transaction_type")
+
         if txn_type == "create" or txn_type == "update":
-            match target_table:
-                case "events":
-                    staged_data_id = insert_event(self, data_with_status):
-                    print("Success")
-                case _:  # Wildcard (Default case)
-                    print("Unknown target_table when trying to insert staged data")
+            if target_table == "events":
+                staged_data_id = events.insert_event(conn, data_with_status)
 
         staged_txn_data = txn_data.copy()
         staged_txn_data["target_table"] = target_table
