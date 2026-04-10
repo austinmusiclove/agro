@@ -1,11 +1,6 @@
 High level plan
-    Create test that adds events for first time
-    Create test that adds events after they already are in db
-    Implement merge events function
     Implement S3 image saver
 Scraper
-    *save event suggestions
-    *add screenshot ref in event data
     add event page scrape
     pass scraper factory into event data manager and event data manager will get the appropriate scraper for the job
     pass data extractor factory to scraper and scraper decides which extractor to use for the job based on scraper config
