@@ -16,8 +16,11 @@ class S3ImageSaver(ImageSaverInterface):
         if not self._bucket:
             raise ImageSaverError("S3 bucket not configured")
         
-        aws_access_key_id = os.getenv("AWS_ACCESS_KEY_ID")
-        aws_secret_access_key = os.getenv("AWS_SECRET_ACCESS_KEY")
+        access_key_env = s3_config.get("aws_access_key_id_env", "AWS_ACCESS_KEY_ID")
+        secret_key_env = s3_config.get("aws_secret_access_key_env", "AWS_SECRET_ACCESS_KEY")
+        
+        aws_access_key_id = os.getenv(access_key_env)
+        aws_secret_access_key = os.getenv(secret_key_env)
         
         self._s3_client = boto3.client(
             's3',
