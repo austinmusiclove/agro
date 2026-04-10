@@ -2,20 +2,37 @@ import pytest
 from dotenv import load_dotenv
 
 from lib.scraper.firecrawl_scraper import FirecrawlScraper
+from lib.scraper.agro_scraper import AgroScraper
+from lib.fetcher.factory import FetcherFactory
+from lib.data_extractor.factory import DataExtractorFactory
+from lib.config import YamlConfigLoader
+
+
+def create_agro_scraper():
+    config_loader = YamlConfigLoader()
+    fetcher_factory = FetcherFactory(config_loader)
+    data_extractor_factory = DataExtractorFactory(config_loader)
+    return AgroScraper(fetcher_factory, data_extractor_factory, config_loader)
+
+
+@pytest.fixture(params=[FirecrawlScraper, create_agro_scraper])
+def scraper(request):
+    return request.param()
+
 
 @pytest.mark.integration
-def test_scrape_event_list_page():
+def test_scrape_event_list_page(scraper):
     load_dotenv(override=True)
 
-    scraper = FirecrawlScraper()
     # This URL points to the test asset we deployed to the gh-pages branch
     test_url = "https://austinmusiclove.github.io/agro/antonesnightclub_page1.html"
 
     # Act: Scrape the GitHub Pages URL (disable pagination for a single file test)
-    events = scraper.scrape_event_list_page(test_url, paginate=False)
+    result = scraper.scrape_event_list_page(test_url, paginate=False)
 
     # Assert
-    assert events is not None, "Events list should not be None"
+    assert result is not None, "Result should not be None"
+    events = result.get("events", [])
     assert isinstance(events, list), "Events should be a list"
     assert len(events) > 0, "No events were found."
     assert len(events) == 20, f"Events were found but not exactly 20, got {len(events)}."
@@ -51,15 +68,19 @@ def test_scrape_event_list_page():
     assert first_event["price"] == correct_first_event["price"], "price is incorrect"
     assert first_event["event_page_url"] == correct_first_event["event_page_url"], "event_page_url is incorrect"
 
+
 @pytest.mark.integration
-def test_scrape_event_list_page_pagination():
+def test_scrape_event_list_page_pagination(scraper):
     load_dotenv(override=True)
-    scraper = FirecrawlScraper()
+
     test_url = "https://austinmusiclove.github.io/agro/antonesnightclub_page1.html"
+    
     # Act: Scrape with pagination enabled
-    events = scraper.scrape_event_list_page(test_url, paginate=True)
+    result = scraper.scrape_event_list_page(test_url, paginate=True)
+    
     # Assert
-    assert events is not None, "Events list should not be None"
+    assert result is not None, "Result should not be None"
+    events = result.get("events", [])
     assert isinstance(events, list), "Events should be a list"
     assert len(events) > 0, "No events were found."
     assert len(events) == 68, f"Expected 68 events across all pages, got {len(events)}"
