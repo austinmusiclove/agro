@@ -54,12 +54,12 @@ class FirecrawlScraper(ScraperInterface):
                     if hasattr(res, 'screenshot') and res.screenshot:
                         screenshots.append(res.screenshot)
 
-                    events_on_page = json_data.get("events", [])
+                    events_on_page = extracted.get("events", [])
                     for event_dict in events_on_page:
-                        event = Event(**event_dict)
-                        event.screenshot_index = page_count
-                        event.clean()
-                        all_events.append(event.model_dump())
+                        event_dict["screenshot_index"] = page_count
+                        event_dict["data_source"] = "firecrawl_scraper"
+                        event_dict["scrape_url"] = current_url
+                        all_events.append(event_dict)
 
                     if paginate:
                         next_url = json_data.get("next_page_url")

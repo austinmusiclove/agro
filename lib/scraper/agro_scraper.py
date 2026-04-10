@@ -36,9 +36,11 @@ class AgroScraper(ScraperInterface):
                     extracted = self.data_extractor.extract_event_list(markdown)
 
                     events_on_page = extracted.get("events", [])
-                    for event_dict in events_on_page:
+                    for index, event_dict in enumerate(events_on_page):
                         event_dict["screenshot_index"] = page_count
                         event_dict["data_source"] = "agro_scraper"
+                        event_dict["scrape_url"] = current_url
+                        event_dict["data_index"] = index
                         all_events.append(event_dict)
 
                     if paginate:

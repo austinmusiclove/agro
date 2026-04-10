@@ -1,10 +1,6 @@
 High level plan
     Have event data manager save events and staged transactions
-        add staged transaction method to replace process transaction
-        staged transaction insert
-            data index is not right
-            scrape_url needs to come from event data itself
-            need to add scrape_html_hash, scrape_markdown_hash to staged_transaction insert
+        need to add scrape_html_hash, scrape_markdown_hash to staged_transaction insert
     Create test that adds events for first time
     Create test that adds events after they already are in db
     Implement merge events function

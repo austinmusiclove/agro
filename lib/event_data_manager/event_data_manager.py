@@ -38,55 +38,29 @@ class EventDataManager:
                 transactions = self._get_event_transactions(existing_events, events)
                 print(f"Processing {len(transactions)} transactions...")
                 for txn in transactions:
-                    # set up event in schema for db
-                    db_event = txn["event_data"].copy()
-                    screenshot_idx = db_event.get("screenshot_index")
-                    screenshot_ref = screenshot_refs.get(screenshot_idx) if screenshot_idx is not None else None
-                    db_event["image_ref"] = screenshot_ref
-                    db_event["venue_id"] = venue_id
-                    db_event["status"] = "staged"
-                    # call a mysql interface function for saving staged data
-                    self._process_transaction(txn, venue.get("id"), event_list_url, screenshot_refs)
+
+                    db_event = None
+                    txn_type = txn.get("transaction_type")
+                    if txn_type == "create" or txn_type == "udpate":
+                        db_event = txn.get("event_data").copy()
+                        screenshot_idx = db_event.get("screenshot_index")
+                        screenshot_ref = screenshot_refs.get(screenshot_idx) if screenshot_idx is not None else None
+                        db_event["image_ref"] = screenshot_ref
+                        db_event["venue_id"] = venue.get("id")
+
+                    txn_data = {
+                        "transaction_type": txn_type,
+                        "current_data_row_id": txn.get("existing_event_id"),
+                        "data_index": db_event.get("data_index"),
+                        "screenshot": screenshot_ref,
+                        "schema_blob": txn["event_data"],
+                        "scrape_url": db_event.get("scrape_url")
+                    }
+
+                    self.mysql_interface.stage_transaction("events", db_event, txn_data)
             else:
                 print(f"No events scraped for {venue.get('name', venue.get('id'))}")
                 continue
-
-    def _process_transaction(self, txn, venue_id, event_list_url, screenshot_refs):
-        """
-        Process a single transaction by inserting the event and creating a staged transaction record.
-
-        Args:
-            txn: Transaction dict containing 'transaction_type', 'existing_event_id', and 'event_data'
-            venue_id: The ID of the venue this event belongs to
-            event_list_url: The URL of the event list page that was scraped
-            screenshot_refs: Dict mapping screenshot indices to file paths
-        """
-        event_data = txn["event_data"].copy()
-
-        screenshot_idx = event_data.get("screenshot_index")
-        screenshot_ref = screenshot_refs.get(screenshot_idx) if screenshot_idx is not None else None
-
-        event_data["event_image_ref"] = screenshot_ref
-        event_data["venue_id"] = venue_id
-        event_data["status"] = "staged"
-
-        event_data.pop("screenshot_index", None)
-        event_data.pop("performer_names", None)
-        event_data.pop("indoor_outdoor", None)
-
-        staged_event_id = self.mysql_interface.insert_event(event_data)
-
-        staged_txn = {
-            "target_table": "events",
-            "current_data_row_id": txn.get("existing_event_id"),
-            "staged_data_id": staged_event_id,
-            "transaction_type": txn["transaction_type"],
-            "data_index": screenshot_idx,
-            "screenshot": screenshot_ref,
-            "schema_blob": None,
-            "scrape_url": event_list_url
-        }
-        self.mysql_interface.insert_staged_transaction(staged_txn)
 
     def scrape_event_pages(self, venue_id=None, date=None):
         venues = self._get_venues(venue_id)
