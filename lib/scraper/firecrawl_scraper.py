@@ -29,6 +29,8 @@ class FirecrawlScraper(ScraperInterface):
                 res = self.firecrawl.scrape(
                     current_url,
                     formats=[
+                        "html",
+                        "markdown",
                         {
                         "type": "json",
                         "prompt": "Extract the list of events from this page, as well as the link to the next page of events if one exists. Make sure to get every event. Do not skip events.",
@@ -50,15 +52,23 @@ class FirecrawlScraper(ScraperInterface):
                         # Fallback if it acts like a dict in some versions
                         json_data = res.get("json", {}) if isinstance(res, dict) else {}
 
+                    # Get HTML and markdown and compute hashes
+                    html = getattr(res, 'html', None)
+                    markdown = getattr(res, 'markdown', None)
+                    html_hash = self._compute_hash(html)
+                    markdown_hash = self._compute_hash(markdown)
+
                     # Capture screenshot if available
                     if hasattr(res, 'screenshot') and res.screenshot:
                         screenshots.append(res.screenshot)
 
-                    events_on_page = extracted.get("events", [])
+                    events_on_page = json_data.get("events", [])
                     for event_dict in events_on_page:
                         event_dict["screenshot_index"] = page_count
                         event_dict["data_source"] = "firecrawl_scraper"
                         event_dict["scrape_url"] = current_url
+                        event_dict["html_hash"] = html_hash
+                        event_dict["markdown_hash"] = markdown_hash
                         all_events.append(event_dict)
 
                     if paginate:

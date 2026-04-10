@@ -26,8 +26,11 @@ class AgroScraper(ScraperInterface):
 
                 result = self.fetcher.fetch(current_url, return_markdown=True, return_screenshot=True)
 
+                html = result.get("html")
                 markdown = result.get("markdown")
                 screenshot = result.get("screenshot")
+                html_hash = self._compute_hash(html)
+                markdown_hash = self._compute_hash(markdown)
 
                 if screenshot:
                     screenshots.append(screenshot)
@@ -41,6 +44,8 @@ class AgroScraper(ScraperInterface):
                         event_dict["data_source"] = "agro_scraper"
                         event_dict["scrape_url"] = current_url
                         event_dict["data_index"] = index
+                        event_dict["html_hash"] = html_hash
+                        event_dict["markdown_hash"] = markdown_hash
                         all_events.append(event_dict)
 
                     if paginate:
