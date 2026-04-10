@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+import os
 
 
 class ImageSaverError(Exception):
@@ -14,6 +15,19 @@ class ImageSaverInterface(ABC):
         if self._config_loader:
             return self._config_loader.get_config("agro").get("image_saver", {})
         return {}
+
+    @staticmethod
+    def _detect_extension(image_bytes: bytes) -> str:
+        if len(image_bytes) >= 8:
+            if image_bytes[:8] == b"\x89PNG\r\n\x1a\n":
+                return "png"
+            if image_bytes[:2] == b"\xff\xd8":
+                return "jpg"
+            if image_bytes[:6] in (b"GIF87a", b"GIF89a"):
+                return "gif"
+            if image_bytes[:4] == b"RIFF" and image_bytes[8:12] == b"WEBP":
+                return "webp"
+        return "bin"
 
     @abstractmethod
     def save(self, image_bytes: bytes, name_hint: str = None) -> str:

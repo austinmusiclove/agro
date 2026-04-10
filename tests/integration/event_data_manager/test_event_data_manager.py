@@ -106,7 +106,7 @@ def test_scrape_event_list_pages_with_existing_events():
     assert len(mock_mysql.saved_transactions) == 69, f"Expected 69 transactions, got {len(mock_mysql.saved_transactions)}"
 
     # Verify screenshots were saved
-    assert len(mock_image_saver.saved_images) > 0, "Screenshots should have been saved"
+    assert len(mock_image_saver.saved_images) == 4, "4 screenshots should have been saved"
 
     # Verify we have at least one update transaction
     update_txns = [t for t in mock_mysql.saved_transactions if t["txn_data"]["transaction_type"] == "update"]

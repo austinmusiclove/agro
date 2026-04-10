@@ -35,15 +35,3 @@ class LocalImageSaver(ImageSaverInterface):
             raise ImageSaverError(f"Failed to write image to {filepath}: {e}") from e
 
         return os.path.abspath(filepath)
-
-    def _detect_extension(self, image_bytes: bytes) -> str:
-        if len(image_bytes) >= 8:
-            if image_bytes[:8] == b"\x89PNG\r\n\x1a\n":
-                return "png"
-            if image_bytes[:2] == b"\xff\xd8":
-                return "jpg"
-            if image_bytes[:6] in (b"GIF87a", b"GIF89a"):
-                return "gif"
-            if image_bytes[:4] == b"RIFF" and image_bytes[8:12] == b"WEBP":
-                return "webp"
-        return "bin"

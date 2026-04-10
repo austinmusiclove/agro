@@ -1,5 +1,3 @@
-High level plan
-    Implement S3 image saver
 Scraper
     add event page scrape
     pass scraper factory into event data manager and event data manager will get the appropriate scraper for the job
@@ -43,8 +41,6 @@ Fetcher
     Create FirecrawlFetcher
 Config Loader
     Need testing for overrides
-Image Saver
-    S3 Image Saver
 Event Data Manager
     Merge events function
     Skip data extraction if hash from previous scrape matches

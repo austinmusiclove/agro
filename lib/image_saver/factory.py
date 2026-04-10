@@ -1,5 +1,6 @@
 from .interface import ImageSaverInterface
 from .local_image_saver import LocalImageSaver
+from .s3_image_saver import S3ImageSaver
 
 
 class ImageSaverFactory:
@@ -15,5 +16,7 @@ class ImageSaverFactory:
 
         if implementation == "local":
             return LocalImageSaver(self._config_loader)
+        elif implementation == "s3":
+            return S3ImageSaver(self._config_loader)
         else:
             raise ValueError(f"Unknown image_saver type requested: {implementation}")

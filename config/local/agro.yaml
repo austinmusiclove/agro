@@ -7,6 +7,10 @@ fetcher:
 data_extractor:
   default: openai
 image_saver:
-  default: local
+  default: s3
+  s3:
+    bucket: "agro-images"
+    region: "us-east-1"
+    path_prefix: "event-images"
   local:
     images_dir: "./images"
