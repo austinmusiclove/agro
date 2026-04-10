@@ -1,5 +1,4 @@
 import os
-import time
 from openai import OpenAI, APIError, RateLimitError, Timeout
 
 from lib.schemas.event import Event
@@ -33,12 +32,12 @@ class OpenAiDataExtractor(DataExtractorInterface):
     def _call_openai(self, system_prompt: str, user_prompt: str, response_format):
         self._apply_rate_limit()
 
-        retry_decorator = self._get_retry_decorator()
+        retry_decorator = self._get_retry_decorator((RateLimitError, APIError, Timeout))
         decorated_func = retry_decorator(self._make_api_call)
         return decorated_func(system_prompt, user_prompt, response_format)
 
     def _make_api_call(self, system_prompt: str, user_prompt: str, response_format):
-        response = self.client.chat.completions.create(
+        response = self.client.chat.completions.parse(
             model=self.model,
             messages=[
                 {"role": "system", "content": system_prompt},

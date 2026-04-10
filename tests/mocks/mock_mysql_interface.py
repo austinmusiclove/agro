@@ -25,7 +25,7 @@ class MockMySQLInterface:
         self.get_future_events_calls.append(venue_id)
         return [e for e in self.events if e.get("venue_id") == venue_id]
 
-    def save_transaction(self, target_table, data, txn_data):
+    def stage_transaction(self, target_table, data, txn_data):
         self.saved_transactions.append({
             "target_table": target_table,
             "data": data,

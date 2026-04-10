@@ -1,3 +1,4 @@
+import time
 from abc import ABC, abstractmethod
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 
@@ -26,16 +27,15 @@ class DataExtractorInterface(ABC):
             time.sleep(self.rate_limit_delay - elapsed)
         self._last_request_time = time.time()
 
-    def _get_retry_decorator(self):
+    def _get_retry_decorator(self, exception_types):
         return retry(
             stop=stop_after_attempt(self.max_attempts),
             wait=wait_exponential(
                 multiplier=1,
                 min=self.initial_delay,
                 max=self.max_delay,
-                exponential_base=self.exponential_base
+                exp_base=self.exponential_base
             ),
-            retry=retry_if_exception_type((RateLimitError, APIError, Timeout)),
+            retry=retry_if_exception_type(exception_types),
             reraise=True
         )
-

@@ -3,6 +3,7 @@ import time
 import json
 from google import genai
 from google.genai import types
+from google.api_core.exceptions import TooManyRequests, DeadlineExceeded, ServiceUnavailable
 
 from lib.schemas.event import Event
 from lib.schemas.event_list import EventList
@@ -35,7 +36,7 @@ class GeminiDataExtractor(DataExtractorInterface):
     def _call_gemini(self, system_prompt: str, user_prompt: str, response_schema):
         self._apply_rate_limit()
 
-        retry_decorator = self._get_retry_decorator()
+        retry_decorator = self._get_retry_decorator((TooManyRequests, DeadlineExceeded, ServiceUnavailable))
         decorated_func = retry_decorator(self._make_api_call)
         return decorated_func(system_prompt, user_prompt, response_schema)
 

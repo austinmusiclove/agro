@@ -1,10 +1,24 @@
+High level plan
+    Set up S3
+    Figure out how to set up a public rest api from ec2
+    host data review app as a wp plugin on hmm
+Manual review app
+    create rest api to serve up suggested transactions and accept transaction approvals to update the RDS
+    expose rest api service publicly from ec2
+    create web app for reviewing and approving or rejecting or modifying each suggestion (that way i can get a VA to do it at some point)
+        show screenshots, event schema, and other raw data on the left and the suggestion on the right along with any current state of the data
+        you can edit the suggested data
+        button for approve, reject; approve changes to approve with changes when changes made, and revert changes which is disabled until change is made
+        button for reject and re-scrape
+        differences between current and suggested data are highlighted
+        log the approvals, rejections, and approvals with changes so that i can see which venues have issues and manually fix or improve accuracy with venue configs
+Deploy
+    use/install python3.11 on ec2
 Scraper
     add event page scrape
     pass scraper factory into event data manager and event data manager will get the appropriate scraper for the job
     pass data extractor factory to scraper and scraper decides which extractor to use for the job based on scraper config
 MySQL
-    mysql interface
-        *config local env connection
     supporting tables
         stages table
             venue id, indoor/outdoor, capacity, name, description of how to find it in the venue
@@ -42,9 +56,7 @@ Fetcher
 Config Loader
     Need testing for overrides
 Event Data Manager
-    Merge events function
     Skip data extraction if hash from previous scrape matches
-    Submit updates to a separate table to be reviewed before they are committed to events table
     Make sure to use schema if fetcher returns any and skip extraction if there is sufficient data or include extraction as well and have both in suggested_transaction entry
 Tests
     Classes to test
@@ -59,18 +71,6 @@ Tests
         EventDataManager
     Test getting data from event url
     Consistency testing with multiple runs on same test run to check consistency level as a percentage
-Deploy
-    use/install python3.11 on ec2
-Manual review app
-    create rest api to serve up suggested transactions and accept transaction approvals to update the RDS
-    expose rest api service publicly from ec2
-    create web app for reviewing and approving or rejecting or modifying each suggestion (that way i can get a VA to do it at some point)
-        show screenshots, event schema, and other raw data on the left and the suggestion on the right along with any current state of the data
-        you can edit the suggested data
-        button for approve, reject; approve changes to approve with changes when changes made, and revert changes which is disabled until change is made
-        button for reject and re-scrape
-        differences between current and suggested data are highlighted
-        log the approvals, rejections, and approvals with changes so that i can see which venues have issues and manually fix or improve accuracy with venue configs
 Logging
     create Logger class and it should be able to print and add logs to the db
     configure logger with the application and other constants
