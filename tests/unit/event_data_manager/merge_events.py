@@ -5,7 +5,6 @@ from tests.mocks.mock_mysql_interface import MockMySQLInterface
 
 
 def create_manager(existing_events=None):
-    mock_scraper = MagicMock()
     mock_db = MockMySQLInterface()
     if existing_events is not None:
         mock_db.events = existing_events

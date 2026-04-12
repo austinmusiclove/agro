@@ -1,38 +1,37 @@
 import pytest
+from unittest.mock import MagicMock
 from lib.event_data_manager.event_data_manager import EventDataManager
 from tests.mocks.mock_mysql_interface import MockMySQLInterface
-from lib.scraper.agro_scraper import AgroScraper
 
 
-def test_get_venues_with_id(self):
+def create_manager(venues=None):
     mock_db = MockMySQLInterface()
-    mock_db.venues = [{"id": 1, "name": "Venue 1"}]
+    if venues is not None:
+        mock_db.venues = venues
 
-    scraper = AgroScraper()
+    scraper = MagicMock()
     manager = EventDataManager(scraper, mock_db)
+    return manager
 
-    result = manager._get_venues(venue_id=1)
 
-    assert result == [{"id": 1, "name": "Venue 1"}]
+class TestGetVenues:
+    def test_get_venues_with_id(self):
+        manager = create_manager(venues=[{"id": 1, "name": "Venue 1"}])
 
-def test_get_venues_without_id(self):
-    mock_db = MockMySQLInterface()
-    mock_db.venues = [{"id": 1}, {"id": 2}]
+        result = manager._get_venues(venue_id=1)
 
-    scraper = AgroScraper()
-    manager = EventDataManager(scraper, mock_db)
+        assert result == [{"id": 1, "name": "Venue 1"}]
 
-    result = manager._get_venues()
+    def test_get_venues_without_id(self):
+        manager = create_manager(venues=[{"id": 1}, {"id": 2}])
 
-    assert len(result) == 2
+        result = manager._get_venues()
 
-def test_get_venues_returns_empty_when_not_found(self):
-    mock_db = MockMySQLInterface()
-    mock_db.venues = []
+        assert len(result) == 2
 
-    scraper = AgroScraper()
-    manager = EventDataManager(scraper, mock_db)
+    def test_get_venues_returns_empty_when_not_found(self):
+        manager = create_manager(venues=[])
 
-    result = manager._get_venues(venue_id=999)
+        result = manager._get_venues(venue_id=999)
 
-    assert result is None
+        assert result is None
