@@ -35,7 +35,7 @@ class EventDataManager:
 
                 # Get transactions and process
                 existing_events = self.mysql_interface.get_future_events_by_venue(venue.get("id"))
-                transactions = self._get_event_transactions(existing_events, events)
+                transactions = self._merge_events(existing_events, events)
                 print(f"Processing {len(transactions)} transactions...")
                 for txn in transactions:
 
@@ -84,7 +84,7 @@ class EventDataManager:
         else:
             return self.mysql_interface.get_all_venues()
 
-    def _get_event_transactions(self, existing_events, scraped_events):
+    def _merge_events(self, existing_events, scraped_events):
         """
         Compare scraped events against existing events in the database to determine what changes need to be made.
 

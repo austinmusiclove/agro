@@ -17,6 +17,7 @@ def create_agro_scraper():
 
 @pytest.fixture(params=[FirecrawlScraper, create_agro_scraper])
 def scraper(request):
+    load_dotenv(override=True)
     return request.param()
 
 
@@ -45,7 +46,7 @@ def test_scrape_event_list_page(scraper):
         'end_date': None,
         'start_time': '8:00pm',
         'end_time': None,
-        'image': 'https://antonesnightclub.com/wp-content/uploads/2026/02/BarbaraFG_MonicaValli_Feb2026_2048x1152.jpg',
+        'image_url': 'https://antonesnightclub.com/wp-content/uploads/2026/02/BarbaraFG_MonicaValli_Feb2026_2048x1152.jpg',
         'venue_name': ["Antone's Stage at Still Austin", "Still Austin"],
         'performer_names': ['Monica Valli'],
         'indoor_outdoor': ['outdoor', None],
@@ -74,10 +75,10 @@ def test_scrape_event_list_page_pagination(scraper):
     load_dotenv(override=True)
 
     test_url = "https://austinmusiclove.github.io/agro/antonesnightclub_page1.html"
-    
+
     # Act: Scrape with pagination enabled
     result = scraper.scrape_event_list_page(test_url, paginate=True)
-    
+
     # Assert
     assert result is not None, "Result should not be None"
     events = result.get("events", [])
