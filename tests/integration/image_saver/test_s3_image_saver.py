@@ -39,7 +39,11 @@ def cleanup_s3_uploads(s3_saver):
 
     def tracked_save(image_bytes, name_hint=None):
         result = original_save(image_bytes, name_hint)
-        key = result.replace(f"s3://{s3_saver._bucket}/", "")
+        if "s3://" in result:
+            key = result.replace(f"s3://{s3_saver._bucket}/", "")
+        else:
+            parts = result.split(f".s3.{s3_saver._region}.amazonaws.com/")
+            key = parts[1] if len(parts) > 1 else result.split("/")[-1]
         uploaded_keys.append(key)
         return result
 
@@ -57,7 +61,7 @@ def cleanup_s3_uploads(s3_saver):
 
 def test_save_uploads_to_s3(s3_saver, image_bytes):
     path = s3_saver.save(image_bytes)
-    assert path.startswith("s3://")
+    assert path.startswith("https://")
 
 
 def test_save_returns_s3_url(s3_saver, image_bytes):

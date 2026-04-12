@@ -12,6 +12,7 @@ class S3ImageSaver(ImageSaverInterface):
         self._bucket = s3_config.get("bucket")
         self._region = s3_config.get("region", "us-east-1")
         self._path_prefix = s3_config.get("path_prefix", "")
+        self._public_url = s3_config.get("public_url")
         
         if not self._bucket:
             raise ImageSaverError("S3 bucket not configured")
@@ -52,7 +53,10 @@ class S3ImageSaver(ImageSaverInterface):
         except Exception as e:
             raise ImageSaverError(f"Failed to upload to S3: {e}") from e
 
-        return f"s3://{self._bucket}/{s3_key}"
+        if self._public_url:
+            return f"{self._public_url.rstrip('/')}/{s3_key}"
+        
+        return f"https://{self._bucket}.s3.{self._region}.amazonaws.com/{s3_key}"
 
     def _get_content_type(self, extension: str) -> str:
         content_types = {

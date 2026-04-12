@@ -41,23 +41,22 @@ class EventDataManager:
 
                     db_event = None
                     txn_type = txn.get("transaction_type")
-                    if txn_type == "create" or txn_type == "udpate":
+                    txn_data = {
+                        "transaction_type": txn_type,
+                        "current_data_row_id": txn.get("existing_event_id"),
+                        "schema_blob": txn["event_data"],
+                    }
+                    if txn_type == "create" or txn_type == "update":
                         db_event = txn.get("event_data").copy()
                         screenshot_idx = db_event.get("screenshot_index")
                         screenshot_ref = screenshot_refs.get(screenshot_idx) if screenshot_idx is not None else None
                         db_event["image_ref"] = screenshot_ref
                         db_event["venue_id"] = venue.get("id")
-
-                    txn_data = {
-                        "transaction_type": txn_type,
-                        "current_data_row_id": txn.get("existing_event_id"),
-                        "data_index": db_event.get("data_index"),
-                        "screenshot": screenshot_ref,
-                        "schema_blob": txn["event_data"],
-                        "scrape_url": db_event.get("scrape_url"),
-                        "scrape_html_hash": db_event.get("html_hash"),
-                        "scrape_markdown_hash": db_event.get("markdown_hash")
-                    }
+                        txn_data["screenshot"] = screenshot_ref
+                        txn_data["data_index"] = db_event.get("data_index")
+                        txn_data["scrape_url"] = db_event.get("scrape_url")
+                        txn_data["scrape_html_hash"] = db_event.get("scrape_html_hash")
+                        txn_data["scrape_markdown_hash"] = db_event.get("scrape_markdown_hash")
 
                     self.mysql_interface.stage_transaction("events", db_event, txn_data)
             else:

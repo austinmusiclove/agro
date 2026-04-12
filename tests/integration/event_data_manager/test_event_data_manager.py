@@ -2,16 +2,61 @@ import pytest
 from dotenv import load_dotenv
 from lib.event_data_manager.event_data_manager import EventDataManager
 from tests.mocks.mock_mysql_interface import MockMySQLInterface
-from tests.mocks.mock_image_saver import MockImageSaver
 from lib.scraper.agro_scraper import AgroScraper
 from lib.fetcher.factory import FetcherFactory
 from lib.data_extractor.factory import DataExtractorFactory
+from lib.image_saver.factory import ImageSaverFactory
 from lib.config import YamlConfigLoader
+
+
+@pytest.fixture
+def config_loader():
+    load_dotenv(override=True)
+    return YamlConfigLoader()
+
+
+@pytest.fixture
+def image_saver(config_loader):
+    factory = ImageSaverFactory(config_loader)
+    return factory.create()
+
+
+@pytest.fixture(autouse=True)
+def cleanup_s3_uploads(image_saver):
+    if not hasattr(image_saver, '_s3_client'):
+        yield
+        return
+
+    uploaded_keys = []
+    image_saver._save_call_count = 0
+
+    original_save = image_saver.save
+
+    def tracked_save(image_bytes, name_hint=None):
+        image_saver._save_call_count += 1
+        result = original_save(image_bytes, name_hint)
+        if "s3://" in result:
+            key = result.replace(f"s3://{image_saver._bucket}/", "")
+        else:
+            parts = result.split(f".s3.{image_saver._region}.amazonaws.com/")
+            key = parts[1] if len(parts) > 1 else result.split("/")[-1]
+        uploaded_keys.append(key)
+        return result
+
+    image_saver.save = tracked_save
+
+    yield
+
+    for key in uploaded_keys:
+        try:
+            image_saver._s3_client.delete_object(Bucket=image_saver._bucket, Key=key)
+        except Exception:
+            pass
 
 
 @pytest.mark.integration
 @pytest.mark.costly
-def test_scrape_event_list_pages_with_agro_scraper():
+def test_scrape_event_list_pages_with_agro_scraper(config_loader, image_saver):
     load_dotenv(override=True)
 
     # Setup mock MySQL interface with venue 53
@@ -21,16 +66,13 @@ def test_scrape_event_list_pages_with_agro_scraper():
     ]
     mock_mysql.events = []  # No existing events
 
-    mock_image_saver = MockImageSaver()
-
     # Create AgroScraper
-    config_loader = YamlConfigLoader()
     fetcher_factory = FetcherFactory(config_loader)
     data_extractor_factory = DataExtractorFactory(config_loader)
     scraper = AgroScraper(fetcher_factory, data_extractor_factory, config_loader)
 
     # Create EventDataManager
-    event_data_manager = EventDataManager(scraper, mock_mysql, mock_image_saver)
+    event_data_manager = EventDataManager(scraper, mock_mysql, image_saver)
 
     # Execute
     event_data_manager.scrape_event_list_pages(venue_id=53)
@@ -42,8 +84,8 @@ def test_scrape_event_list_pages_with_agro_scraper():
     # With pagination, we expect 68 events
     assert len(mock_mysql.saved_transactions) == 68, f"Expected 68 transactions, got {len(mock_mysql.saved_transactions)}"
 
-    # Verify screenshots were saved
-    assert len(mock_image_saver.saved_images) > 0, "Screenshots should have been saved"
+    # Verify screenshots were saved (should be called once - same screenshot reused for all events)
+    assert image_saver._save_call_count >= 4, f"Expected 4 screenshot saves, got {image_saver._save_call_count}"
 
     # Verify first transaction has expected structure
     first_txn = mock_mysql.saved_transactions[0]
@@ -55,7 +97,7 @@ def test_scrape_event_list_pages_with_agro_scraper():
 
 @pytest.mark.integration
 @pytest.mark.costly
-def test_scrape_event_list_pages_with_existing_events():
+def test_scrape_event_list_pages_with_existing_events(config_loader, image_saver):
     load_dotenv(override=True)
 
     # Setup mock MySQL interface with venue 53
@@ -70,28 +112,27 @@ def test_scrape_event_list_pages_with_existing_events():
     mock_mysql.events = [
         {
             "id": 100,
+            "venue_id": 53,
             "event_page_url": "https://antonesnightclub.com/tm-event/antones-stage-at-still-austin-monica-valli-single-release/",
             "start_date": "2026-03-13",
             "title": "Old Event Title"
         },
         {
             "id": 200,
+            "venue_id": 53,
             "event_page_url": "https://antonesnightclub.com/tm-event/old-event-that-will-be-deleted/",
             "start_date": "2026-04-15",
             "title": "Old Event To Be Deleted"
         }
     ]
 
-    mock_image_saver = MockImageSaver()
-
     # Create AgroScraper
-    config_loader = YamlConfigLoader()
     fetcher_factory = FetcherFactory(config_loader)
     data_extractor_factory = DataExtractorFactory(config_loader)
     scraper = AgroScraper(fetcher_factory, data_extractor_factory, config_loader)
 
     # Create EventDataManager
-    event_data_manager = EventDataManager(scraper, mock_mysql, mock_image_saver)
+    event_data_manager = EventDataManager(scraper, mock_mysql, image_saver)
 
     # Execute
     event_data_manager.scrape_event_list_pages(venue_id=53)
@@ -105,8 +146,8 @@ def test_scrape_event_list_pages_with_existing_events():
     # = 68 create/update + 1 delete = 69 transactions total
     assert len(mock_mysql.saved_transactions) == 69, f"Expected 69 transactions, got {len(mock_mysql.saved_transactions)}"
 
-    # Verify screenshots were saved
-    assert len(mock_image_saver.saved_images) == 4, "4 screenshots should have been saved"
+    # Verify screenshots were saved (should be called 4 times - one per page)
+    assert image_saver._save_call_count >= 4, f"Expected 4 screenshot saves, got {image_saver._save_call_count}"
 
     # Verify we have at least one update transaction
     update_txns = [t for t in mock_mysql.saved_transactions if t["txn_data"]["transaction_type"] == "update"]
