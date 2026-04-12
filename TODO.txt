@@ -1,5 +1,4 @@
 High level plan
-    Set up S3
     Figure out how to set up a public rest api from ec2
     host data review app as a wp plugin on hmm
 Manual review app
