@@ -69,7 +69,7 @@ class MySQLInterface:
             data: Dict of column names and values to insert
             txn_data: Dict containing:
                 - transaction_type: 'create', 'update', or 'delete'
-                - current_data_row_id: ID of existing record (None for create)
+                - current_data_id: ID of existing record (None for create)
                 - data_index: Optional index that denotes the position of this data item in the screenshot. This is meant to assist with manual review
                 - screenshot: Optional screenshot reference
                 - schema_blob: Optional dict

@@ -152,12 +152,12 @@ def test_scrape_event_list_pages_with_existing_events(config_loader, image_saver
     # Verify we have at least one update transaction
     update_txns = [t for t in mock_mysql.saved_transactions if t["txn_data"]["transaction_type"] == "update"]
     assert len(update_txns) == 1, f"Expected 1 update transaction, got {len(update_txns)}"
-    assert update_txns[0]["txn_data"]["current_data_row_id"] == 100, "Update should reference existing event id 100"
+    assert update_txns[0]["txn_data"]["current_data_id"] == 100, "Update should reference existing event id 100"
 
     # Verify we have at least one delete transaction
     delete_txns = [t for t in mock_mysql.saved_transactions if t["txn_data"]["transaction_type"] == "delete"]
     assert len(delete_txns) == 1, f"Expected 1 delete transaction, got {len(delete_txns)}"
-    assert delete_txns[0]["txn_data"]["current_data_row_id"] == 200, "Delete should reference existing event id 200"
+    assert delete_txns[0]["txn_data"]["current_data_id"] == 200, "Delete should reference existing event id 200"
 
     # Verify we have create transactions (remaining scraped events)
     create_txns = [t for t in mock_mysql.saved_transactions if t["txn_data"]["transaction_type"] == "create"]

@@ -1,9 +1,26 @@
-High level plan
-    Figure out how to set up a public rest api from ec2
-    host data review app as a wp plugin on hmm
 Manual review app
+    lambdas from codebase git
+        codebuild
+            add build spec
+                put build spec result in build folder and add that to gitignore
+                packages lib into zip
+                upload zip to s3
+                lambda layer update
+                lambda update
+                builds individual lambdas using lambdas.py; the rest is in the layer
+            set up build on push
+            test code build
+        refactor lambda
+            consider if it is more expensive to keep db connection alive outside of lambda function
+            get env vars through config and change env var names
+            add staged transactions method in mysqlinterface
+            add a generalized lambda for getting staged transactions and delete the old one
+            add unit tests for lambda
     create rest api to serve up suggested transactions and accept transaction approvals to update the RDS
-    expose rest api service publicly from ec2
+        Get staged transactions with parameter for table
+        Accept transaction
+        Reject transaction
+        Accept transaction with modifications
     create web app for reviewing and approving or rejecting or modifying each suggestion (that way i can get a VA to do it at some point)
         show screenshots, event schema, and other raw data on the left and the suggestion on the right along with any current state of the data
         you can edit the suggested data
@@ -11,6 +28,10 @@ Manual review app
         button for reject and re-scrape
         differences between current and suggested data are highlighted
         log the approvals, rejections, and approvals with changes so that i can see which venues have issues and manually fix or improve accuracy with venue configs
+    lambdas
+        get lambda code from git
+        connect to db with secret not user pw
+        get all of agro on lambdas
 Deploy
     use/install python3.11 on ec2
 Scraper
