@@ -7,7 +7,7 @@ phases:
       - mkdir -p build/python/lib/python3.14/site-packages
 
       - echo "Installing dependencies from requirements.txt..."
-      - pip install -r requirements.txt -t build/python/lib/python3.14/site-packages/
+      - pip install -r requirements.txt -t build/python/lib/python3.14/site-packages/ --root-user-action=ignore
 
       - echo "Copying agro lib folder into site-packages..."
       # This copies the contents or the folder itself?
