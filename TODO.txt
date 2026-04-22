@@ -1,9 +1,7 @@
 Manual review app
     lambdas from codebase git
         refactor lambda
-            refactor it to be one lambda that supports every api
-                add param in api gateway
-            delete old lambda
+            delete old lambda and s3 files
             consider if it is more expensive to keep db connection alive outside of lambda function
             get env vars through config and change env var names
             add staged transactions method in mysqlinterface
