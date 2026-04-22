@@ -1,16 +1,9 @@
 Manual review app
     lambdas from codebase git
-        codebuild
-            add build spec
-                put build spec result in build folder and add that to gitignore
-                packages lib into zip
-                upload zip to s3
-                lambda layer update
-                lambda update
-                builds individual lambdas using lambdas.py; the rest is in the layer
-            set up build on push
-            test code build
         refactor lambda
+            refactor it to be one lambda that supports every api
+                add param in api gateway
+            delete old lambda
             consider if it is more expensive to keep db connection alive outside of lambda function
             get env vars through config and change env var names
             add staged transactions method in mysqlinterface
