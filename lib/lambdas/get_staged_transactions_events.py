@@ -59,8 +59,6 @@ def get_staged_transactions_events(event, context):
             'statusCode': 200,
             'body': json.dumps({
                 'path': event.get('path'),
-                'event': event,
-                'context': context,
                 'count': len(serialized_records),
                 'transactions': serialized_records
             })
