@@ -26,8 +26,8 @@ phases:
       - aws s3 cp build/agroCore_layer.zip s3://agro-dev-ops-031621556164-us-east-2-an/agroCore_layer.zip --region us-east-2
 
       - echo "Publishing new Lambda layer version..."
-      - LAYER_VERSION_ARN=$(aws lambda publish-layer-version --layer-name agroCore --content S3Bucket=agro-dev-ops-031621556164-us-east-2-an,S3Key=agroCore_layer.zip --compatible-runtimes python3.14 --region us-east-2 --query LayerVersionArn --output text)
-      - echo "New layer version published: $LAYER_VERSION_ARN"
+      - "LAYER_VERSION_ARN=$(aws lambda publish-layer-version --layer-name agroCore --content S3Bucket=agro-dev-ops-031621556164-us-east-2-an,S3Key=agroCore_layer.zip --compatible-runtimes python3.14 --region us-east-2 --query LayerVersionArn --output text)"
+      - "echo New layer version published: $LAYER_VERSION_ARN"
 
       - echo "Updating Lambda function code..."
       - aws lambda update-function-code --function-name GetStagedTransactionsEvents --zip-file fileb://build/lambda_function.zip --region us-east-2
@@ -36,4 +36,4 @@ phases:
       - aws lambda wait function-updated --function-name GetStagedTransactionsEvents --region us-east-2
 
       - echo "Updating Lambda function to use the new layer version..."
-      - aws lambda update-function-configuration --function-name GetStagedTransactionsEvents --layers $LAYER_VERSION_ARN --region us-east-2
+      - "aws lambda update-function-configuration --function-name GetStagedTransactionsEvents --layers $LAYER_VERSION_ARN --region us-east-2"
