@@ -18,7 +18,7 @@ phases:
       - cd build && zip -r agro-core-layer.zip python && cd ..
 
       - echo "Creating zip file for the lambda function code..."
-      - zip build/lambda_function.zip lib/lambdas/lambda_functions.py
+      - cd lib/lambdas && zip ../../build/lambda_function.zip lambda_functions.py && cd ../../
 
   post_build:
     commands:
