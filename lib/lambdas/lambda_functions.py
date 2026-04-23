@@ -2,7 +2,7 @@ import logging
 
 from lib.config.yaml_config_loader import YamlConfigLoader
 from lib.mysql_interface.mysql_interface import MySQLInterface
-from lib.lambdas import get_staged_transactions_events
+from lib.lambdas.staged_transactions import get_staged_transactions
 
 config_loader = YamlConfigLoader(config_overrides={})
 mysql_interface = MySQLInterface(config_loader)
@@ -16,7 +16,7 @@ def router(event, context):
     method = event.get('httpMethod')
 
     if resource == '/staged-transactions/events':
-        return get_staged_transactions_events.get_staged_transactions_events(mysql_interface, logger)
+        return get_staged_transactions.get_staged_transactions(mysql_interface, logger, 'events')
 
     return {
         'statusCode': 404,

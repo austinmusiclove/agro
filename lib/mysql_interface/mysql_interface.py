@@ -59,6 +59,10 @@ class MySQLInterface:
         conn = self._get_connection()
         return events.insert_event(conn, event_data)
 
+    def get_staged_transactions(self, target_table):
+        conn = self._get_connection()
+        return staged_transactions.get_staged_transactions(conn, target_table)
+
     def insert_staged_transaction(self, transaction_data):
         conn = self._get_connection()
         return staged_transactions.insert_staged_transaction(conn, transaction_data)

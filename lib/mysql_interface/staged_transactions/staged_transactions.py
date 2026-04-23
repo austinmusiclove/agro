@@ -2,6 +2,30 @@ import pymysql
 import json
 
 
+def get_staged_transactions(conn, target_table):
+    with conn.cursor() as cursor:
+        sql = """
+            SELECT
+                st.*,
+                e_current.title as current_event_title,
+                e_current.venue_id as current_venue_id,
+                e_current.start_date as current_start_date,
+                e_staged.title as staged_event_title,
+                e_staged.venue_id as staged_venue_id,
+                e_staged.start_date as staged_start_date
+            FROM staged_transactions st
+            LEFT JOIN events e_current ON st.current_data_id = e_current.id
+            LEFT JOIN events e_staged ON st.staged_data_id = e_staged.id
+            WHERE st.target_table = %s
+            AND st.status = 'pending-review';
+        """
+        cursor.execute(sql, (target_table,))
+        records = cursor.fetchall()
+
+        # Serialize to handle DateTime and Decimal objects safely for JSON consumption
+        return json.loads(json.dumps(records, default=str))
+
+
 def insert_staged_transaction(conn, transaction_data):
     with conn.cursor() as cursor:
         columns = [
