@@ -13,6 +13,7 @@ phases:
       # This copies the contents or the folder itself?
       # "Inside site-packages it should have all the packages in requirements.txt and the agro lib folder"
       - cp -r lib build/python/lib/python3.14/site-packages/
+      - cp -r config build/python/lib/python3.14/site-packages/
 
       - echo "Creating zip file for the lambda layer..."
       - cd build && zip -r agro-core-layer.zip python && cd ..
