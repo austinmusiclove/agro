@@ -16,12 +16,12 @@ phases:
       - cp -r lib build/dependencies/python/lib/python3.14/site-packages/
 
       - echo "Creating zip file for the lambda layer..."
-      - cd build/dependencies && zip -r agro-core-layer.zip python && cd ../..
+      - cd build/dependencies && zip -r ../agro-core-layer.zip python && cd ../..
 
       - echo "Creating zip file for the lambda function code..."
-      - cp lib/lambdas/lambda_functions.py build/lambda_func_code
-      - cp -r config build/lambda_func_code
-      - cd build/lambda_func_code && zip ../lambda_function.zip . && cd ../../
+      - cp lib/lambdas/lambda_functions.py build/lambda_func_code/
+      - cp -r config build/lambda_func_code/
+      - cd build/lambda_func_code && zip -r ../lambda_function.zip . && cd ../..
 
   post_build:
     commands:
