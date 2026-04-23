@@ -4,7 +4,7 @@ from lib.config.yaml_config_loader import YamlConfigLoader
 from lib.mysql_interface.mysql_interface import MySQLInterface
 from lib.lambdas import get_staged_transactions_events
 
-config_loader = YamlConfigLoader(config_overrides=config_overrides)
+config_loader = YamlConfigLoader(config_overrides={})
 mysql_interface = MySQLInterface(config_loader)
 mysql_interface.connect()
 
