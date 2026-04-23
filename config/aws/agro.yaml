@@ -1,0 +1,22 @@
+scraper:
+  default: agro
+fetcher:
+  default: drission_page
+  drission_page:
+    max_screenshot_height: 16000
+data_extractor:
+  default: openai
+image_saver:
+  default: s3
+  s3:
+    bucket: "agro-031621556164-us-east-2-an"
+    region: "us-east-2"
+    path_prefix: "scrape-screenshots"
+    aws_access_key_id_env: "AWS_ACCESS_KEY_ID"
+    aws_secret_access_key_env: "AWS_SECRET_ACCESS_KEY"
+mysql:
+  host_env: "AGRO_RDS_PROXY_HOST"
+  port_env: "AGRO_RDS_PORT"
+  user_env: "AGRO_RDS_USER"
+  password_env: "AGRO_RDS_PASSWORD"
+  database_env: "AGRO_RDS_DB_NAME"

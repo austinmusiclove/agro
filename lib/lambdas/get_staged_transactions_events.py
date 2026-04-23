@@ -1,9 +1,10 @@
-import sys
-import logging
-import pymysql
+#import sys
+#import logging
+#import pymysql
 import json
-import os
+#import os
 
+"""
 # rds settings
 user_name = os.environ['USER_NAME']
 password = os.environ['PASSWORD']
@@ -23,8 +24,9 @@ except pymysql.MySQLError as e:
     sys.exit(1)
 
 logger.info("SUCCESS: Connection to RDS for MySQL instance succeeded")
+"""
 
-def get_staged_transactions_events(event, context):
+def get_staged_transactions_events(mysqlInterface, logger):
     try:
         # Check if connection is still alive, reconnect if dead
         connection.ping(reconnect=True)

@@ -36,6 +36,9 @@ class MySQLInterface:
             )
         return self._connection
 
+    def connect(self):
+        return self._get_connection()
+
     def close(self):
         if self._connection and self._connection.open:
             self._connection.close()

@@ -1,11 +1,8 @@
 Manual review app
     lambdas from codebase git
         refactor lambda
-            delete old lambda and s3 files
-            consider if it is more expensive to keep db connection alive outside of lambda function
-            get env vars through config and change env var names
             add staged transactions method in mysqlinterface
-            add a generalized lambda for getting staged transactions and delete the old one
+            generalize get staged transacitons and pass in events arg
             add unit tests for lambda
     create rest api to serve up suggested transactions and accept transaction approvals to update the RDS
         Get staged transactions with parameter for table
