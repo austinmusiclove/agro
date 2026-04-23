@@ -1,9 +1,4 @@
 Manual review app
-    lambdas from codebase git
-        refactor lambda
-            add staged transactions method in mysqlinterface
-            generalize get staged transacitons and pass in events arg
-            add unit tests for lambda
     create rest api to serve up suggested transactions and accept transaction approvals to update the RDS
         Get staged transactions with parameter for table
         Accept transaction

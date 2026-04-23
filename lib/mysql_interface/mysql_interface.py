@@ -1,5 +1,4 @@
 import os
-import json
 import pymysql
 
 from lib.mysql_interface.venues import venues
