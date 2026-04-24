@@ -17,14 +17,14 @@ from lib.event_data_manager.event_data_manager import EventDataManager
 def main():
     parser = argparse.ArgumentParser(description="Agro CLI")
     parser.add_argument("--config-override", type=str, help="JSON string of config overrides")
-    
+
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     get_parser = subparsers.add_parser("scrape-event-list", help="Fetch event data from venue event list pages")
-    get_parser.add_argument("--venue-id", type=str, help="Specific venue ID")
+    get_parser.add_argument("--venue-id", type=int, help="Specific venue ID")
 
     update_parser = subparsers.add_parser("scrape-event-pages", help="Fetch event data from known event page urls")
-    update_parser.add_argument("--venue-id", type=str, help="Specific venue ID")
+    update_parser.add_argument("--venue-id", type=int, help="Specific venue ID")
     update_parser.add_argument("--date", type=str, help="Specific date (YYYY-MM-DD) to fetch events for")
 
     args = parser.parse_args()

@@ -16,7 +16,8 @@ class MySQLInterface:
         self._database_env = mysql_config.get("database_env", "AGRO_MYSQL_DATABASE")
 
         self.host = os.getenv(self._host_env)
-        self.port = os.getenv(self._port_env)
+        port_str = os.getenv(self._port_env)
+        self.port = int(port_str) if port_str is not None else 3306
         self.user = os.getenv(self._user_env)
         self.password = os.getenv(self._password_env)
         self.database = os.getenv(self._database_env)

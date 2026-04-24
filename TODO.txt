@@ -1,6 +1,7 @@
 Manual review app
+    run agro scrape
+        change db connection env vars to config except passwords and secrets
     create rest api to serve up suggested transactions and accept transaction approvals to update the RDS
-        Get staged transactions with parameter for table
         Accept transaction
         Reject transaction
         Accept transaction with modifications
@@ -12,11 +13,16 @@ Manual review app
         differences between current and suggested data are highlighted
         log the approvals, rejections, and approvals with changes so that i can see which venues have issues and manually fix or improve accuracy with venue configs
     lambdas
-        get lambda code from git
         connect to db with secret not user pw
-        get all of agro on lambdas
+        design aws infrastructure for scraper
+            make lambda files for scraping functions
+                change lambda_functions to name for api only
+                make new lambda entry file for doing scrape task
+            make a lambda for each scrape procedure with logging
+            create new build procedure in build spec to package up new lambdas
+            run scrape
 Deploy
-    use/install python3.11 on ec2
+    use/install python3.14 on ec2
 Scraper
     add event page scrape
     pass scraper factory into event data manager and event data manager will get the appropriate scraper for the job
