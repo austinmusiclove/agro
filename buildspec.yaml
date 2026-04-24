@@ -27,7 +27,7 @@ phases:
       - echo "Creating zip file for the scraper lambda function code..."
       - cp lib/lambdas/scrape_event_list.py build/scraper_lambda/
       - cp -r config build/scraper_lambda/
-      - cd build/scraper_lambda && zip -r ../scrape_lambda.zip . && cd ../..
+      - cd build/scraper_lambda && zip -r ../scrape_lambda_function.zip . && cd ../..
 
   post_build:
     commands:
@@ -40,7 +40,7 @@ phases:
 
       - echo "Updating Lambda function code..."
       - aws lambda update-function-code --function-name AgroApiRouter --zip-file fileb://build/api_router_function.zip --region us-east-2
-      - aws lambda update-function-code --function-name ScrapeEventList --zip-file fileb://build/scrape_lambda.zip --region us-east-2
+      - aws lambda update-function-code --function-name ScrapeEventList --zip-file fileb://build/scrape_lambda_function.zip --region us-east-2
 
       - echo "Waiting for Lambda function code update to complete before updating configuration..."
       - aws lambda wait function-updated --function-name AgroApiRouter --region us-east-2
