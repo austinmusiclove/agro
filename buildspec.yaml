@@ -39,11 +39,9 @@ phases:
       - "echo New layer version published: $LAYER_VERSION_ARN"
 
       - echo "Updating Lambda function code..."
-      - aws lambda update-function-code --function-name ScrapeEventList --zip-file fileb://build/scrape_lambda_function.zip --region us-east-2
       - aws lambda update-function-code --function-name AgroApiRouter --zip-file fileb://build/api_router_function.zip --region us-east-2
-
-      - echo "Waiting for Lambda function code update to complete before updating configuration..."
       - aws lambda wait function-updated --function-name AgroApiRouter --region us-east-2
+      - aws lambda update-function-code --function-name ScrapeEventList --zip-file fileb://build/scrape_lambda_function.zip --region us-east-2
       - aws lambda wait function-updated --function-name ScrapeEventList --region us-east-2
 
       - echo "Updating Lambda function to use the new layer version..."
