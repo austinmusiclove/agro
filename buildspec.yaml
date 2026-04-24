@@ -5,7 +5,8 @@ phases:
     commands:
       - echo "Creating directory structure for lambda layer..."
       - mkdir -p build/dependencies/python/lib/python3.14/site-packages
-      - mkdir -p build/lambda_func_code
+      - mkdir -p build/api_router_lambda
+      - mkdir -p build/scraper_lambda
 
       - echo "Installing dependencies from requirements.txt..."
       - pip install -r requirements.txt -t build/dependencies/python/lib/python3.14/site-packages/ --root-user-action=ignore
@@ -18,10 +19,15 @@ phases:
       - echo "Creating zip file for the lambda layer..."
       - cd build/dependencies && zip -r ../agro-core-layer.zip python && cd ../..
 
-      - echo "Creating zip file for the lambda function code..."
-      - cp lib/lambdas/lambda_functions.py build/lambda_func_code/
-      - cp -r config build/lambda_func_code/
-      - cd build/lambda_func_code && zip -r ../lambda_function.zip . && cd ../..
+      - echo "Creating zip file for the api router lambda function code..."
+      - cp lib/lambdas/agro_api_router.py build/api_router_lambda/
+      - cp -r config build/api_router_lambda/
+      - cd build/api_router_lambda && zip -r ../api_router_function.zip . && cd ../..
+
+      - echo "Creating zip file for the scraper lambda function code..."
+      - cp lib/lambdas/scrape_event_list.py build/scraper_lambda/
+      - cp -r config build/scraper_lambda/
+      - cd build/scraper_lambda && zip -r ../scrape_lambda.zip . && cd ../..
 
   post_build:
     commands:
@@ -33,10 +39,13 @@ phases:
       - "echo New layer version published: $LAYER_VERSION_ARN"
 
       - echo "Updating Lambda function code..."
-      - aws lambda update-function-code --function-name AgroApiRouter --zip-file fileb://build/lambda_function.zip --region us-east-2
+      - aws lambda update-function-code --function-name AgroApiRouter --zip-file fileb://build/api_router_function.zip --region us-east-2
+      - aws lambda update-function-code --function-name ScrapeEventList --zip-file fileb://build/scrape_lambda.zip --region us-east-2
 
       - echo "Waiting for Lambda function code update to complete before updating configuration..."
       - aws lambda wait function-updated --function-name AgroApiRouter --region us-east-2
+      - aws lambda wait function-updated --function-name ScrapeEventList --region us-east-2
 
       - echo "Updating Lambda function to use the new layer version..."
       - "aws lambda update-function-configuration --function-name AgroApiRouter --layers $LAYER_VERSION_ARN --region us-east-2"
+      - "aws lambda update-function-configuration --function-name ScrapeEventList --layers $LAYER_VERSION_ARN --region us-east-2"
