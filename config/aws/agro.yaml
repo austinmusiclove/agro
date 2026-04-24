@@ -15,8 +15,8 @@ image_saver:
     aws_access_key_id_env: "AWS_ACCESS_KEY_ID"
     aws_secret_access_key_env: "AWS_SECRET_ACCESS_KEY"
 mysql:
-  host_env: "AGRO_RDS_PROXY_HOST"
-  port_env: "AGRO_RDS_PORT"
-  user_env: "AGRO_RDS_USER"
+  host: "proxy-1776094332489-database-1.proxy-co77y8ietxyj.us-east-2.rds.amazonaws.com"
+  port: 3306
+  user: "admin"
   password_env: "AGRO_RDS_PASSWORD"
-  database_env: "AGRO_RDS_DB_NAME"
+  database: "aml"

@@ -17,8 +17,8 @@ image_saver:
   local:
     images_dir: "./images"
 mysql:
-  host_env: "AGRO_MYSQL_HOST"
-  port_env: "AGRO_MYSQL_PORT"
-  user_env: "AGRO_MYSQL_USER"
+  host: "127.0.0.1"
+  port: 3306
+  user: "root"
   password_env: "AGRO_MYSQL_PASSWORD"
-  database_env: "AGRO_MYSQL_DATABASE"
+  database: "aml"

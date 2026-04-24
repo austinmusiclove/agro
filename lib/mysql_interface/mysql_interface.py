@@ -9,18 +9,14 @@ from lib.mysql_interface.staged_transactions import staged_transactions
 class MySQLInterface:
     def __init__(self, config_loader):
         mysql_config = config_loader.get_config("agro").get("mysql", {})
-        self._host_env = mysql_config.get("host_env", "AGRO_MYSQL_HOST")
-        self._port_env = mysql_config.get("port_env", "AGRO_MYSQL_PORT")
-        self._user_env = mysql_config.get("user_env", "AGRO_MYSQL_USER")
-        self._password_env = mysql_config.get("password_env", "AGRO_MYSQL_PASSWORD")
-        self._database_env = mysql_config.get("database_env", "AGRO_MYSQL_DATABASE")
 
-        self.host = os.getenv(self._host_env)
-        port_str = os.getenv(self._port_env)
-        self.port = int(port_str) if port_str is not None else 3306
-        self.user = os.getenv(self._user_env)
+        self.host = mysql_config.get("host", "localhost")
+        port_val = mysql_config.get("port", 3306)
+        self.port = int(port_val) if port_val is not None else 3306
+        self.user = mysql_config.get("user", "root")
+        self.database = mysql_config.get("database", "agro")
+        self._password_env = mysql_config.get("password_env", "AGRO_MYSQL_PASSWORD")
         self.password = os.getenv(self._password_env)
-        self.database = os.getenv(self._database_env)
 
         self._connection = None
 

@@ -1,6 +1,6 @@
 Manual review app
     run agro scrape
-        change db connection env vars to config except passwords and secrets
+    save images from image urls and put them in s3 and use that as image_ref in events data instead of the screenshot ref
     create rest api to serve up suggested transactions and accept transaction approvals to update the RDS
         Accept transaction
         Reject transaction
