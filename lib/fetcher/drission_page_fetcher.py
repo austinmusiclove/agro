@@ -34,7 +34,9 @@ class DrissionPageFetcher(FetcherInterface):
         if _browser_instance is None:
             options = ChromiumOptions().headless(True).auto_port()
 
+            print(self.browser_path)
             if self.browser_path:
+                print('set options')
                 options.headless(True)
                 options.set_browser_path(self.browser_path)
                 options.set_argument('--no-sandbox')
@@ -51,7 +53,9 @@ class DrissionPageFetcher(FetcherInterface):
         try:
             browser = self._get_browser()
             browser.listen.start(targets=True)
+            print('get')
             browser.get(url)
+            print('after get')
             browser.wait.doc_loaded()
             response = browser.listen.wait()
             status_code = response.response.status if response else None
