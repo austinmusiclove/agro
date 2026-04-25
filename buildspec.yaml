@@ -6,6 +6,7 @@ phases:
       - echo "Downloading modern Chromium for Amazon Linux 2023..."
       # This downloads the specific layer zip from Sparticuz releases
       - curl -SL https://github.com/Sparticuz/chromium/releases/download/v131.0.1/chromium-v131.0.1-layer.x86_64.zip -o chromium.zip
+      - ls -lh chromium.zip
       - unzip chromium.zip -d bin_temp
       # The binary in this layer is usually at bin/python/bin or similar, we'll move it to /build/dependencies
       - mkdir -p build/dependencies
