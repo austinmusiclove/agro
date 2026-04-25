@@ -11,6 +11,7 @@ from lib.mysql_interface.mysql_interface import MySQLInterface
 from lib.event_data_manager.event_data_manager import EventDataManager
 from lib.lambdas.staged_transactions import get_staged_transactions
 
+from pathlib import Path
 load_dotenv(override=True)
 
 config_loader          = YamlConfigLoader()
@@ -26,6 +27,10 @@ event_data_manager     = EventDataManager(scraper, mysql_interface, image_saver)
 def scrape_event_list(event, context):
     # Safely get venue_id from the top-level event dict
     venue_id = event.get('venue_id')
+
+    # Start at root (Linux/macOS: '/', Windows: 'C:\\')
+    for path in Path('/').rglob('test.txt'):
+        print(path)
 
     print("Listing contents of /opt:")
     for root, dirs, files in os.walk('/opt'):
