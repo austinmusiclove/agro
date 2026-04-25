@@ -10,14 +10,6 @@ from .interface import FetcherInterface, FetchError
 _browser_instance = None
 
 
-def _get_shared_browser():
-    global _browser_instance
-    if _browser_instance is None:
-        options = ChromiumOptions().headless(True).auto_port()
-        _browser_instance = ChromiumPage(options)
-    return _browser_instance
-
-
 def _close_shared_browser():
     global _browser_instance
     if _browser_instance:
@@ -33,11 +25,28 @@ class DrissionPageFetcher(FetcherInterface):
 
     def __init__(self, config_loader=None):
         super().__init__(config_loader)
-        self.max_screenshot_height = self._config.get("drission_page", {}).get("max_screenshot_height", self.DEFAULT_MAX_SCREENSHOT_HEIGHT)
+        drission_config = self._config.get("drission_page", {})
+        self.max_screenshot_height = drission_config.get("max_screenshot_height", self.DEFAULT_MAX_SCREENSHOT_HEIGHT)
+        self.browser_path = drission_config.get("browser_path")
+
+    def _get_browser(self):
+        global _browser_instance
+        if _browser_instance is None:
+            options = ChromiumOptions().headless(True).auto_port()
+
+            if self.browser_path:
+                options.set_browser_path(self.browser_path)
+                options.set_argument('--no-sandbox')
+                options.set_argument('--disable-dev-shm-usage')
+                options.set_argument('--disable-gpu')
+                options.set_argument('--single-process')
+
+            _browser_instance = ChromiumPage(options)
+        return _browser_instance
 
     def fetch(self, url, return_markdown=False, return_screenshot=False):
         try:
-            browser = _get_shared_browser()
+            browser = self._get_browser()
             browser.listen.start(targets=True)
             browser.get(url)
             browser.wait.doc_loaded()

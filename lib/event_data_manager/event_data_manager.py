@@ -17,7 +17,7 @@ class EventDataManager:
                 continue
 
             print(f"Starting event list scrape for venue: {venue.get('name', venue.get('id'))}")
-            scraped_result = self.scraper.scrape_event_list_page(event_list_url, paginate=True, max_pages=2)
+            scraped_result = self.scraper.scrape_event_list_page(event_list_url, paginate=True, max_pages=4)
 
             events = scraped_result.get("events", [])
             screenshots = scraped_result.get("screenshots", [])
