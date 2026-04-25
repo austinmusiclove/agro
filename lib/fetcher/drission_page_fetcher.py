@@ -40,6 +40,8 @@ class DrissionPageFetcher(FetcherInterface):
                 options.set_argument('--disable-dev-shm-usage')
                 options.set_argument('--disable-gpu')
                 options.set_argument('--single-process')
+                options.set_argument('--user-data-dir=/tmp/user-data')
+                options.set_argument('--headless')
 
             _browser_instance = ChromiumPage(options)
         return _browser_instance
