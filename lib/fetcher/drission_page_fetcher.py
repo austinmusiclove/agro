@@ -51,7 +51,9 @@ class DrissionPageFetcher(FetcherInterface):
 
     def fetch(self, url, return_markdown=False, return_screenshot=False):
         try:
+            print('get browser')
             browser = self._get_browser()
+            print('lsiten')
             browser.listen.start(targets=True)
             print('get')
             browser.get(url)
