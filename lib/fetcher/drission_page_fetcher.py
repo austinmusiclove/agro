@@ -54,14 +54,16 @@ class DrissionPageFetcher(FetcherInterface):
                 options.set_argument('--disk-cache-dir=/tmp/disk-cache')
                 print('set options9')
 
+            print('create browser')
             _browser_instance = ChromiumPage(options)
+            print('got browser')
         return _browser_instance
 
     def fetch(self, url, return_markdown=False, return_screenshot=False):
         try:
             print('get browser')
             browser = self._get_browser()
-            print('lsiten')
+            print('listen')
             browser.listen.start(targets=True)
             print('get')
             browser.get(url)
