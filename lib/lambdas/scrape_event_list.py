@@ -27,6 +27,11 @@ def scrape_event_list(event, context):
     # Safely get venue_id from the top-level event dict
     venue_id = event.get('venue_id')
 
+    print("Listing contents of /opt:")
+    for root, dirs, files in os.walk('/opt'):
+        for name in files:
+            print(os.path.join(root, name))
+
     # Explicitly cast to int if it's not None, otherwise keep it None
     if venue_id is not None:
         try:

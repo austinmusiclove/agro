@@ -34,25 +34,15 @@ class DrissionPageFetcher(FetcherInterface):
         if _browser_instance is None:
             options = ChromiumOptions().headless(True).auto_port()
 
-            print(self.browser_path)
             if self.browser_path:
-                print('set options')
                 options.headless(True)
-                print('set options2')
                 options.set_browser_path(self.browser_path)
-                print('set options3')
                 options.set_argument('--no-sandbox')
-                print('set options4')
                 options.set_argument('--disable-dev-shm-usage')
-                print('set options5')
                 options.set_argument('--disable-gpu')
-                print('set options6')
                 options.set_argument('--single-process')
-                print('set options7')
                 options.set_argument('--user-data-dir=/tmp/user-data')
-                print('set options8')
                 options.set_argument('--disk-cache-dir=/tmp/disk-cache')
-                print('set options9')
 
             try:
                 print('create browser')
