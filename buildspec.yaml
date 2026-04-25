@@ -5,7 +5,7 @@ phases:
     commands:
       - echo "Downloading modern Chromium for Amazon Linux 2023..."
       # This downloads the specific layer zip from Sparticuz releases
-      - curl -SL https://github.com/Sparticuz/chromium/releases/download/v131.0.1/chromium-v131.0.1-layer.x86_64.zip -o chromium.zip
+      - curl -SL https://github.com/Sparticuz/chromium/releases/download/v147.0.2/chromium-v147.0.2-layer.x64.zip -o chromium.zip
       - ls -lh chromium.zip
       - unzip chromium.zip -d bin_temp
       # The binary in this layer is usually at bin/python/bin or similar, we'll move it to /build/dependencies
@@ -27,9 +27,6 @@ phases:
       - echo "Copying agro lib folder into site-packages..."
       # "Inside site-packages it should have all the packages in requirements.txt and the agro lib folder"
       - cp -r lib build/dependencies/python/lib/python3.14/site-packages/
-      - echo "Moving Chromium to build folder..."
-      - mv headless-chromium build/dependencies
-      - chmod +x build/dependencies/chromium
 
       - echo "Creating zip file for the lambda layer..."
       - cd build/dependencies && zip -r ../agro-core-layer.zip python && cd ../..
