@@ -54,8 +54,13 @@ class DrissionPageFetcher(FetcherInterface):
                 options.set_argument('--disk-cache-dir=/tmp/disk-cache')
                 print('set options9')
 
-            print('create browser')
-            _browser_instance = ChromiumPage(options)
+            try:
+                print('create browser')
+                _browser_instance = ChromiumPage(options)
+            except Exception as err:
+                print('error from chrome page')
+                print(err)
+
             print('got browser')
         return _browser_instance
 
