@@ -22,7 +22,7 @@ phases:
       - mkdir -p build/scraper_lambda
 
       - echo "Installing dependencies from requirements.txt..."
-      - pip install -r <(grep -vE "firecrawl|google|pytest" requirements.txt) -t build/dependencies/python/lib/python3.14/site-packages/ --root-user-action=ignore
+      - pip install -r <(grep -vE "pytest" requirements.txt) -t build/dependencies/python/lib/python3.14/site-packages/ --root-user-action=ignore
 
       - echo "Copying agro lib folder into site-packages..."
       # "Inside site-packages it should have all the packages in requirements.txt and the agro lib folder"
