@@ -4,7 +4,7 @@ fetcher:
   default: drission_page
   drission_page:
     max_screenshot_height: 16000
-    browser_path: "/opt/chromium"
+    browser_path: "/opt/bin/headless-chromium"
 data_extractor:
   default: openai
 image_saver:
