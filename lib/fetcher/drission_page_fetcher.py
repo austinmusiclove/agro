@@ -37,6 +37,7 @@ class DrissionPageFetcher(FetcherInterface):
             if self.browser_path:
                 options.set_browser_path(self.browser_path)
                 options.set_argument('--no-sandbox')
+                options.set_argument('--headless=new')
                 options.set_argument('--disable-dev-shm-usage')
                 options.set_argument('--disable-gpu')
                 options.set_argument('--single-process')
