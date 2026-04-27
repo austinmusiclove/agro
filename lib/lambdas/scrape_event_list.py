@@ -28,9 +28,11 @@ def scrape_event_list(event, context):
     # Safely get venue_id from the top-level event dict
     venue_id = event.get('venue_id')
 
-    # Start at root (Linux/macOS: '/', Windows: 'C:\\')
-    for path in Path('/').rglob('test.txt'):
-        print(path)
+    print("Listing contents of /opt/bin:")
+    if os.path.exists('/opt/bin'):
+        print("Files in /opt/bin:", os.listdir('/opt/bin'))
+    else:
+        print("/opt/bin directory does not exist!")
 
     print("Listing contents of /opt:")
     for root, dirs, files in os.walk('/opt'):
