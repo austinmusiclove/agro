@@ -34,11 +34,6 @@ def scrape_event_list(event, context):
     else:
         print("/opt/bin directory does not exist!")
 
-    print("Listing contents of /opt:")
-    for root, dirs, files in os.walk('/opt'):
-        for name in files:
-            print(os.path.join(root, name))
-
     # Explicitly cast to int if it's not None, otherwise keep it None
     if venue_id is not None:
         try:

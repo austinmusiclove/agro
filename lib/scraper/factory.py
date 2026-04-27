@@ -6,17 +6,13 @@ class ScraperFactory:
         self._config_loader = config_loader
         self._fetcher_factory = fetcher_factory
         self._data_extractor_factory = data_extractor_factory
-        print('scraper config')
-        print(config_loader.get_config("agro").get("scraper", {}).get("default", "default_imp"))
         self._default_implementation = config_loader.get_config("agro").get("scraper", {}).get("default", "agro")
-        print(self._default_implementation)
 
     def create(self, implementation: str = None) -> ScraperInterface:
         if implementation is None:
             implementation = self._default_implementation
 
         if implementation == "firecrawl":
-            pass
             from .firecrawl_scraper import FirecrawlScraper
             return FirecrawlScraper()
         elif implementation == "agro":
