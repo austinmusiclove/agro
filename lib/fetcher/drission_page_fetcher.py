@@ -7,6 +7,8 @@ from DrissionPage.errors import PageDisconnectedError
 from PIL import Image
 from .interface import FetcherInterface, FetchError
 
+import subprocess
+
 
 _browser_instance = None
 
@@ -33,6 +35,13 @@ class DrissionPageFetcher(FetcherInterface):
     def _get_browser(self):
         global _browser_instance
         if _browser_instance is None:
+
+            # Add this inside your lambda_handler or _get_browser
+            try:
+                result = subprocess.check_output([self.browser_path, '--version'], stderr=subprocess.STDOUT)
+                print(f"Binary Check: {result.decode()}")
+            except Exception as e:
+                print(f"Binary is broken or missing libraries: {e}")
 
             options = ChromiumOptions()
 
