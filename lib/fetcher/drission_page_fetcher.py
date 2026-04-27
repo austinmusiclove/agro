@@ -32,18 +32,27 @@ class DrissionPageFetcher(FetcherInterface):
     def _get_browser(self):
         global _browser_instance
         if _browser_instance is None:
-            options = ChromiumOptions().auto_port()
+
+            options = ChromiumOptions()
+
+            # Crucial: Use /tmp for the user profile and crash dumps
+            # Lambda only allows writing to /tmp
 
             if self.browser_path:
                 options.set_browser_path(self.browser_path)
-                options.set_argument('--no-sandbox')
+                user_data_dir = '/tmp/user_data'
+                os.makedirs(user_data_dir, exist_ok=True)
+                options.set_user_data_path(user_data_dir)
                 options.set_argument('--headless=new')
-                options.set_argument('--disable-dev-shm-usage')
+                options.set_argument('--no-sandbox')
                 options.set_argument('--disable-gpu')
+                options.set_argument('--disable-dev-shm-usage')
                 options.set_argument('--single-process')
-                options.set_argument('--user-data-dir=/tmp/user-data')
+                #options.set_argument('--user-data-dir=/tmp/user-data')
                 options.set_argument('--disk-cache-dir=/tmp/disk-cache')
+                options.set_argument('--remote-debugging-port=9222') # Explicitly set the port
             else:
+                options = ChromiumOptions().auto_port()
                 options.headless(True)
 
             try:
