@@ -1,6 +1,4 @@
 from .interface import ScraperInterface
-from .firecrawl_scraper import FirecrawlScraper
-from .agro_scraper import AgroScraper
 
 
 class ScraperFactory:
@@ -15,10 +13,12 @@ class ScraperFactory:
             implementation = self._default_implementation
 
         if implementation == "firecrawl":
+            from .firecrawl_scraper import FirecrawlScraper
             return FirecrawlScraper()
         elif implementation == "agro":
             if not self._fetcher_factory or not self._data_extractor_factory:
                 raise ValueError("AgroScraper requires fetcher_factory and data_extractor_factory")
+            from .agro_scraper import AgroScraper
             return AgroScraper(self._fetcher_factory, self._data_extractor_factory, self._config_loader)
         else:
             raise ValueError(f"Unknown scraper type requested: {implementation}")
