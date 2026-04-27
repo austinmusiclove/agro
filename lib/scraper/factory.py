@@ -17,8 +17,8 @@ class ScraperFactory:
 
         if implementation == "firecrawl":
             pass
-            #from .firecrawl_scraper import FirecrawlScraper
-            #return FirecrawlScraper()
+            from .firecrawl_scraper import FirecrawlScraper
+            return FirecrawlScraper()
         elif implementation == "agro":
             if not self._fetcher_factory or not self._data_extractor_factory:
                 raise ValueError("AgroScraper requires fetcher_factory and data_extractor_factory")
