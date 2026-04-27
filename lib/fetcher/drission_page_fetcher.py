@@ -1,5 +1,6 @@
 import atexit
 import io
+import os
 import time
 from DrissionPage import ChromiumPage, ChromiumOptions
 from DrissionPage.errors import PageDisconnectedError
