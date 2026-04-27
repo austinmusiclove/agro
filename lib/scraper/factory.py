@@ -7,9 +7,9 @@ class ScraperFactory:
         self._fetcher_factory = fetcher_factory
         self._data_extractor_factory = data_extractor_factory
         print('scraper config')
-        print(self._default_implementation)
         print(config_loader.get_config("agro").get("scraper", {}).get("default", "default_imp"))
         self._default_implementation = config_loader.get_config("agro").get("scraper", {}).get("default", "agro")
+        print(self._default_implementation)
 
     def create(self, implementation: str = None) -> ScraperInterface:
         if implementation is None:
