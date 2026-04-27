@@ -32,10 +32,9 @@ class DrissionPageFetcher(FetcherInterface):
     def _get_browser(self):
         global _browser_instance
         if _browser_instance is None:
-            options = ChromiumOptions().headless(True).auto_port()
+            options = ChromiumOptions().auto_port()
 
             if self.browser_path:
-                options.headless(True)
                 options.set_browser_path(self.browser_path)
                 options.set_argument('--no-sandbox')
                 options.set_argument('--disable-dev-shm-usage')
@@ -43,6 +42,8 @@ class DrissionPageFetcher(FetcherInterface):
                 options.set_argument('--single-process')
                 options.set_argument('--user-data-dir=/tmp/user-data')
                 options.set_argument('--disk-cache-dir=/tmp/disk-cache')
+            else:
+                options.headless(True)
 
             try:
                 print('create browser')
