@@ -14,7 +14,8 @@ class DataExtractorFactory:
             from .openai_data_extractor import OpenAiDataExtractor
             return OpenAiDataExtractor(self._config_loader)
         elif implementation == "gemini":
-            from .gemini_data_extractor import GeminiDataExtractor
-            return GeminiDataExtractor(self._config_loader)
+            pass
+            #from .gemini_data_extractor import GeminiDataExtractor
+            #return GeminiDataExtractor(self._config_loader)
         else:
             raise ValueError(f"Unknown data extractor type: {implementation}")
