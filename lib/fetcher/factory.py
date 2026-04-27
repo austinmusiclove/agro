@@ -1,6 +1,4 @@
 from .interface import FetcherInterface
-from .simple_fetcher import SimpleFetcher
-from .drission_page_fetcher import DrissionPageFetcher
 
 
 class FetcherFactory:
@@ -15,8 +13,13 @@ class FetcherFactory:
             implementation = self._default_implementation
 
         if implementation == "simple_fetcher":
+            from .simple_fetcher import SimpleFetcher
             return SimpleFetcher()
         elif implementation == "drission_page":
+            from .drission_page_fetcher import DrissionPageFetcher
             return DrissionPageFetcher(self._config_loader)
+        elif implementation == "playwright":
+            from .playwright_fetcher import PlaywrightFetcher
+            return PlaywrightFetcher(self._config_loader)
         else:
             raise ValueError(f"Unknown fetcher type requested: {implementation}")

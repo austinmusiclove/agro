@@ -1,9 +1,11 @@
 scraper:
   default: agro
 fetcher:
-  default: drission_page
+  default: playwright
   drission_page:
     max_screenshot_height: 16000
+    browser_path: ""
+  playwright:
     browser_path: ""
 data_extractor:
   default: openai

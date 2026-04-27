@@ -7,11 +7,7 @@ from DrissionPage.errors import PageDisconnectedError
 from PIL import Image
 from .interface import FetcherInterface, FetchError
 
-import subprocess
-
-
 _browser_instance = None
-
 
 def _close_shared_browser():
     global _browser_instance
@@ -19,8 +15,8 @@ def _close_shared_browser():
         _browser_instance.quit()
         _browser_instance = None
 
-
 atexit.register(_close_shared_browser)
+
 
 
 class DrissionPageFetcher(FetcherInterface):
@@ -36,18 +32,7 @@ class DrissionPageFetcher(FetcherInterface):
         global _browser_instance
         if _browser_instance is None:
 
-            # Add this inside your lambda_handler or _get_browser
-            try:
-                result = subprocess.check_output([self.browser_path, '--version'], stderr=subprocess.STDOUT)
-                print(f"Binary Check: {result.decode()}")
-            except Exception as e:
-                print(f"Binary is broken or missing libraries: {e}")
-
             options = ChromiumOptions()
-
-            # Crucial: Use /tmp for the user profile and crash dumps
-            # Lambda only allows writing to /tmp
-
             if self.browser_path:
                 options.set_browser_path(self.browser_path)
                 user_data_dir = '/tmp/user_data'
@@ -58,7 +43,6 @@ class DrissionPageFetcher(FetcherInterface):
                 options.set_argument('--disable-gpu')
                 options.set_argument('--disable-dev-shm-usage')
                 options.set_argument('--single-process')
-                #options.set_argument('--user-data-dir=/tmp/user-data')
                 options.set_argument('--disk-cache-dir=/tmp/disk-cache')
                 options.set_argument('--remote-debugging-port=9222') # Explicitly set the port
             else:
@@ -66,30 +50,31 @@ class DrissionPageFetcher(FetcherInterface):
                 options.headless(True)
 
             try:
-                print('create browser')
                 _browser_instance = ChromiumPage(options)
             except Exception as err:
-                print('error from chrome page')
                 print(err)
 
-            print('got browser')
         return _browser_instance
 
     def fetch(self, url, return_markdown=False, return_screenshot=False):
         try:
-            print('get browser')
             browser = self._get_browser()
-            print('listen')
-            browser.listen.start(targets=True)
-            print('get')
+            
+            # Start listening specifically for the main document request
+            browser.listen.start(url)
+            
             browser.get(url)
-            print('after get')
+            
+            # Wait for the specific packet we listened for
+            packet = browser.listen.wait()
+            
+            # Check the response status
+            if packet and packet.response:
+                status_code = packet.response.status
+                if status_code and status_code >= 400:
+                    raise FetchError(url, status_code=status_code)
+            
             browser.wait.doc_loaded()
-            response = browser.listen.wait()
-            status_code = response.response.status if response else None
-
-            if status_code and status_code != 200:
-                raise FetchError(url, status_code)
 
             html = browser.html
             markdown = self._convert_html_to_markdown(html) if return_markdown else None

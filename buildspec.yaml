@@ -1,18 +1,6 @@
 version: 0.2
 
 phases:
-  install:
-    commands:
-      #- echo "Downloading modern Chromium for Amazon Linux 2023..."
-      # This downloads the specific layer zip from Sparticuz releases
-      #- curl -SL https://github.com/Sparticuz/chromium/releases/download/v147.0.2/chromium-v147.0.2-layer.x64.zip -o chromium.zip
-      #- ls -lh chromium.zip
-      #- unzip chromium.zip -d bin_temp
-      # The binary in this layer is usually at bin/python/bin or similar, we'll move it to /build/dependencies
-      #- mkdir -p build/dependencies
-      #- find bin_temp -name "chromium" -exec mv {} build/dependencies/chromium \;
-      #- chmod +x build/dependencies/chromium
-      #- touch build/dependencies/test.txt
 
   build:
     commands:
@@ -60,4 +48,5 @@ phases:
 
       - echo "Updating Lambda function to use the new layer version..."
       - "aws lambda update-function-configuration --function-name AgroApiRouter --layers $LAYER_VERSION_ARN --region us-east-2"
-      - "aws lambda update-function-configuration --function-name ScrapeEventList --layers $LAYER_VERSION_ARN arn:aws:lambda:us-east-2:031621556164:layer:serverlessChrome:2 --region us-east-2"
+      - "aws lambda update-function-configuration --function-name ScrapeEventList --layers $LAYER_VERSION_ARN --region us-east-2"
+      #- "aws lambda update-function-configuration --function-name ScrapeEventList --layers $LAYER_VERSION_ARN arn:aws:lambda:us-east-2:031621556164:layer:serverlessChrome:2 --region us-east-2"

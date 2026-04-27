@@ -1,0 +1,100 @@
+import atexit
+from playwright.sync_api import sync_playwright, Error as PlaywrightError
+from .interface import FetcherInterface, FetchError
+
+_playwright_context = None
+_browser_instance = None
+
+
+def _close_shared_browser():
+    global _playwright_context, _browser_instance
+    if _browser_instance:
+        try:
+            _browser_instance.close()
+        except:
+            pass
+        _browser_instance = None
+    if _playwright_context:
+        try:
+            _playwright_context.stop()
+        except:
+            pass
+        _playwright_context = None
+
+
+atexit.register(_close_shared_browser)
+
+
+class PlaywrightFetcher(FetcherInterface):
+    def __init__(self, config_loader=None):
+        super().__init__(config_loader)
+        playwright_config = self._config.get("playwright", {})
+        self.browser_path = playwright_config.get("browser_path")
+
+    def _get_configured_browser(self):
+        global _playwright_context, _browser_instance
+
+        # If the browser exists but disconnected (e.g. between pytest runs), force a restart
+        if _browser_instance is not None and not _browser_instance.is_connected():
+            _close_shared_browser()
+
+        if _playwright_context is None:
+            _playwright_context = sync_playwright().start()
+
+            launch_args = {
+                "headless": True,
+                "args": [
+                    '--no-sandbox',
+                    '--disable-dev-shm-usage',
+                    '--disable-gpu'
+                ]
+            }
+            if self.browser_path:
+                launch_args["executable_path"] = self.browser_path
+
+            _browser_instance = _playwright_context.chromium.launch(**launch_args)
+
+        return _browser_instance
+
+    def fetch(self, url, return_markdown=False, return_screenshot=False):
+        browser = self._get_configured_browser()
+        context = browser.new_context(
+            viewport={'width': 1280, 'height': 800}
+        )
+        page = context.new_page()
+
+        try:
+            response = page.goto(url, wait_until='networkidle', timeout=30000)
+
+            if response and not response.ok:
+                raise FetchError(url, response.status, response.status_text)
+
+            # Handle lazy loading by scrolling
+            page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+            page.wait_for_timeout(2000)
+            page.evaluate("window.scrollTo(0, 0)")
+            page.wait_for_timeout(1000)
+
+            html = page.content()
+            markdown = self._convert_html_to_markdown(html) if return_markdown else None
+
+            screenshot = None
+            if return_screenshot:
+                # Playwright handles full page screenshots natively
+                screenshot = page.screenshot(full_page=True, type='png')
+
+            return {
+                "html": html,
+                "markdown": markdown,
+                "screenshot": screenshot
+            }
+
+        except PlaywrightError as e:
+            raise FetchError(url, reason=str(e)) from e
+        except FetchError:
+            raise
+        except Exception as e:
+            raise FetchError(url, reason=str(e)) from e
+        finally:
+            if context:
+                context.close()
