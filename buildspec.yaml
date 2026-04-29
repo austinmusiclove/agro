@@ -16,7 +16,6 @@ phases:
       - echo "Creating directory structure for lambda layer..."
       - mkdir -p build/dependencies/python/lib/python3.14/site-packages
       - mkdir -p build/api_router_lambda
-      - mkdir -p build/scraper_lambda
 
       - echo "Installing dependencies from requirements.txt for the zip layer..."
       - pip install -r <(grep -vE "pytest|google|firecrawl" requirements.txt) -t build/dependencies/python/lib/python3.14/site-packages/ --root-user-action=ignore
@@ -32,11 +31,6 @@ phases:
       - cp lib/lambdas/agro_api_router.py build/api_router_lambda/
       - cp -r config build/api_router_lambda/
       - cd build/api_router_lambda && zip -r ../api_router_function.zip . && cd ../..
-
-      - echo "Creating zip file for the scraper lambda function code (DrissionPage Version)..."
-      - cp lib/lambdas/scrape_event_list.py build/scraper_lambda/
-      - cp -r config build/scraper_lambda/
-      - cd build/scraper_lambda && zip -r ../scrape_lambda_function.zip . && cd ../..
 
       # ==========================================
       # CONTAINER-BASED LAMBDAS (Playwright)
@@ -61,15 +55,12 @@ phases:
 
       - echo "Updating Lambda function code for zip-based functions..."
       - aws lambda update-function-code --function-name AgroApiRouter --zip-file fileb://build/api_router_function.zip --region us-east-2
-      - aws lambda update-function-code --function-name ScrapeEventList --zip-file fileb://build/scrape_lambda_function.zip --region us-east-2
 
       - echo "Wait for zip-based Lambda function code to update..."
       - aws lambda wait function-updated --function-name AgroApiRouter --region us-east-2
-      - aws lambda wait function-updated --function-name ScrapeEventList --region us-east-2
 
       - echo "Updating Lambda function to use the new layer version..."
       - "aws lambda update-function-configuration --function-name AgroApiRouter --layers $LAYER_VERSION_ARN --region us-east-2"
-      - "aws lambda update-function-configuration --function-name ScrapeEventList --layers $LAYER_VERSION_ARN --region us-east-2"
 
       # ==========================================
       # DEPLOY CONTAINER-BASED LAMBDAS
