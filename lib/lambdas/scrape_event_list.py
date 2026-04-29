@@ -28,12 +28,6 @@ def scrape_event_list(event, context):
     # Safely get venue_id from the top-level event dict
     venue_id = event.get('venue_id')
 
-    print("Listing contents of /opt/bin:")
-    if os.path.exists('/opt/bin'):
-        print("Files in /opt/bin:", os.listdir('/opt/bin'))
-    else:
-        print("/opt/bin directory does not exist!")
-
     # Explicitly cast to int if it's not None, otherwise keep it None
     if venue_id is not None:
         try:

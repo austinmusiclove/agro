@@ -39,3 +39,11 @@ python agro.py get-new --venue-id 1
 python agro.py update
 python agro.py update --venue-id 1
 ```
+
+## Build docker image and push to aws
+```bash
+aws ecr get-login-password --region <region> | docker login --username AWS --password-stdin <aws-account-id>.dkr.ecr.<region>.amazonaws.com
+docker buildx build --platform linux/amd64 --provenance=false -f docker/Dockerfile -t scrape-event-list .
+docker tag scrape-event-list:latest 031621556164.dkr.ecr.us-east-2.amazonaws.com/agro/scrape-event-list:latest
+docker push 031621556164.dkr.ecr.us-east-2.amazonaws.com/agro/scrape-event-list:latest
+```

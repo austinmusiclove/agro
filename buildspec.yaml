@@ -2,14 +2,23 @@ version: 0.2
 
 phases:
 
+  pre_build:
+    commands:
+      # Authenticate Docker with Amazon ECR so we can push our container image later
+      - echo "Logging in to Amazon ECR..."
+      - aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 031621556164.dkr.ecr.us-east-2.amazonaws.com
+
   build:
     commands:
+      # ==========================================
+      # ZIP-BASED LAMBDAS & LAYERS (Traditional)
+      # ==========================================
       - echo "Creating directory structure for lambda layer..."
       - mkdir -p build/dependencies/python/lib/python3.14/site-packages
       - mkdir -p build/api_router_lambda
       - mkdir -p build/scraper_lambda
 
-      - echo "Installing dependencies from requirements.txt..."
+      - echo "Installing dependencies from requirements.txt for the zip layer..."
       - pip install -r <(grep -vE "pytest|google|firecrawl" requirements.txt) -t build/dependencies/python/lib/python3.14/site-packages/ --root-user-action=ignore
 
       - echo "Copying agro lib folder into site-packages..."
@@ -24,13 +33,25 @@ phases:
       - cp -r config build/api_router_lambda/
       - cd build/api_router_lambda && zip -r ../api_router_function.zip . && cd ../..
 
-      - echo "Creating zip file for the scraper lambda function code..."
+      - echo "Creating zip file for the scraper lambda function code (DrissionPage Version)..."
       - cp lib/lambdas/scrape_event_list.py build/scraper_lambda/
       - cp -r config build/scraper_lambda/
       - cd build/scraper_lambda && zip -r ../scrape_lambda_function.zip . && cd ../..
 
+      # ==========================================
+      # CONTAINER-BASED LAMBDAS (Playwright)
+      # ==========================================
+      - echo "Building Docker image for ScrapeEventListPlaywright..."
+      # Build the Docker image from the project root, using the Dockerfile located in the docker/ directory
+      - docker buildx build --platform linux/amd64 --provenance=false -f docker/Dockerfile -t scrape-event-list .
+      # Tag the built image with our specific ECR repository URI
+      - docker tag scrape-event-list:latest 031621556164.dkr.ecr.us-east-2.amazonaws.com/agro/scrape-event-list:latest
+
   post_build:
     commands:
+      # ==========================================
+      # DEPLOY ZIP-BASED LAMBDAS & LAYERS
+      # ==========================================
       - echo "Uploading layer zip to S3 bucket..."
       - aws s3 cp build/agro-core-layer.zip s3://agro-dev-ops-031621556164-us-east-2-an/agro-core-layer.zip --region us-east-2
 
@@ -38,15 +59,26 @@ phases:
       - "LAYER_VERSION_ARN=$(aws lambda publish-layer-version --layer-name agroCore --content S3Bucket=agro-dev-ops-031621556164-us-east-2-an,S3Key=agro-core-layer.zip --compatible-runtimes python3.14 --region us-east-2 --query LayerVersionArn --output text)"
       - "echo New layer version published: $LAYER_VERSION_ARN"
 
-      - echo "Updating Lambda function code..."
+      - echo "Updating Lambda function code for zip-based functions..."
       - aws lambda update-function-code --function-name AgroApiRouter --zip-file fileb://build/api_router_function.zip --region us-east-2
       - aws lambda update-function-code --function-name ScrapeEventList --zip-file fileb://build/scrape_lambda_function.zip --region us-east-2
 
-      - echo "Wait for Lambda function code to update..."
+      - echo "Wait for zip-based Lambda function code to update..."
       - aws lambda wait function-updated --function-name AgroApiRouter --region us-east-2
       - aws lambda wait function-updated --function-name ScrapeEventList --region us-east-2
 
       - echo "Updating Lambda function to use the new layer version..."
       - "aws lambda update-function-configuration --function-name AgroApiRouter --layers $LAYER_VERSION_ARN --region us-east-2"
       - "aws lambda update-function-configuration --function-name ScrapeEventList --layers $LAYER_VERSION_ARN --region us-east-2"
-      #- "aws lambda update-function-configuration --function-name ScrapeEventList --layers $LAYER_VERSION_ARN arn:aws:lambda:us-east-2:031621556164:layer:serverlessChrome:2 --region us-east-2"
+
+      # ==========================================
+      # DEPLOY CONTAINER-BASED LAMBDAS
+      # ==========================================
+      - echo "Pushing the Docker image to ECR..."
+      - docker push 031621556164.dkr.ecr.us-east-2.amazonaws.com/agro/scrape-event-list:latest
+
+      - echo "Updating ScrapeEventListPlaywright Lambda function to use the new Docker image..."
+      - aws lambda update-function-code --function-name ScrapeEventListPlaywright --image-uri 031621556164.dkr.ecr.us-east-2.amazonaws.com/agro/scrape-event-list:latest --region us-east-2
+
+      - echo "Wait for ScrapeEventListPlaywright Lambda function code to update..."
+      - aws lambda wait function-updated --function-name ScrapeEventListPlaywright --region us-east-2

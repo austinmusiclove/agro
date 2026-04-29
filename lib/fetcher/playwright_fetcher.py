@@ -44,9 +44,13 @@ class PlaywrightFetcher(FetcherInterface):
             launch_args = {
                 "headless": True,
                 "args": [
-                    '--no-sandbox',
-                    '--disable-dev-shm-usage',
-                    '--disable-gpu'
+                    "--single-process",        # Essential: keeps everything in one process
+                    "--no-sandbox",           # Disables the security sandbox (required for root/Docker)
+                    "--disable-dev-shm-usage", # Forces Chrome to use /tmp instead of shared memory
+                    "--disable-gpu",           # No hardware acceleration in Lambda
+                    "--disable-setuid-sandbox",
+                    "--no-zygote",             # Prevents background "helper" processes
+                    "--ignore-certificate-errors",
                 ]
             }
             if self.browser_path:
