@@ -51,6 +51,10 @@ class MySQLInterface:
         conn = self._get_connection()
         return events.get_future_events_by_venue(conn, venue_id)
 
+    def get_event_by_id(self, event_id):
+        conn = self._get_connection()
+        return events.get_event_by_id(conn, event_id)
+
     def insert_event(self, event_data):
         conn = self._get_connection()
         return events.insert_event(conn, event_data)
@@ -58,6 +62,18 @@ class MySQLInterface:
     def get_staged_transactions(self, target_table):
         conn = self._get_connection()
         return staged_transactions.get_staged_transactions(conn, target_table)
+
+    def get_staged_transaction_with_event(self, transaction_id):
+        conn = self._get_connection()
+        transaction = staged_transactions.get_staged_transaction(conn, transaction_id)
+        
+        if transaction and transaction.get('staged_data_id') and transaction.get('target_table') == 'events':
+            event = events.get_event_by_id(conn, transaction['staged_data_id'])
+            if event:
+                import json
+                transaction['event'] = json.loads(json.dumps(event, default=str))
+                
+        return transaction
 
     def insert_staged_transaction(self, transaction_data):
         conn = self._get_connection()

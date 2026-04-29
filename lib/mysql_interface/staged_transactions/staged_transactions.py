@@ -25,6 +25,17 @@ def get_staged_transactions(conn, target_table):
         return json.loads(json.dumps(records, default=str))
 
 
+def get_staged_transaction(conn, transaction_id):
+    with conn.cursor() as cursor:
+        cursor.execute("SELECT * FROM staged_transactions WHERE id = %s", (transaction_id,))
+        transaction = cursor.fetchone()
+        
+        if not transaction:
+            return None
+            
+        return json.loads(json.dumps(transaction, default=str))
+
+
 def insert_staged_transaction(conn, transaction_data):
     with conn.cursor() as cursor:
         columns = [

@@ -17,6 +17,14 @@ def router(event, context):
 
     if resource == '/staged-transactions/events':
         return get_staged_transactions.get_staged_transactions(mysql_interface, logger, 'events')
+    elif resource == '/staged-transactions/events/{id}':
+        transaction_id = event.get('pathParameters', {}).get('id')
+        if not transaction_id:
+            return {
+                'statusCode': 400,
+                'body': 'Missing transaction ID'
+            }
+        return get_staged_transactions.get_staged_transaction_by_id(mysql_interface, logger, transaction_id)
 
     return {
         'statusCode': 404,

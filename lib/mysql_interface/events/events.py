@@ -2,6 +2,14 @@ import pymysql
 from lib.helpers.helper import format_time
 
 
+def get_event_by_id(conn, event_id):
+    with conn.cursor() as cursor:
+        cursor.execute(
+            "SELECT * FROM events WHERE id = %s",
+            (event_id,)
+        )
+        return cursor.fetchone()
+
 def get_future_events_by_venue(conn, venue_id):
     with conn.cursor() as cursor:
         cursor.execute(
