@@ -63,17 +63,9 @@ class MySQLInterface:
         conn = self._get_connection()
         return staged_transactions.get_staged_transactions(conn, target_table)
 
-    def get_staged_transaction_with_event(self, transaction_id):
+    def get_staged_transaction_with_data(self, transaction_id):
         conn = self._get_connection()
-        transaction = staged_transactions.get_staged_transaction(conn, transaction_id)
-        
-        if transaction and transaction.get('staged_data_id') and transaction.get('target_table') == 'events':
-            event = events.get_event_by_id(conn, transaction['staged_data_id'])
-            if event:
-                import json
-                transaction['event'] = json.loads(json.dumps(event, default=str))
-                
-        return transaction
+        return staged_transactions.get_staged_transaction_with_data(conn, transaction_id)
 
     def insert_staged_transaction(self, transaction_data):
         conn = self._get_connection()

@@ -21,7 +21,7 @@ def get_staged_transactions(mysql_interface, logger, target_table):
 
 def get_staged_transaction_by_id(mysql_interface, logger, transaction_id):
     try:
-        transaction = mysql_interface.get_staged_transaction_with_event(transaction_id)
+        transaction = mysql_interface.get_staged_transaction_with_data(transaction_id)
         
         if not transaction:
             return {
