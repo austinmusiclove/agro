@@ -18,8 +18,10 @@ def router(event, context):
 
     if resource == '/staged-transactions/events':
         return get_staged_transactions.get_staged_transactions(mysql_interface, logger, 'events')
-    elif match := re.match(r'^/staged-transactions/([^/]+)$', resource):
-        transaction_id = match.group(1)
+
+    if resource == '/staged-transactions/{id}':
+        path_params = event.get('pathParameters')
+        transaction_id = path_params.get('id')
         return get_staged_transactions.get_staged_transaction_by_id(mysql_interface, logger, transaction_id)
 
     return {
