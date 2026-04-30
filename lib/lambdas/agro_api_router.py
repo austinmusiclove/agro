@@ -1,4 +1,5 @@
 import logging
+import re
 
 from lib.config.yaml_config_loader import YamlConfigLoader
 from lib.mysql_interface.mysql_interface import MySQLInterface
@@ -17,13 +18,8 @@ def router(event, context):
 
     if resource == '/staged-transactions/events':
         return get_staged_transactions.get_staged_transactions(mysql_interface, logger, 'events')
-    elif resource == '/staged-transactions/{id}':
-        transaction_id = event.get('pathParameters', {}).get('id')
-        if not transaction_id:
-            return {
-                'statusCode': 400,
-                'body': 'Missing transaction ID'
-            }
+    elif match := re.match(r'^/staged-transactions/([^/]+)$', resource):
+        transaction_id = match.group(1)
         return get_staged_transactions.get_staged_transaction_by_id(mysql_interface, logger, transaction_id)
 
     return {
