@@ -2,7 +2,6 @@ Manual review app
     end to end test local
         check hash gets added
     make sure lambda still works after subnet change
-    save images from image urls and put them in s3 and use that as image_ref in events data instead of the screenshot ref
     create rest api to serve up suggested transactions and accept transaction approvals to update the RDS
         Accept transaction
         Reject transaction
@@ -15,14 +14,9 @@ Manual review app
         differences between current and suggested data are highlighted
         log the approvals, rejections, and approvals with changes so that i can see which venues have issues and manually fix or improve accuracy with venue configs
     lambdas
+        add logging to functions
         connect to db with secret not user pw
-        design aws infrastructure for scraper
-            make lambda files for scraping functions
-                change lambda_functions to name for api only
-                make new lambda entry file for doing scrape task
-            make a lambda for each scrape procedure with logging
-            create new build procedure in build spec to package up new lambdas
-            run scrape
+    save images from image urls and put them in s3 and use that as image_ref in events data instead of the screenshot ref
 Deploy
     use/install python3.14 on ec2
 Scraper

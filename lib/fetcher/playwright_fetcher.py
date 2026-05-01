@@ -4,10 +4,17 @@ from .interface import FetcherInterface, FetchError
 
 _playwright_context = None
 _browser_instance = None
+_shared_context = None
 
 
 def _close_shared_browser():
-    global _playwright_context, _browser_instance
+    global _playwright_context, _browser_instance, _shared_context
+    if _shared_context:
+        try:
+            _shared_context.close()
+        except:
+            pass
+        _shared_context = None
     if _browser_instance:
         try:
             _browser_instance.close()
@@ -32,10 +39,10 @@ class PlaywrightFetcher(FetcherInterface):
         self.browser_path = playwright_config.get("browser_path")
 
     def _get_configured_browser(self):
-        global _playwright_context, _browser_instance
+        global _playwright_context, _browser_instance, _shared_context
 
-        # If the browser exists but disconnected (e.g. between pytest runs), force a restart
-        if _browser_instance is not None and not _browser_instance.is_connected():
+        # If the browser or context exists but disconnected, force a restart
+        if _browser_instance is not None and (not _browser_instance.is_connected() or _shared_context is None):
             _close_shared_browser()
 
         if _playwright_context is None:
@@ -57,15 +64,15 @@ class PlaywrightFetcher(FetcherInterface):
                 launch_args["executable_path"] = self.browser_path
 
             _browser_instance = _playwright_context.chromium.launch(**launch_args)
+            _shared_context = _browser_instance.new_context(
+                viewport={'width': 1280, 'height': 800}
+            )
 
         return _browser_instance
 
     def fetch(self, url, return_markdown=False, return_screenshot=False):
         browser = self._get_configured_browser()
-        context = browser.new_context(
-            viewport={'width': 1280, 'height': 800}
-        )
-        page = context.new_page()
+        page = _shared_context.new_page()
 
         try:
             response = page.goto(url, wait_until='networkidle', timeout=30000)
@@ -94,11 +101,13 @@ class PlaywrightFetcher(FetcherInterface):
             }
 
         except PlaywrightError as e:
+            if "closed" in str(e).lower() or "crashed" in str(e).lower():
+                _close_shared_browser()
             raise FetchError(url, reason=str(e)) from e
         except FetchError:
             raise
         except Exception as e:
             raise FetchError(url, reason=str(e)) from e
         finally:
-            if context:
-                context.close()
+            if page:
+                page.close()

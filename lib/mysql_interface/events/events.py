@@ -13,7 +13,7 @@ def get_event_by_id(conn, event_id):
 def get_future_events_by_venue(conn, venue_id):
     with conn.cursor() as cursor:
         cursor.execute(
-            "SELECT id, title, venue_id, start_date, event_page_url FROM events WHERE venue_id = %s AND start_date > NOW()",
+            "SELECT id, title, venue_id, start_date, event_page_url FROM events WHERE venue_id = %s AND start_date > NOW() AND status = 'published'",
             (venue_id,)
         )
         return cursor.fetchall()

@@ -30,8 +30,8 @@ class TestMergeEvents:
 
     def test_no_scraped_events_all_delete(self):
         manager = create_manager(existing_events=[
-            {"id": 1, "event_page_url": "http://example.com/1", "title": "Event 1", "start_date": "2026-01-01"},
-            {"id": 2, "event_page_url": "http://example.com/2", "title": "Event 2", "start_date": "2026-01-02"},
+            {"id": 1, "event_page_url": "http://example.com/1", "title": "Event 1", "start_date": "2026-01-01", "status": "published"},
+            {"id": 2, "event_page_url": "http://example.com/2", "title": "Event 2", "start_date": "2026-01-02", "status": "published"},
         ])
 
         result = manager._merge_events(manager.mysql_interface.events, [])
@@ -43,7 +43,7 @@ class TestMergeEvents:
 
     def test_match_by_url_returns_update(self):
         manager = create_manager(existing_events=[
-            {"id": 1, "event_page_url": "http://example.com/1", "title": "Old Title", "start_date": "2026-01-01"},
+            {"id": 1, "event_page_url": "http://example.com/1", "title": "Old Title", "start_date": "2026-01-01", "status": "published"},
         ])
         scraped = [
             {"event_page_url": "http://example.com/1", "title": "New Title", "start_date": "2026-01-01"},
@@ -57,7 +57,7 @@ class TestMergeEvents:
 
     def test_match_by_date_returns_update(self):
         manager = create_manager(existing_events=[
-            {"id": 1, "event_page_url": None, "title": "Old Title", "start_date": "2026-01-01"},
+            {"id": 1, "event_page_url": None, "title": "Old Title", "start_date": "2026-01-01", "status": "published"},
         ])
         scraped = [
             {"event_page_url": None, "title": "New Title", "start_date": "2026-01-01"},
@@ -71,9 +71,9 @@ class TestMergeEvents:
 
     def test_mixed_create_update_delete(self):
         manager = create_manager(existing_events=[
-            {"id": 1, "event_page_url": "http://example.com/1", "title": "Event 1", "start_date": "2026-01-01"},
-            {"id": 2, "event_page_url": "http://example.com/2", "title": "Event 2", "start_date": "2026-01-02"},
-            {"id": 3, "event_page_url": "http://example.com/old", "title": "Old Event", "start_date": "2026-01-03"},
+            {"id": 1, "event_page_url": "http://example.com/1", "title": "Event 1", "start_date": "2026-01-01", "status": "published"},
+            {"id": 2, "event_page_url": "http://example.com/2", "title": "Event 2", "start_date": "2026-01-02", "status": "published"},
+            {"id": 3, "event_page_url": "http://example.com/old", "title": "Old Event", "start_date": "2026-01-03", "status": "published"},
         ])
         existing = manager.mysql_interface.events
         scraped = [
@@ -109,8 +109,8 @@ class TestMergeEvents:
 
     def test_prefers_url_over_date_matching(self):
         manager = create_manager(existing_events=[
-            {"id": 1, "event_page_url": "http://example.com/1", "title": "By URL", "start_date": "2026-01-01"},
-            {"id": 2, "event_page_url": None, "title": "By Date", "start_date": "2026-01-01"},
+            {"id": 1, "event_page_url": "http://example.com/1", "title": "By URL", "start_date": "2026-01-01", "status": "published"},
+            {"id": 2, "event_page_url": None, "title": "By Date", "start_date": "2026-01-01", "status": "published"},
         ])
         existing = manager.mysql_interface.events
         scraped = [
@@ -146,7 +146,7 @@ class TestMergeEvents:
 
     def test_preserves_scraped_event_data_in_update(self):
         manager = create_manager(existing_events=[
-            {"id": 1, "event_page_url": "http://example.com/1", "title": "Old", "start_date": "2026-01-01"},
+            {"id": 1, "event_page_url": "http://example.com/1", "title": "Old", "start_date": "2026-01-01", "status": "published"},
         ])
         scraped = [
             {"event_page_url": "http://example.com/1", "title": "New", "start_date": "2026-01-01", "price": "$20"},
