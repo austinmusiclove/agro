@@ -54,8 +54,8 @@ class EventDataManager:
                         txn_data["screenshot"] = screenshot_ref
                         txn_data["data_index"] = db_event.get("data_index")
                         txn_data["scrape_url"] = db_event.get("scrape_url")
-                        txn_data["scrape_html_hash"] = db_event.get("scrape_html_hash")
-                        txn_data["scrape_markdown_hash"] = db_event.get("scrape_markdown_hash")
+                        txn_data["scrape_html_hash"] = db_event.get("html_hash")
+                        txn_data["scrape_markdown_hash"] = db_event.get("markdown_hash")
 
                     self.mysql_interface.stage_transaction("events", db_event, txn_data)
             else:

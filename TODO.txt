@@ -1,6 +1,4 @@
 Manual review app
-    end to end test local
-        check hash gets added
     make sure lambda still works after subnet change
     create rest api to serve up suggested transactions and accept transaction approvals to update the RDS
         Accept transaction
