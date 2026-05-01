@@ -83,8 +83,9 @@ class MySQLInterface:
                 - current_data_id: ID of existing record (None for create)
                 - data_index: Optional index that denotes the position of this data item in the screenshot. This is meant to assist with manual review
                 - screenshot: Optional screenshot reference
-                - schema_blob: Optional dict
                 - scrape_url: URL that was scraped
+                - scrape_html_hash: Optional SHA256 hash of the scraped HTML
+                - scrape_markdown_hash: Optional SHA256 hash of the scraped markdown
 
         Returns:
             Dict with 'staged_data_id' and 'staged_transaction_id'

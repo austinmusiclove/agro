@@ -44,7 +44,6 @@ class EventDataManager:
                     txn_data = {
                         "transaction_type": txn_type,
                         "current_data_id": txn.get("existing_event_id"),
-                        "schema_blob": txn["event_data"],
                     }
                     if txn_type == "create" or txn_type == "update":
                         db_event = txn.get("event_data").copy()

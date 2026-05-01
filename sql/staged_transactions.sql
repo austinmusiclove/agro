@@ -9,7 +9,6 @@ CREATE TABLE staged_transactions (
     data_index INT,
 
     screenshot TEXT, -- S3 Object Id
-    schema_blob JSON,
 
     scrape_url TEXT,
     scrape_html_hash VARCHAR(64),

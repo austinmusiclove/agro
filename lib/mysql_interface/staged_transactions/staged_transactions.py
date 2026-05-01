@@ -31,23 +31,23 @@ def get_staged_transaction_with_data(conn, transaction_id):
     with conn.cursor() as cursor:
         cursor.execute("SELECT * FROM staged_transactions WHERE id = %s", (transaction_id,))
         transaction = cursor.fetchone()
-        
+
         if not transaction:
             return None
-            
+
         if transaction and transaction.get('staged_data_id'):
             target_table = transaction.get('target_table')
             data_id = transaction.get('staged_data_id')
             record = None
-            
+
             if target_table == 'events':
                 record = events.get_event_by_id(conn, data_id)
             elif target_table == 'venues':
                 record = venues.get_venue_by_id(conn, data_id)
-                
+
             if record:
                 transaction['staged_data'] = json.loads(json.dumps(record, default=str))
-                
+
         return json.loads(json.dumps(transaction, default=str))
 
 
@@ -55,8 +55,8 @@ def insert_staged_transaction(conn, transaction_data):
     with conn.cursor() as cursor:
         columns = [
             "target_table", "current_data_id", "staged_data_id",
-            "transaction_type", "data_index", "screenshot", "schema_blob",
-            "scrape_url"
+            "transaction_type", "data_index", "screenshot",
+            "scrape_url", "scrape_html_hash", "scrape_markdown_hash"
         ]
         values = [
             transaction_data.get("target_table"),
@@ -65,8 +65,9 @@ def insert_staged_transaction(conn, transaction_data):
             transaction_data.get("transaction_type"),
             transaction_data.get("data_index"),
             transaction_data.get("screenshot"),
-            json.dumps(transaction_data.get("schema_blob")) if transaction_data.get("schema_blob") else None,
             transaction_data.get("scrape_url"),
+            transaction_data.get("scrape_html_hash"),
+            transaction_data.get("scrape_markdown_hash"),
         ]
 
         placeholders = ", ".join(["%s"] * len(columns))
