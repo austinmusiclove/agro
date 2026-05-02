@@ -35,7 +35,7 @@ phases:
       # ==========================================
       # CONTAINER-BASED LAMBDAS (Playwright)
       # ==========================================
-      - echo "Building Docker image for ScrapeEventListPlaywright..."
+      - echo "Building Docker image for ScrapeEventList..."
       # Build the Docker image from the project root, using the Dockerfile located in the docker/ directory
       - docker buildx build --platform linux/amd64 --provenance=false -f docker/Dockerfile -t scrape-event-list .
       # Tag the built image with our specific ECR repository URI
@@ -68,8 +68,8 @@ phases:
       - echo "Pushing the Docker image to ECR..."
       - docker push 031621556164.dkr.ecr.us-east-2.amazonaws.com/agro/scrape-event-list:latest
 
-      - echo "Updating ScrapeEventListPlaywright Lambda function to use the new Docker image..."
-      - aws lambda update-function-code --function-name ScrapeEventListPlaywright --image-uri 031621556164.dkr.ecr.us-east-2.amazonaws.com/agro/scrape-event-list:latest --region us-east-2
+      - echo "Updating ScrapeEventList Lambda function to use the new Docker image..."
+      - aws lambda update-function-code --function-name ScrapeEventList --image-uri 031621556164.dkr.ecr.us-east-2.amazonaws.com/agro/scrape-event-list:latest --region us-east-2
 
-      - echo "Wait for ScrapeEventListPlaywright Lambda function code to update..."
-      - aws lambda wait function-updated --function-name ScrapeEventListPlaywright --region us-east-2
+      - echo "Wait for ScrapeEventList Lambda function code to update..."
+      - aws lambda wait function-updated --function-name ScrapeEventList --region us-east-2
