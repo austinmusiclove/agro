@@ -6,7 +6,8 @@ fetcher:
     max_screenshot_height: 16000
     browser_path: ""
   playwright:
-    browser_path: "/opt/bin/headless-chromium"
+    #browser_path: "/opt/bin/headless-chromium"
+    browser_path: ""
 data_extractor:
   default: openai
 image_saver:
