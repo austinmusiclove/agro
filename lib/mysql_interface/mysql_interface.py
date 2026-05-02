@@ -48,39 +48,4 @@ class MySQLInterface:
         return staged_transactions.update_staged_transaction(self._connector, transaction_id, updates)
 
     def stage_transaction(self, target_table: str, data: dict, txn_data: dict) -> dict:
-        """
-        Saves a staged record to the target table and creates a staged_transaction record for manual review.
-
-        Args:
-            target_table: Name of the table to insert the staged record into
-            data: Dict of column names and values to insert
-            txn_data: Dict containing:
-                - transaction_type: 'create', 'update', or 'delete'
-                - current_data_id: ID of existing record (None for create)
-                - data_index: Optional index that denotes the position of this data item in the screenshot. This is meant to assist with manual review
-                - screenshot: Optional screenshot reference
-                - scrape_url: URL that was scraped
-                - scrape_html_hash: Optional SHA256 hash of the scraped HTML
-                - scrape_markdown_hash: Optional SHA256 hash of the scraped markdown
-
-        Returns:
-            Dict with 'staged_data_id' and 'staged_transaction_id'
-        """
-        staged_data_id = None
-        data_with_status = data.copy()
-        data_with_status["status"] = "staged"
-        txn_type = txn_data.get("transaction_type")
-
-        if txn_type == "create" or txn_type == "update":
-            if target_table == "events":
-                staged_data_id = events.insert_event(self._connector, data_with_status)
-
-        staged_txn_data = txn_data.copy()
-        staged_txn_data["target_table"] = target_table
-        staged_txn_data["staged_data_id"] = staged_data_id
-        staged_transaction_id = self.insert_staged_transaction(staged_txn_data)
-
-        return {
-            "staged_data_id": staged_data_id,
-            "staged_transaction_id": staged_transaction_id
-        }
+        return staged_transactions.stage_transaction(self._connector, target_table, data, txn_data)

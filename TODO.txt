@@ -1,7 +1,4 @@
 Manual review app
-    get lambda running again
-        clean up aws resources that are not needed (elastic ips, security groups)
-    move stage_transaction to lib/lambdas
     create web app for reviewing and approving or rejecting or modifying each suggestion (that way i can get a VA to do it at some point)
         you can edit the suggested data
         show existing data if any
