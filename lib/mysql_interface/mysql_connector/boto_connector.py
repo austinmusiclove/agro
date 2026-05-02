@@ -57,10 +57,19 @@ def _convert_sql_placeholders(sql: str) -> str:
 def _to_rds_params(params: list) -> list:
     if not params:
         return []
-    return [
-        {"name": f"p{i}", "value": {_infer_param_type(v): v}}
-        for i, v in enumerate(params)
-    ]
+    rds_params = []
+    for i, v in enumerate(params):
+        if v is None:
+            rds_params.append({
+                "name": f"p{i}",
+                "value": {"isNull": True}
+            })
+        else:
+            rds_params.append({
+                "name": f"p{i}",
+                "value": {_infer_param_type(v): v}
+            })
+    return rds_params
 
 
 def _records_to_dicts(records: list, column_metadata: list) -> list[dict]:
