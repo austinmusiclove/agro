@@ -1,14 +1,11 @@
 Manual review app
-    make sure lambda still works after subnet change
-    create rest api to serve up suggested transactions and accept transaction approvals to update the RDS
-        Accept transaction
-        Reject transaction
-        Accept transaction with modifications
     create web app for reviewing and approving or rejecting or modifying each suggestion (that way i can get a VA to do it at some point)
-        show screenshots, event schema, and other raw data on the left and the suggestion on the right along with any current state of the data
         you can edit the suggested data
-        button for approve, reject; approve changes to approve with changes when changes made, and revert changes which is disabled until change is made
-        button for reject and re-scrape
+        show existing data if any
+        implement approve button
+        implement reject button
+        implement approve with edits
+        implement reject and re-scrape
         differences between current and suggested data are highlighted
         log the approvals, rejections, and approvals with changes so that i can see which venues have issues and manually fix or improve accuracy with venue configs
     lambdas

@@ -71,6 +71,10 @@ class MySQLInterface:
         conn = self._get_connection()
         return staged_transactions.insert_staged_transaction(conn, transaction_data)
 
+    def update_staged_transaction(self, transaction_id: int, updates: dict):
+        conn = self._get_connection()
+        return staged_transactions.update_staged_transaction(conn, transaction_id, updates)
+
     def stage_transaction(self, target_table: str, data: dict, txn_data: dict) -> dict:
         """
         Saves a staged record to the target table and creates a staged_transaction record for manual review.

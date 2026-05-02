@@ -78,3 +78,18 @@ def insert_staged_transaction(conn, transaction_data):
         conn.commit()
 
         return cursor.lastrowid
+
+
+def update_staged_transaction(conn, transaction_id: int, updates: dict) -> int:
+    if not updates:
+        return 0
+
+    with conn.cursor() as cursor:
+        set_clause = ", ".join([f"{col} = %s" for col in updates.keys()])
+        values = list(updates.values()) + [transaction_id]
+
+        query = f"UPDATE staged_transactions SET {set_clause} WHERE id = %s"
+        cursor.execute(query, values)
+        conn.commit()
+
+        return cursor.rowcount
