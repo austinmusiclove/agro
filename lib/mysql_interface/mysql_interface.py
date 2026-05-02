@@ -1,6 +1,6 @@
 from lib.mysql_interface.venues import venues
 from lib.mysql_interface.events import events
-from lib.mysql_interface.staged_transactions import staged_transactions
+from lib.mysql_interface import staged_transactions
 
 
 class MySQLInterface:
