@@ -1,6 +1,7 @@
 import pytest
 from dotenv import load_dotenv
 from lib.mysql_interface.mysql_interface import MySQLInterface
+from lib.mysql_interface.mysql_connector.factory import MySQLConnectorFactory
 from lib.config import YamlConfigLoader
 
 
@@ -9,7 +10,10 @@ load_dotenv(override=True)
 
 @pytest.fixture
 def db():
-    return MySQLInterface(YamlConfigLoader())
+    config_loader = YamlConfigLoader()
+    mysql_connector_factory = MySQLConnectorFactory(config_loader)
+    mysql_connector = mysql_connector_factory.create()
+    return MySQLInterface(config_loader, mysql_connector)
 
 
 def test_get_all_venues_returns_list(db):

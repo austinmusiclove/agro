@@ -1,13 +1,17 @@
+from tests.mocks.mock_mysql_connector import MockConnector
+
+
 class MockMySQLInterface:
-    def __init__(self):
+    def __init__(self, config_loader=None, mysql_connector=None):
+        self._config_loader = config_loader
+        self._connector = mysql_connector or MockConnector()
         self.venues = []
         self.events = []
-        self._connection = None
         self.saved_transactions = []
         self.get_future_events_calls = []
 
     def close(self):
-        pass
+        self._connector.close()
 
     def get_all_venues(self):
         return self.venues

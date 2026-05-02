@@ -19,6 +19,8 @@ image_saver:
     aws_secret_access_key_env: "AWS_SECRET_ACCESS_KEY"
   local:
     images_dir: "./images"
+mysql_connector:
+  default: pymysql
 mysql:
   host: "127.0.0.1"
   port: 3306

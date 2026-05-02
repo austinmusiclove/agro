@@ -2,6 +2,7 @@ import pytest
 from dotenv import load_dotenv
 
 from lib.mysql_interface.mysql_interface import MySQLInterface
+from lib.mysql_interface.mysql_connector.factory import MySQLConnectorFactory
 from lib.scraper.interface import ScraperInterface
 from lib.config.yaml_config_loader import YamlConfigLoader
 
@@ -10,8 +11,10 @@ load_dotenv(override=True)
 
 @pytest.fixture
 def db():
-    interface = MySQLInterface(YamlConfigLoader())
-    interface.connect()
+    config_loader = YamlConfigLoader()
+    mysql_connector_factory = MySQLConnectorFactory(config_loader)
+    mysql_connector = mysql_connector_factory.create()
+    interface = MySQLInterface(config_loader, mysql_connector)
     yield interface
     interface.close()
 
@@ -36,17 +39,12 @@ class TestInsertStagedTransaction:
         inserted_id = db.insert_staged_transaction(transaction_data)
 
         try:
-            conn = db._get_connection()
-            with conn.cursor() as cursor:
-                cursor.execute("SELECT * FROM staged_transactions WHERE id = %s", (inserted_id,))
-                record = cursor.fetchone()
+            record = db.get_staged_transaction_with_data(inserted_id)
 
-                assert record is not None
-                assert record["scrape_html_hash"] == html_hash
-                assert record["scrape_markdown_hash"] == markdown_hash
-                assert record["target_table"] == "events"
-                assert record["scrape_url"] == "https://example.com/test"
+            assert record is not None
+            assert record["scrape_html_hash"] == html_hash
+            assert record["scrape_markdown_hash"] == markdown_hash
+            assert record["target_table"] == "events"
+            assert record["scrape_url"] == "https://example.com/test"
         finally:
-            with conn.cursor() as cursor:
-                cursor.execute("DELETE FROM staged_transactions WHERE id = %s", (inserted_id,))
-                conn.commit()
+            db.execute_update("DELETE FROM staged_transactions WHERE id = ?", [inserted_id])

@@ -1,79 +1,51 @@
-import os
-import pymysql
-
 from lib.mysql_interface.venues import venues
 from lib.mysql_interface.events import events
 from lib.mysql_interface.staged_transactions import staged_transactions
 
 
 class MySQLInterface:
-    def __init__(self, config_loader):
-        mysql_config = config_loader.get_config("agro").get("mysql", {})
-
-        self.host = mysql_config.get("host", "localhost")
-        port_val = mysql_config.get("port", 3306)
-        self.port = int(port_val) if port_val is not None else 3306
-        self.user = mysql_config.get("user", "root")
-        self.database = mysql_config.get("database", "agro")
-        self._password_env = mysql_config.get("password_env", "AGRO_MYSQL_PASSWORD")
-        self.password = os.getenv(self._password_env)
-
-        self._connection = None
-
-    def _get_connection(self):
-        if self._connection is None or not self._connection.open:
-            self._connection = pymysql.connect(
-                host=self.host,
-                port=self.port,
-                user=self.user,
-                password=self.password,
-                database=self.database,
-                cursorclass=pymysql.cursors.DictCursor
-            )
-        return self._connection
-
-    def connect(self):
-        return self._get_connection()
+    def __init__(self, config_loader, mysql_connector):
+        self._config_loader = config_loader
+        self._connector = mysql_connector
 
     def close(self):
-        if self._connection and self._connection.open:
-            self._connection.close()
+        self._connector.close()
+
+    def execute_query(self, sql: str, params: list = None) -> list[dict]:
+        return self._connector.execute_query(sql, params)
+
+    def execute_insert(self, sql: str, params: list = None) -> int:
+        return self._connector.execute_insert(sql, params)
+
+    def execute_update(self, sql: str, params: list = None) -> int:
+        return self._connector.execute_update(sql, params)
 
     def get_venue_by_id(self, venue_id):
-        conn = self._get_connection()
-        return venues.get_venue_by_id(conn, venue_id)
+        return venues.get_venue_by_id(self._connector, venue_id)
 
     def get_all_venues(self):
-        conn = self._get_connection()
-        return venues.get_all_venues(conn)
+        return venues.get_all_venues(self._connector)
 
     def get_future_events_by_venue(self, venue_id):
-        conn = self._get_connection()
-        return events.get_future_events_by_venue(conn, venue_id)
+        return events.get_future_events_by_venue(self._connector, venue_id)
 
     def get_event_by_id(self, event_id):
-        conn = self._get_connection()
-        return events.get_event_by_id(conn, event_id)
+        return events.get_event_by_id(self._connector, event_id)
 
     def insert_event(self, event_data):
-        conn = self._get_connection()
-        return events.insert_event(conn, event_data)
+        return events.insert_event(self._connector, event_data)
 
     def get_staged_transactions(self, target_table):
-        conn = self._get_connection()
-        return staged_transactions.get_staged_transactions(conn, target_table)
+        return staged_transactions.get_staged_transactions(self._connector, target_table)
 
     def get_staged_transaction_with_data(self, transaction_id):
-        conn = self._get_connection()
-        return staged_transactions.get_staged_transaction_with_data(conn, transaction_id)
+        return staged_transactions.get_staged_transaction_with_data(self._connector, transaction_id)
 
     def insert_staged_transaction(self, transaction_data):
-        conn = self._get_connection()
-        return staged_transactions.insert_staged_transaction(conn, transaction_data)
+        return staged_transactions.insert_staged_transaction(self._connector, transaction_data)
 
     def update_staged_transaction(self, transaction_id: int, updates: dict):
-        conn = self._get_connection()
-        return staged_transactions.update_staged_transaction(conn, transaction_id, updates)
+        return staged_transactions.update_staged_transaction(self._connector, transaction_id, updates)
 
     def stage_transaction(self, target_table: str, data: dict, txn_data: dict) -> dict:
         """
@@ -94,8 +66,6 @@ class MySQLInterface:
         Returns:
             Dict with 'staged_data_id' and 'staged_transaction_id'
         """
-        conn = self._get_connection()
-
         staged_data_id = None
         data_with_status = data.copy()
         data_with_status["status"] = "staged"
@@ -103,7 +73,7 @@ class MySQLInterface:
 
         if txn_type == "create" or txn_type == "update":
             if target_table == "events":
-                staged_data_id = events.insert_event(conn, data_with_status)
+                staged_data_id = events.insert_event(self._connector, data_with_status)
 
         staged_txn_data = txn_data.copy()
         staged_txn_data["target_table"] = target_table

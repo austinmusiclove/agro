@@ -11,6 +11,7 @@ from lib.fetcher.factory import FetcherFactory
 from lib.data_extractor.factory import DataExtractorFactory
 from lib.image_saver.factory import ImageSaverFactory
 from lib.mysql_interface.mysql_interface import MySQLInterface
+from lib.mysql_interface.mysql_connector.factory import MySQLConnectorFactory
 from lib.event_data_manager.event_data_manager import EventDataManager
 
 
@@ -37,15 +38,17 @@ def main():
             print(f"Error parsing --config-override: {e}")
             return
 
-    config_loader          = YamlConfigLoader(config_overrides=config_overrides)
-    fetcher_factory        = FetcherFactory(config_loader)
-    data_extractor_factory = DataExtractorFactory(config_loader)
-    scraper_factory        = ScraperFactory(config_loader, fetcher_factory, data_extractor_factory)
-    scraper                = scraper_factory.create()
-    image_saver_factory   = ImageSaverFactory(config_loader)
-    image_saver           = image_saver_factory.create()
-    mysql_interface        = MySQLInterface(config_loader)
-    event_data_manager     = EventDataManager(scraper, mysql_interface, image_saver)
+    config_loader              = YamlConfigLoader(config_overrides=config_overrides)
+    fetcher_factory            = FetcherFactory(config_loader)
+    data_extractor_factory     = DataExtractorFactory(config_loader)
+    scraper_factory            = ScraperFactory(config_loader, fetcher_factory, data_extractor_factory)
+    scraper                    = scraper_factory.create()
+    image_saver_factory        = ImageSaverFactory(config_loader)
+    image_saver                = image_saver_factory.create()
+    mysql_connector_factory    = MySQLConnectorFactory(config_loader)
+    mysql_connector            = mysql_connector_factory.create()
+    mysql_interface            = MySQLInterface(config_loader, mysql_connector)
+    event_data_manager         = EventDataManager(scraper, mysql_interface, image_saver)
 
     if args.command == "scrape-event-list":
         event_data_manager.scrape_event_list_pages(args.venue_id)

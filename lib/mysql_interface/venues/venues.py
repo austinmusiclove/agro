@@ -1,13 +1,9 @@
-import pymysql
+def get_venue_by_id(connector, venue_id):
+    sql = "SELECT * FROM venues WHERE id = ?"
+    results = connector.execute_query(sql, [venue_id])
+    return results[0] if results else None
 
 
-def get_venue_by_id(conn, venue_id):
-    with conn.cursor() as cursor:
-        cursor.execute("SELECT * FROM venues WHERE id = %s", (venue_id,))
-        return cursor.fetchone()
-
-
-def get_all_venues(conn):
-    with conn.cursor() as cursor:
-        cursor.execute("SELECT * FROM venues")
-        return cursor.fetchall()
+def get_all_venues(connector):
+    sql = "SELECT * FROM venues"
+    return connector.execute_query(sql)

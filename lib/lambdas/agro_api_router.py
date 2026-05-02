@@ -3,12 +3,14 @@ import re
 
 from lib.config.yaml_config_loader import YamlConfigLoader
 from lib.mysql_interface.mysql_interface import MySQLInterface
+from lib.mysql_interface.mysql_connector.factory import MySQLConnectorFactory
 from lib.lambdas.staged_transactions import get_staged_transactions
 from lib.lambdas.staged_transactions import approve_transaction
 
-config_loader = YamlConfigLoader(config_overrides={})
-mysql_interface = MySQLInterface(config_loader)
-mysql_interface.connect()
+config_loader           = YamlConfigLoader(config_overrides={})
+mysql_connector_factory = MySQLConnectorFactory(config_loader)
+mysql_connector         = mysql_connector_factory.create()
+mysql_interface         = MySQLInterface(config_loader, mysql_connector)
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
