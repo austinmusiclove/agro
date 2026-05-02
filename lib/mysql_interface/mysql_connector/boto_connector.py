@@ -1,7 +1,35 @@
 import os
+import re
+import time
+import logging
 import boto3
-from typing import Any
+from typing import Any, Callable
+from functools import wraps
+from botocore.exceptions import ClientError
 from .interface import MySQLConnectorInterface
+
+logger = logging.getLogger(__name__)
+
+
+def retry_on_resuming(max_retries: int = 3, delay: int = 5):
+    def decorator(func: Callable):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            for attempt in range(max_retries):
+                try:
+                    return func(*args, **kwargs)
+                except ClientError as e:
+                    if e.response["Error"]["Code"] == "DatabaseResumingException":
+                        if attempt < max_retries - 1:
+                            logger.warning(
+                                f"Database resuming, retrying in {delay}s (attempt {attempt + 1}/{max_retries})"
+                            )
+                            time.sleep(delay)
+                            continue
+                    raise
+            raise Exception(f"Failed after {max_retries} retries due to DatabaseResumingException")
+        return wrapper
+    return decorator
 
 
 def _infer_param_type(value: Any) -> str:
@@ -14,6 +42,16 @@ def _infer_param_type(value: Any) -> str:
     if isinstance(value, bytes):
         return "blobValue"
     return "stringValue"
+
+
+def _convert_sql_placeholders(sql: str) -> str:
+    """Convert ? placeholders to :p0, :p1, etc. for RDS Data API named parameters."""
+    counter = [0]
+    def replacer(match):
+        result = f":p{counter[0]}"
+        counter[0] += 1
+        return result
+    return re.sub(r'\?', replacer, sql)
 
 
 def _to_rds_params(params: list) -> list:
@@ -49,12 +87,16 @@ class BotoConnector(MySQLConnectorInterface):
         self.database = self._config.get("database", "agro")
         self.client = boto3.client("rds-data", region_name=self.region)
 
+    @retry_on_resuming(max_retries=3, delay=5)
     def _execute(self, sql: str, params: list = None) -> dict:
+        # Convert ? placeholders to named parameters for RDS Data API
+        sql = _convert_sql_placeholders(sql)
         kwargs = {
             "resourceArn": self.resource_arn,
             "secretArn": self.secret_arn,
             "database": self.database,
             "sql": sql,
+            "includeResultMetadata": True,
         }
         if params:
             kwargs["parameters"] = _to_rds_params(params)

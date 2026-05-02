@@ -20,10 +20,19 @@ image_saver:
   local:
     images_dir: "./images"
 mysql_connector:
-  default: pymysql
+  default: boto
+  #default: pymysql
 mysql:
-  host: "127.0.0.1"
+  #host: "127.0.0.1"
+  #port: 3306
+  #user: "root"
+  #password_env: "AGRO_MYSQL_PASSWORD"
+  #database: "aml"
+  host: "database-1.cluster-co77y8ietxyj.us-east-2.rds.amazonaws.com"
   port: 3306
-  user: "root"
-  password_env: "AGRO_MYSQL_PASSWORD"
+  user: "admin"
+  password_env: "AGRO_RDS_PASSWORD"
   database: "aml"
+  region: "us-east-2"
+  resource_arn: "arn:aws:rds:us-east-2:031621556164:cluster:database-1"
+  secret_arn: "arn:aws:secretsmanager:us-east-2:031621556164:secret:rds-db-credentials/database-1/admin/1776094332489-CFUt6k"
