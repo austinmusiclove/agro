@@ -20,7 +20,7 @@ def _to_rds_params(params: list) -> list:
     if not params:
         return []
     return [
-        {"name": f"p{i}", "value": {_infer_param_type(v): v}, "typeHint": "NONE"}
+        {"name": f"p{i}", "value": {_infer_param_type(v): v}}
         for i, v in enumerate(params)
     ]
 
