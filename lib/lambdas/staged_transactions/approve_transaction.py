@@ -1,7 +1,7 @@
 import json
 
 
-def approve_transaction(mysql_interface, logger, transaction_id):
+def approve_transaction(mysql_interface, logger, transaction_id, override_data=None):
     try:
         transaction = mysql_interface.get_staged_transaction_with_data(transaction_id)
 
@@ -32,6 +32,11 @@ def approve_transaction(mysql_interface, logger, transaction_id):
 
         published_data = staged_data.copy()
         published_data['status'] = 'published'
+
+        # Apply any overrides passed in the request body
+        if override_data:
+            for key, value in override_data.items():
+                published_data[key] = value
 
         published_event_id = mysql_interface.insert_event(published_data)
 

@@ -1,5 +1,6 @@
 import logging
 import re
+import json
 
 from lib.config.yaml_config_loader import YamlConfigLoader
 from lib.mysql_interface.mysql_interface import MySQLInterface
@@ -34,7 +35,9 @@ def router(event, context):
         if method == 'POST':
             path_params = event.get('pathParameters')
             transaction_id = path_params.get('id')
-            return approve_transaction.approve_transaction(mysql_interface, logger, transaction_id)
+            body = event.get('body')
+            override_data = json.loads(body) if body else {}
+            return approve_transaction.approve_transaction(mysql_interface, logger, transaction_id, override_data)
 
     if resource == '/staged-transactions/{id}/reject':
         if method == 'POST':
