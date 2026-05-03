@@ -1,11 +1,10 @@
 Manual review app
-    showing 1 instead of null for null props
     still failing on first call after db pauses probably because it needs to have a longer timeout on the wp side
     create web app for reviewing and approving or rejecting or modifying each suggestion (that way i can get a VA to do it at some point)
         you can edit the suggested data
         show existing data if any
         implement approve button
-            transaction should go to approved; new event row should be made with status published and same fields as the staged data
+            attach function to button
         implement reject button
         implement approve with edits
         implement reject and re-scrape

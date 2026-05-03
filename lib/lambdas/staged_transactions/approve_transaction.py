@@ -11,7 +11,7 @@ def approve_transaction(mysql_interface, logger, transaction_id):
                 'body': json.dumps({'error': f'Transaction {transaction_id} not found'})
             }
 
-        if transaction.get('status') != 'pending-review':
+        if transaction.get('status') == 'approved':
             return {
                 'statusCode': 400,
                 'body': json.dumps({'error': f'Transaction {transaction_id} has already been processed (status: {transaction.get("status")})'})
@@ -35,7 +35,10 @@ def approve_transaction(mysql_interface, logger, transaction_id):
 
         published_event_id = mysql_interface.insert_event(published_data)
 
-        mysql_interface.update_staged_transaction(transaction_id, {'status': 'approved'})
+        mysql_interface.update_staged_transaction(transaction_id, {
+            'status': 'approved',
+            "current_data_id": published_event_id
+        })
 
         return {
             'statusCode': 200,
