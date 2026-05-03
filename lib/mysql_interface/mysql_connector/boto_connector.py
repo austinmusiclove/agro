@@ -75,14 +75,25 @@ def _to_rds_params(params: list) -> list:
 def _records_to_dicts(records: list, column_metadata: list) -> list[dict]:
     if not records:
         return []
-    columns = [col.get("name") for col in column_metadata] if column_metadata else []
+    columns = []
+    if column_metadata:
+        for col in column_metadata:
+            if isinstance(col, dict):
+                columns.append(col.get("name", f"col_{len(columns)}"))
+            else:
+                columns.append(f"col_{len(columns)}")
     result = []
     for row in records:
         row_dict = {}
         for i, field in enumerate(row):
             col_name = columns[i] if i < len(columns) else f"col_{i}"
-            val = list(field.values())[0] if isinstance(field, dict) else field
-            row_dict[col_name] = val
+            if isinstance(field, dict):
+                if field.get("isNull"):
+                    row_dict[col_name] = None
+                else:
+                    row_dict[col_name] = list(field.values())[0]
+            else:
+                row_dict[col_name] = field
         result.append(row_dict)
     return result
 

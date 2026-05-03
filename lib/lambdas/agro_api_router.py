@@ -20,17 +20,20 @@ def router(event, context):
     method = event.get('httpMethod')
 
     if resource == '/staged-transactions/events':
-        return get_staged_transactions.get_staged_transactions(mysql_interface, logger, 'events')
+        if method == 'GET':
+            return get_staged_transactions.get_staged_transactions(mysql_interface, logger, 'events')
 
     if resource == '/staged-transactions/{id}':
-        path_params = event.get('pathParameters')
-        transaction_id = path_params.get('id')
-        return get_staged_transactions.get_staged_transaction_by_id(mysql_interface, logger, transaction_id)
+        if method == 'GET':
+            path_params = event.get('pathParameters')
+            transaction_id = path_params.get('id')
+            return get_staged_transactions.get_staged_transaction_by_id(mysql_interface, logger, transaction_id)
 
     if resource == '/staged-transactions/{id}/approve':
-        path_params = event.get('pathParameters')
-        transaction_id = path_params.get('id')
-        return approve_transaction.approve_transaction(mysql_interface, logger, transaction_id)
+        if method == 'POST':
+            path_params = event.get('pathParameters')
+            transaction_id = path_params.get('id')
+            return approve_transaction.approve_transaction(mysql_interface, logger, transaction_id)
 
     return {
         'statusCode': 404,
