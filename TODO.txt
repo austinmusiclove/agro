@@ -1,10 +1,9 @@
 Manual review app
     create web app for reviewing and approving or rejecting or modifying each suggestion (that way i can get a VA to do it at some point)
-        add current data if any in get staged transaction with data
-        log the approvals, rejections, and approvals with changes so that i can see which venues have issues and manually fix or improve accuracy with venue configs
     lambdas
         add logging to functions
         connect to db with secret not user pw
+    log the approvals, rejections, and approvals with changes so that i can see which venues have issues and manually fix or improve accuracy with venue configs
 MySQL
     supporting tables
         stages table; venue id, indoor/outdoor, capacity, name, description of how to find it in the venue
@@ -38,16 +37,6 @@ Event Data Manager
     Skip data extraction if hash from previous scrape matches
     Make sure to use schema if fetcher returns any and skip extraction if there is sufficient data or include extraction as well and have both in suggested_transaction entry
 Tests
-    Classes to test
-        Event
-        EventList
-        Fetcher
-        FirecrawlFetcher
-        OpenAiDataExtractor
-        Scraper
-        MySqlInterface
-        FirecrawlScraper
-        EventDataManager
     Test getting data from event url
     Consistency testing with multiple runs on same test run to check consistency level as a percentage
 Logging
