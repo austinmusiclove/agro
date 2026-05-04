@@ -1,10 +1,8 @@
 Manual review app
-    still failing on first call after db pauses probably because it needs to have a longer timeout on the wp side
     create web app for reviewing and approving or rejecting or modifying each suggestion (that way i can get a VA to do it at some point)
+        get next staged transaction id to support next button on single transaction page
         you can edit the suggested data
-        show existing data if any
-        implement approve with edits
-        differences between current and suggested data are highlighted
+        add current data if any in get staged transaction with data
         log the approvals, rejections, and approvals with changes so that i can see which venues have issues and manually fix or improve accuracy with venue configs
     lambdas
         add logging to functions
