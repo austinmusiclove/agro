@@ -75,7 +75,7 @@ def test_scrape_event_list_pages_with_agro_scraper(config_loader, image_saver):
     event_data_manager = EventDataManager(scraper, mock_mysql, image_saver)
 
     # Execute
-    event_data_manager.scrape_event_list_pages(venue_id=53)
+    event_data_manager.scrape_event_list_pages(venue_id=53, paginate=True)
 
     # Assert
     assert len(mock_mysql.get_future_events_calls) > 0, "get_future_events_by_venue should have been called"
@@ -135,7 +135,7 @@ def test_scrape_event_list_pages_with_existing_events(config_loader, image_saver
     event_data_manager = EventDataManager(scraper, mock_mysql, image_saver)
 
     # Execute
-    event_data_manager.scrape_event_list_pages(venue_id=53)
+    event_data_manager.scrape_event_list_pages(venue_id=53, paginate=True)
 
     # Assert
     assert len(mock_mysql.get_future_events_calls) > 0, "get_future_events_by_venue should have been called"

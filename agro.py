@@ -23,6 +23,7 @@ def main():
 
     get_parser = subparsers.add_parser("scrape-event-list", help="Fetch event data from venue event list pages")
     get_parser.add_argument("--venue-id", type=int, help="Specific venue ID")
+    get_parser.add_argument("-p", "--paginate", action="store_true", help="Enable pagination for event list scraping")
 
     update_parser = subparsers.add_parser("scrape-event-pages", help="Fetch event data from known event page urls")
     update_parser.add_argument("--venue-id", type=int, help="Specific venue ID")
@@ -51,7 +52,7 @@ def main():
     event_data_manager         = EventDataManager(scraper, mysql_interface, image_saver)
 
     if args.command == "scrape-event-list":
-        event_data_manager.scrape_event_list_pages(args.venue_id)
+        event_data_manager.scrape_event_list_pages(args.venue_id, paginate=args.paginate)
     elif args.command == "scrape-event-pages":
         event_data_manager.scrape_event_pages(venue_id=args.venue_id, date=args.date)
 

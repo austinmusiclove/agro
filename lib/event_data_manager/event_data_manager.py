@@ -4,7 +4,7 @@ class EventDataManager:
         self.mysql_interface = mysql_interface
         self.image_saver = image_saver
 
-    def scrape_event_list_pages(self, venue_id=None):
+    def scrape_event_list_pages(self, venue_id=None, paginate=False):
         venues = self._get_venues(venue_id)
         if not venues:
             print("No venues found.")
@@ -17,7 +17,7 @@ class EventDataManager:
                 continue
 
             print(f"Starting event list scrape for venue: {venue.get('name', venue.get('id'))}")
-            scraped_result = self.scraper.scrape_event_list_page(event_list_url, paginate=True, max_pages=4)
+            scraped_result = self.scraper.scrape_event_list_page(event_list_url, paginate=paginate, max_pages=4)
 
             events = scraped_result.get("events", [])
             screenshots = scraped_result.get("screenshots", [])

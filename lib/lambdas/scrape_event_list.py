@@ -38,4 +38,10 @@ def scrape_event_list(event, context):
         except ValueError:
             venue_id = None # Fallback if someone passed a weird string
 
-    return event_data_manager.scrape_event_list_pages(venue_id)
+    # Get paginate parameter (default False)
+    paginate = event.get('paginate', False)
+    # Ensure it's a boolean
+    if isinstance(paginate, str):
+        paginate = paginate.lower() == 'true'
+
+    return event_data_manager.scrape_event_list_pages(venue_id, paginate=paginate)
