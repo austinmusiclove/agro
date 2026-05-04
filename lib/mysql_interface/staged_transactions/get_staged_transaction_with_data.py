@@ -1,5 +1,6 @@
 from lib.mysql_interface.events import events
 from lib.mysql_interface.venues import venues
+from lib.mysql_interface.staged_transactions import get_next_staged_transaction
 
 
 def get_staged_transaction_with_data(connector, transaction_id):
@@ -35,5 +36,9 @@ def get_staged_transaction_with_data(connector, transaction_id):
 
         if record:
             transaction['current_data'] = record
+
+    next_id = get_next_staged_transaction.get_next_staged_transaction(connector, transaction_id)
+    if next_id:
+        transaction['next_transaction_id'] = next_id
 
     return transaction
