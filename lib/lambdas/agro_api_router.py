@@ -31,6 +31,12 @@ def router(event, context):
             transaction_id = path_params.get('id')
             return get_staged_transactions.get_staged_transaction_by_id(mysql_interface, logger, transaction_id)
 
+    if resource == '/staged-transactions/{id}/next':
+        if method == 'GET':
+            path_params = event.get('pathParameters')
+            transaction_id = path_params.get('id')
+            return get_staged_transactions.get_next_staged_transaction(mysql_interface, logger, transaction_id)
+
     if resource == '/staged-transactions/{id}/approve':
         if method == 'POST':
             path_params = event.get('pathParameters')
