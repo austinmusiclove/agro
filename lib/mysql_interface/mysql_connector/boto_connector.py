@@ -79,7 +79,7 @@ def _records_to_dicts(records: list, column_metadata: list) -> list[dict]:
     if column_metadata:
         for col in column_metadata:
             if isinstance(col, dict):
-                columns.append(col.get("name", f"col_{len(columns)}"))
+                columns.append(col.get("label", f"col_{len(columns)}"))
             else:
                 columns.append(f"col_{len(columns)}")
     result = []
