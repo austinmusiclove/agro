@@ -2,7 +2,12 @@ from lib.helpers.helper import format_time
 
 
 def get_event_by_id(connector, event_id):
-    sql = "SELECT * FROM events WHERE id = ?"
+    sql = """
+        SELECT e.*, v.name as venue_name
+        FROM events e
+        LEFT JOIN venues v ON e.venue_id = v.id
+        WHERE e.id = ?
+    """
     results = connector.execute_query(sql, [event_id])
     return results[0] if results else None
 

@@ -1,3 +1,7 @@
+DataExtractor
+    Get description of event
+    Extract all schema and return it as well
+    Classification algo extractor to replace LLM extractors
 Manual review app
     create web app for reviewing and approving or rejecting or modifying each suggestion (that way i can get a VA to do it at some point)
     lambdas
@@ -13,9 +17,6 @@ MySQL
             merge together artists table and hire musicians profile data
             taxonomy tables for genre and more
     logs table; timestamp, application, log type, message
-DataExtractor
-    Extract all schema and return it as well
-    Classification algo extractor to replace LLM extractors
 CLI
     create cli to write a image bytes file and html and markdown file for a url
     create cli to convert bytes file to image
