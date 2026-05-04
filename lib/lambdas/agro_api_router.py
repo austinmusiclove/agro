@@ -6,6 +6,7 @@ from lib.config.yaml_config_loader import YamlConfigLoader
 from lib.mysql_interface.mysql_interface import MySQLInterface
 from lib.mysql_interface.mysql_connector.factory import MySQLConnectorFactory
 from lib.lambdas.staged_transactions import get_staged_transactions
+from lib.lambdas.staged_transactions import get_next_staged_transaction
 from lib.lambdas.staged_transactions import approve_transaction
 from lib.lambdas.staged_transactions import reject_transaction
 
@@ -35,7 +36,7 @@ def router(event, context):
         if method == 'GET':
             path_params = event.get('pathParameters')
             transaction_id = path_params.get('id')
-            return get_staged_transactions.get_next_staged_transaction(mysql_interface, logger, transaction_id)
+            return get_next_staged_transaction.get_next_staged_transaction(mysql_interface, logger, transaction_id)
 
     if resource == '/staged-transactions/{id}/approve':
         if method == 'POST':
