@@ -30,27 +30,70 @@ def approve_transaction(mysql_interface, logger, transaction_id, override_data=N
                 'body': json.dumps({'error': 'No staged data found for this transaction'})
             }
 
-        published_data = staged_data.copy()
-        published_data['status'] = 'published'
+        transaction_type = transaction.get('transaction_type')
+        current_data_id = transaction.get('current_data_id')
 
-        # Apply any overrides passed in the request body
-        if override_data:
-            for key, value in override_data.items():
-                published_data[key] = value
+        if transaction_type == 'create':
+            published_data = staged_data.copy()
+            published_data['status'] = 'published'
 
-        published_event_id = mysql_interface.insert_event(published_data)
+            # Apply any overrides passed in the request body
+            if override_data:
+                for key, value in override_data.items():
+                    published_data[key] = value
 
-        mysql_interface.update_staged_transaction(transaction_id, {
-            'status': 'approved',
-            "current_data_id": published_event_id
-        })
+            published_event_id = mysql_interface.insert_event(published_data)
+
+            mysql_interface.update_staged_transaction(transaction_id, {
+                'status': 'approved',
+                "current_data_id": published_event_id
+            })
+
+        elif transaction_type == 'update':
+            if not current_data_id:
+                return {
+                    'statusCode': 400,
+                    'body': json.dumps({'error': 'No current_data_id for update transaction'})
+                }
+
+            update_data = staged_data.copy()
+            update_data['status'] = 'published'
+
+            # Apply any overrides passed in the request body
+            if override_data:
+                for key, value in override_data.items():
+                    update_data[key] = value
+
+            # Remove id from update_data to avoid updating the primary key
+            update_data.pop('id', None)
+
+            mysql_interface.update_event(current_data_id, update_data)
+
+            mysql_interface.update_staged_transaction(transaction_id, {
+                'status': 'approved'
+            })
+
+            published_event_id = current_data_id
+
+        else:
+            return {
+                'statusCode': 400,
+                'body': json.dumps({'error': f'Unsupported transaction type: {transaction_type}'})
+            }
+
+        # Update transaction status
+        update_data = {'status': 'approved'}
+        if transaction_type == 'create':
+            update_data['current_data_id'] = published_event_id
+        mysql_interface.update_staged_transaction(transaction_id, update_data)
 
         return {
             'statusCode': 200,
             'body': json.dumps({
                 'message': 'Transaction approved',
                 'published_event_id': published_event_id,
-                'transaction_id': transaction_id
+                'transaction_id': transaction_id,
+                'transaction_type': transaction_type
             })
         }
 

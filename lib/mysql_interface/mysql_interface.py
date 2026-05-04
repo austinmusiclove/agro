@@ -35,6 +35,9 @@ class MySQLInterface:
     def insert_event(self, event_data):
         return events.insert_event(self._connector, event_data)
 
+    def update_event(self, event_id, event_data):
+        return events.update_event(self._connector, event_id, event_data)
+
     def get_staged_transactions(self, target_table):
         return staged_transactions.get_staged_transactions(self._connector, target_table)
 

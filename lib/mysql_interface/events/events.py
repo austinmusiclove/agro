@@ -41,3 +41,18 @@ def insert_event(connector, event_data):
 
     query = f"INSERT INTO events ({columns_str}) VALUES ({placeholders})"
     return connector.execute_insert(query, values)
+
+
+def update_event(connector, event_id, event_data):
+    # Remove fields that shouldn't be updated
+    fields_to_update = {k: v for k, v in event_data.items()
+                       if k not in ['id', 'created_at', 'updated_at']}
+
+    if not fields_to_update:
+        return 0
+
+    set_clause = ", ".join([f"{col} = ?" for col in fields_to_update.keys()])
+    values = list(fields_to_update.values()) + [event_id]
+
+    query = f"UPDATE events SET {set_clause} WHERE id = ?"
+    return connector.execute_update(query, values)
