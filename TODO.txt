@@ -1,7 +1,5 @@
 Manual review app
     create web app for reviewing and approving or rejecting or modifying each suggestion (that way i can get a VA to do it at some point)
-        get next staged transaction id to support next button on single transaction page
-        you can edit the suggested data
         add current data if any in get staged transaction with data
         log the approvals, rejections, and approvals with changes so that i can see which venues have issues and manually fix or improve accuracy with venue configs
     lambdas

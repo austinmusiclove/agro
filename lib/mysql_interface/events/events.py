@@ -27,7 +27,7 @@ def insert_event(connector, event_data):
         format_time(event_data.get("start_time")),
         format_time(event_data.get("end_time")),
         event_data.get("ages"),
-        event_data.get("price"),
+        event_data.get("price_range"),
         event_data.get("status", "staged"),
         event_data.get("data_source"),
         event_data.get("event_page_url"),
