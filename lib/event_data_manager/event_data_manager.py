@@ -87,7 +87,7 @@ class EventDataManager:
         fields_to_check = [
             "title", "start_date", "end_date", "start_time", "end_time",
             "ages", "price_range", "image_url", "ticket_url",
-            "event_page_url", "venue_id"
+            "event_page_url"
         ]
         return all(scraped_event.get(f) == existing_event.get(f) for f in fields_to_check)
 
@@ -134,9 +134,9 @@ class EventDataManager:
                 match = existing_by_date.get(str(start_date)) if start_date else None
 
             if match:
+                matched_existing_ids.add(match["id"])
                 if self._events_match(event, match):
                     continue
-                matched_existing_ids.add(match["id"])
                 txn_type = "update"
                 existing_id = match["id"]
             else:

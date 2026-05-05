@@ -12,9 +12,9 @@ def get_event_by_id(connector, event_id):
     return results[0] if results else None
 
 def get_future_events_by_venue(connector, venue_id):
-    sql = """SELECT id, title, venue_id, start_date, event_page_url
+    sql = """SELECT id, title, venue_id, start_date, end_date, start_time, end_time, ages, price_range, event_page_url, ticket_url, image_url
              FROM events
-             WHERE venue_id = ? AND start_date > NOW() AND status = 'published'"""
+             WHERE venue_id = ? AND start_date >= NOW() AND status = 'published'"""
     return connector.execute_query(sql, [venue_id])
 
 
