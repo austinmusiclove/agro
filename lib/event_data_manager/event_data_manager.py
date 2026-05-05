@@ -82,6 +82,15 @@ class EventDataManager:
         else:
             return self.mysql_interface.get_all_venues()
 
+    def _events_match(self, scraped_event, existing_event):
+        """Check if all relevant fields match between a scraped event and an existing event."""
+        fields_to_check = [
+            "title", "start_date", "end_date", "start_time", "end_time",
+            "ages", "price_range", "image_url", "ticket_url",
+            "event_page_url", "venue_id"
+        ]
+        return all(scraped_event.get(f) == existing_event.get(f) for f in fields_to_check)
+
     def _merge_events(self, existing_events, scraped_events):
         """
         Compare scraped events against existing events in the database to determine what changes need to be made.
@@ -125,6 +134,8 @@ class EventDataManager:
                 match = existing_by_date.get(str(start_date)) if start_date else None
 
             if match:
+                if self._events_match(event, match):
+                    continue
                 matched_existing_ids.add(match["id"])
                 txn_type = "update"
                 existing_id = match["id"]
