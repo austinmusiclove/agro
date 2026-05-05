@@ -70,9 +70,20 @@ def approve_transaction(mysql_interface, logger, transaction_id, override_data=N
 
             mysql_interface.update_event(current_data_id, update_data)
 
-            mysql_interface.update_staged_transaction(transaction_id, {
-                'status': 'approved'
-            })
+            mysql_interface.update_staged_transaction(transaction_id, { 'status': 'approved' })
+
+            published_event_id = current_data_id
+
+        elif transaction_type == 'delete':
+            if not current_data_id:
+                return {
+                    'statusCode': 400,
+                    'body': json.dumps({'error': 'No current_data_id for delete transaction'})
+                }
+
+            mysql_interface.update_event(current_data_id, {'status': 'disabled')
+
+            mysql_interface.update_staged_transaction(transaction_id, { 'status': 'approved' })
 
             published_event_id = current_data_id
 
@@ -92,8 +103,8 @@ def approve_transaction(mysql_interface, logger, transaction_id, override_data=N
             'statusCode': 200,
             'body': json.dumps({
                 'message': 'Transaction approved',
-                'published_event_id': published_event_id,
-                'transaction_id': transaction_id,
+                'event_id': published_event_id,
+                'staged_transaction_id': transaction_id,
                 'transaction_type': transaction_type
             })
         }
