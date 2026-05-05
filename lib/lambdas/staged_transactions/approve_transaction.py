@@ -81,7 +81,7 @@ def approve_transaction(mysql_interface, logger, transaction_id, override_data=N
                     'body': json.dumps({'error': 'No current_data_id for delete transaction'})
                 }
 
-            mysql_interface.update_event(current_data_id, {'status': 'disabled')
+            mysql_interface.update_event(current_data_id, {'status': 'disabled'})
 
             mysql_interface.update_staged_transaction(transaction_id, { 'status': 'approved' })
 
@@ -92,12 +92,6 @@ def approve_transaction(mysql_interface, logger, transaction_id, override_data=N
                 'statusCode': 400,
                 'body': json.dumps({'error': f'Unsupported transaction type: {transaction_type}'})
             }
-
-        # Update transaction status
-        update_data = {'status': 'approved'}
-        if transaction_type == 'create':
-            update_data['current_data_id'] = published_event_id
-        mysql_interface.update_staged_transaction(transaction_id, update_data)
 
         return {
             'statusCode': 200,
