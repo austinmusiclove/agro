@@ -18,7 +18,7 @@ def get_staged_transactions(connector, target_table):
         LEFT JOIN events e_current ON st.current_data_id = e_current.id
         LEFT JOIN events e_staged ON st.staged_data_id = e_staged.id
         LEFT JOIN venues vs ON e_staged.venue_id = vs.id
-        LEFT JOIN venues vs ON e_current.venue_id = vc.id
+        LEFT JOIN venues vc ON e_current.venue_id = vc.id
         WHERE st.target_table = ?
         AND st.status = 'pending-review';
     """
