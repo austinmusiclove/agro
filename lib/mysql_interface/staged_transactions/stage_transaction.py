@@ -23,11 +23,11 @@ def stage_transaction(connector, target_table: str, data: dict, txn_data: dict) 
         Dict with 'staged_data_id' and 'staged_transaction_id'
     """
     staged_data_id = None
-    data_with_status = data.copy()
-    data_with_status["status"] = "staged"
     txn_type = txn_data.get("transaction_type")
 
     if txn_type == "create" or txn_type == "update":
+        data_with_status = data.copy()
+        data_with_status["status"] = "staged"
         if target_table == "events":
             staged_data_id = events.insert_event(connector, data_with_status)
 
