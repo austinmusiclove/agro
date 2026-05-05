@@ -12,7 +12,7 @@ def get_staged_transactions(connector, target_table):
             e_staged.title as staged_event_title,
             e_staged.venue_id as staged_venue_id,
             e_staged.start_date as staged_start_date,
-            vs.name as staged_venue_name
+            vs.name as staged_venue_name,
             vc.name as current_venue_name
         FROM staged_transactions st
         LEFT JOIN events e_current ON st.current_data_id = e_current.id
