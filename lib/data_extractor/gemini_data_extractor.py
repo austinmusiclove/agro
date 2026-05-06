@@ -61,7 +61,7 @@ class GeminiDataExtractor(DataExtractorInterface):
 
     def extract_event_list(self, markdown: str) -> dict:
         system_prompt = """You are an expert at extracting structured event data from markdown content.
-Extract the events into the specified JSON schema format."""
+Extract the events into the specified JSON schema format. All URLs must be absolute (start with http:// or https://). Never return relative paths."""
 
         user_prompt = f"""Extract the list of events from the markdown content, as well as the link to the next page of events if one exists. Make sure to get every event. Do not skip events.
 
@@ -79,7 +79,7 @@ Markdown content:
 
     def extract_event(self, markdown: str) -> dict:
         system_prompt = """You are an expert at extracting structured event data from markdown content.
-Extract the event into the specified JSON schema format."""
+Extract the event into the specified JSON schema format. All URLs must be absolute (start with http:// or https://). Never return relative paths."""
 
         user_prompt = f"""Extract a single event from this markdown content.
 Return the data in the Event schema format.

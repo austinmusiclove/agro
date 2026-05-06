@@ -18,7 +18,17 @@ def normalize_time(value) -> Optional[str]:
     return format_time(value)
 
 
+def validate_absolute_url(value) -> str:
+    if value is None:
+        return value
+    if not str(value).startswith(("http://", "https://")):
+        raise ValueError(f"URL must be absolute (start with http:// or https://). Got: {value}")
+    return str(value)
+
+
 OptionalTime = Annotated[Optional[str], BeforeValidator(normalize_time)]
+AbsoluteUrl = Annotated[str, BeforeValidator(validate_absolute_url)]
+OptionalAbsoluteUrl = Annotated[Optional[str], BeforeValidator(lambda v: v if v is None else validate_absolute_url(v))]
 
 
 class Event(BaseModel):
@@ -27,14 +37,14 @@ class Event(BaseModel):
     end_date: Optional[str] = Field(default=None, description="End date of the event, if applicable.")
     start_time: OptionalTime = Field(default=None, description="Start time of the event.")
     end_time: OptionalTime = Field(default=None, description="End time of the event, if applicable.")
-    image_url: Optional[str] = Field(default=None, description="URL to an image or poster for the event.")
+    image_url: OptionalAbsoluteUrl = Field(default=None, description="Absolute URL to an image or poster for the event. Must start with http:// or https://. Never return a relative path.")
     venue_name: Optional[str] = Field(default=None, description="Name of the venue where the event is taking place.")
     performer_names: Optional[List[str]] = Field(default=None, description="List of performer or band names.")
     indoor_outdoor: Optional[Literal["indoor", "outdoor"]] = Field(default=None, description="'indoor', 'outdoor', or None if unknown.")
     ages: Optional[Literal["21+", "18+", "All Ages"]] = Field(default=None, description="Age requirement for the event if any")
     price_range: Optional[str] = Field(default=None, description="Price or price range for the event.")
-    event_page_url: str = Field(description="The absolute URL to the details page for this event.")
-    ticket_url: str = Field(description="The absolute URL to the page where you can buy tickets for this event.")
+    event_page_url: AbsoluteUrl = Field(description="Absolute URL to the event details page. Must start with http:// or https://. Never return a relative path like /events/123.")
+    ticket_url: AbsoluteUrl = Field(description="Absolute URL to the ticket purchase page. Must start with http:// or https://. Never return a relative path.")
 
     def clean(self) -> "Event":
         self.title = self.title.replace("’", "'")
