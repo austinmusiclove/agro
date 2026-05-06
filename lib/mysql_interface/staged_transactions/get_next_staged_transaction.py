@@ -1,4 +1,3 @@
-lib/mysql_interface/staged_transactions/get_next_staged_transaction.py
 def get_next_staged_transaction(connector, transaction_id):
     sql = """
         SELECT st.id FROM staged_transactions st
