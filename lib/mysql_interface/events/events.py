@@ -1,4 +1,4 @@
-from lib.helpers.helper import format_time
+ from lib.helpers.helper import format_time
 
 
 def get_event_by_id(connector, event_id):
@@ -18,7 +18,7 @@ def get_future_events_by_venue(connector, venue_id=None, limit=None, offset=None
               FROM events e
               LEFT JOIN venues v ON e.venue_id = v.id
               WHERE {venue_clause}start_date >= CURDATE() - INTERVAL 1 DAY AND status = 'published'
-              ORDER BY e.start_date ASC, e.start_time ASC
+              ORDER BY e.start_date ASC, e.start_time ASC, e.id ASC
               {limit_clause}"""
     params = [venue_id] if venue_id is not None else []
     if limit is not None:
