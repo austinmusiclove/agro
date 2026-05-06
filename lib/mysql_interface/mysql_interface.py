@@ -26,8 +26,11 @@ class MySQLInterface:
     def get_all_venues(self):
         return venues.get_all_venues(self._connector)
 
-    def get_future_events_by_venue(self, venue_id):
-        return events.get_future_events_by_venue(self._connector, venue_id)
+    def get_future_events_by_venue(self, venue_id=None, limit=None, offset=None):
+        return events.get_future_events_by_venue(self._connector, venue_id, limit, offset)
+
+    def get_future_events_count(self, venue_id=None):
+        return events.get_future_events_count(self._connector, venue_id)
 
     def get_event_by_id(self, event_id):
         return events.get_event_by_id(self._connector, event_id)

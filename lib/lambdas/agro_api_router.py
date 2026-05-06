@@ -9,6 +9,7 @@ from lib.lambdas.staged_transactions import get_staged_transactions
 from lib.lambdas.staged_transactions import get_next_staged_transaction
 from lib.lambdas.staged_transactions import approve_transaction
 from lib.lambdas.staged_transactions import reject_transaction
+from lib.lambdas.events import get_future_events
 
 config_loader           = YamlConfigLoader(config_overrides={})
 mysql_connector_factory = MySQLConnectorFactory(config_loader)
@@ -28,6 +29,14 @@ def router(event, context):
             page = int(query_params.get('page', 1))
             page_size = int(query_params.get('page_size', 20))
             return get_staged_transactions.get_staged_transactions(mysql_interface, logger, 'events', page, page_size)
+
+    if resource == '/events/future':
+        if method == 'GET':
+            query_params = event.get('queryStringParameters') or {}
+            venue_id = int(query_params['venue_id']) if query_params.get('venue_id') else None
+            page = int(query_params.get('page', 1))
+            page_size = int(query_params.get('page_size', 20))
+            return get_future_events.get_future_events(mysql_interface, logger, venue_id, page, page_size)
 
     if resource == '/staged-transactions/{id}':
         if method == 'GET':

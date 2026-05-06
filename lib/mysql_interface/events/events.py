@@ -11,11 +11,27 @@ def get_event_by_id(connector, event_id):
     results = connector.execute_query(sql, [event_id])
     return results[0] if results else None
 
-def get_future_events_by_venue(connector, venue_id):
-    sql = """SELECT id, title, venue_id, start_date, end_date, start_time, end_time, ages, price_range, event_page_url, ticket_url, image_url
-             FROM events
-             WHERE venue_id = ? AND start_date >= NOW() AND status = 'published'"""
-    return connector.execute_query(sql, [venue_id])
+def get_future_events_by_venue(connector, venue_id=None, limit=None, offset=None):
+    venue_clause = "venue_id = ? AND " if venue_id is not None else ""
+    limit_clause = "LIMIT ? OFFSET ?" if limit is not None else ""
+    sql = f"""SELECT id, title, venue_id, start_date, end_date, start_time, end_time, ages, price_range, event_page_url, ticket_url, image_url
+              FROM events
+              WHERE {venue_clause}start_date >= NOW() AND status = 'published'
+              {limit_clause}"""
+    params = [venue_id] if venue_id is not None else []
+    if limit is not None:
+        params.extend([limit, offset or 0])
+    return connector.execute_query(sql, params)
+
+
+def get_future_events_count(connector, venue_id=None):
+    venue_clause = "WHERE venue_id = ? AND " if venue_id is not None else "WHERE "
+    sql = f"""SELECT COUNT(*) as total
+              FROM events
+              {venue_clause}start_date >= NOW() AND status = 'published'"""
+    params = [venue_id] if venue_id is not None else []
+    result = connector.execute_query(sql, params)
+    return result[0]["total"] if result else 0
 
 
 def insert_event(connector, event_data):
