@@ -1,4 +1,4 @@
- from lib.helpers.helper import format_time
+from lib.helpers.helper import format_time
 
 
 def get_event_by_id(connector, event_id):
