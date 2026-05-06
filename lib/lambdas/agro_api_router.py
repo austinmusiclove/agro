@@ -24,7 +24,10 @@ def router(event, context):
 
     if resource == '/staged-transactions/events':
         if method == 'GET':
-            return get_staged_transactions.get_staged_transactions(mysql_interface, logger, 'events')
+            query_params = event.get('queryStringParameters') or {}
+            page = int(query_params.get('page', 1))
+            page_size = int(query_params.get('page_size', 20))
+            return get_staged_transactions.get_staged_transactions(mysql_interface, logger, 'events', page, page_size)
 
     if resource == '/staged-transactions/{id}':
         if method == 'GET':
