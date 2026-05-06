@@ -1,5 +1,4 @@
 Event Data Manager
-    clean apostrophes from event title before returning
     add pagination to staged transaction api
     add events api with pagination and venue id filter
     Skip data extraction if hash from previous scrape matches
