@@ -37,6 +37,17 @@ def get_staged_transaction_with_data(connector, transaction_id):
         if record:
             transaction['current_data'] = record
 
+    venue_id = None
+    if transaction.get('staged_data') and transaction['staged_data'].get('venue_id'):
+        venue_id = transaction['staged_data']['venue_id']
+    elif transaction.get('current_data') and transaction['current_data'].get('venue_id'):
+        venue_id = transaction['current_data']['venue_id']
+
+    if venue_id:
+        transaction['venue_future_events'] = events.get_future_events_by_venue(connector, venue_id)
+    else:
+        transaction['venue_future_events'] = []
+
     next_id = get_next_staged_transaction.get_next_staged_transaction(connector, transaction_id)
     if next_id:
         transaction['next_transaction_id'] = next_id
