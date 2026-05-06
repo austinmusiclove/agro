@@ -17,6 +17,7 @@ def get_future_events_by_venue(connector, venue_id=None, limit=None, offset=None
     sql = f"""SELECT id, title, venue_id, start_date, end_date, start_time, end_time, ages, price_range, event_page_url, ticket_url, image_url
               FROM events
               WHERE {venue_clause}start_date >= CURDATE() - INTERVAL 1 DAY AND status = 'published'
+              ORDER BY start_date ASC, start_time ASC
               {limit_clause}"""
     params = [venue_id] if venue_id is not None else []
     if limit is not None:

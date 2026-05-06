@@ -25,6 +25,7 @@ def get_staged_transactions(connector, target_table, limit=None, offset=None):
         LEFT JOIN venues vc ON e_current.venue_id = vc.id
         WHERE st.target_table = ?
         AND st.status = 'pending-review'
+        ORDER BY e_staged.start_date ASC
         {limit_clause};
     """
     params = [target_table]
