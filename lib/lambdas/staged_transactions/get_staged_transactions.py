@@ -1,4 +1,3 @@
-lib/lambdas/staged_transactions/get_staged_transactions.py
 import json
 import math
 
