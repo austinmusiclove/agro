@@ -9,6 +9,7 @@ from lib.lambdas.staged_transactions import get_staged_transactions
 from lib.lambdas.staged_transactions import get_next_staged_transaction
 from lib.lambdas.staged_transactions import approve_transaction
 from lib.lambdas.staged_transactions import reject_transaction
+from lib.lambdas.staged_transactions import reject_transactions_bulk
 from lib.lambdas.events import get_future_events
 
 config_loader           = YamlConfigLoader(config_overrides={})
@@ -63,6 +64,15 @@ def router(event, context):
             path_params = event.get('pathParameters')
             transaction_id = path_params.get('id')
             return reject_transaction.reject_transaction(mysql_interface, logger, transaction_id)
+
+    if resource == '/staged-transactions/reject':
+        if method == 'POST':
+            body = event.get('body')
+            if not body:
+                return {'statusCode': 400, 'body': json.dumps({'error': 'Request body required'})}
+            data = json.loads(body)
+            transaction_ids = data.get('ids', [])
+            return reject_transactions_bulk.reject_transactions_bulk(mysql_interface, logger, transaction_ids)
 
     return {
         'statusCode': 404,

@@ -1,4 +1,5 @@
 Event Data Manager
+    merge events needs to get event by event page url to check match instead of iterating through events from same venue
     Skip data extraction if hash from previous scrape matches
     Make sure to use schema if fetcher returns any and skip extraction if there is sufficient data or include extraction as well and have both in suggested_transaction entry
 DataExtractor

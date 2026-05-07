@@ -75,7 +75,7 @@ class PlaywrightFetcher(FetcherInterface):
         page = _shared_context.new_page()
 
         try:
-            response = page.goto(url, wait_until='networkidle', timeout=30000)
+            response = page.goto(url, wait_until='load', timeout=30000)
 
             if response and not response.ok:
                 raise FetchError(url, response.status, response.status_text)
