@@ -43,8 +43,8 @@ class Event(BaseModel):
     indoor_outdoor: Optional[Literal["indoor", "outdoor"]] = Field(default=None, description="'indoor', 'outdoor', or None if unknown.")
     ages: Optional[Literal["21+", "18+", "All Ages"]] = Field(default=None, description="Age requirement for the event if any")
     price_range: Optional[str] = Field(default=None, description="Price or price range for the event.")
-    event_page_url: AbsoluteUrl = Field(description="Absolute URL to the event details page. Must start with http:// or https://. Never return a relative path like /events/123.")
-    ticket_url: AbsoluteUrl = Field(description="Absolute URL to the ticket purchase page. Must start with http:// or https://. Never return a relative path.")
+    event_page_url: OptionalAbsoluteUrl = Field(description="Absolute URL to the event details page. Must start with http:// or https://. Never return a relative path like /events/123.")
+    ticket_url: OptionalAbsoluteUrl = Field(description="Absolute URL to the ticket purchase page. Must start with http:// or https://. Never return a relative path.")
 
     def clean(self) -> "Event":
         self.title = self.title.replace("’", "'")

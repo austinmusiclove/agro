@@ -115,7 +115,6 @@ class EventDataManager:
 
         # Build lookup maps
         existing_by_url = {e["event_page_url"]: e for e in existing_events if e.get("event_page_url")}
-        existing_by_date = {str(e["start_date"]): e for e in existing_events if e.get("start_date")}
 
         transactions = []
         scraped_urls = set()
@@ -129,9 +128,6 @@ class EventDataManager:
             if event_page_url:
                 match = existing_by_url.get(event_page_url)
                 scraped_urls.add(event_page_url)
-            else:
-                start_date = event.get("start_date")
-                match = existing_by_date.get(str(start_date)) if start_date else None
 
             if match:
                 matched_existing_ids.add(match["id"])

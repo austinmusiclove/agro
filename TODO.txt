@@ -1,8 +1,11 @@
 Event Data Manager
     merge events needs to get event by event page url to check match instead of iterating through events from same venue
+    scrape data from event page and get its hash during event list page scrape (hole in the wall)
+    make sure it combines relative paths with the current scrape url to get the correct url (monks, cactus cafe)
     Skip data extraction if hash from previous scrape matches
     Make sure to use schema if fetcher returns any and skip extraction if there is sufficient data or include extraction as well and have both in suggested_transaction entry
 DataExtractor
+    fix getting 2023 when year not clear
     Get description of event
     Extract all schema and return it as well
     Classification algo extractor to replace LLM extractors
@@ -15,6 +18,7 @@ Manual review app
 MySQL
     supporting tables
         stages table; venue id, indoor/outdoor, capacity, name, description of how to find it in the venue
+        itinerary, itinerary items; time, item
         offers table; price, event id, description
         performance table; performer id, event id, start/end date and time
         performers table
