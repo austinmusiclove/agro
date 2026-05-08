@@ -66,6 +66,17 @@ def insert_event(connector, event_data):
     return connector.execute_insert(query, values)
 
 
+def get_event_by_event_page_url(connector, event_page_url):
+    sql = """
+        SELECT * FROM events
+        WHERE event_page_url = ?
+        AND status = 'published'
+        LIMIT 1
+    """
+    results = connector.execute_query(sql, [event_page_url])
+    return results[0] if results else None
+
+
 def update_event(connector, event_id, event_data):
     # Remove fields that shouldn't be updated
     fields_to_update = {k: v for k, v in event_data.items()

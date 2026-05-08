@@ -1,3 +1,5 @@
+
+
 from lib.mysql_interface.venues import venues
 from lib.mysql_interface.events import events
 from lib.mysql_interface import staged_transactions
@@ -34,6 +36,9 @@ class MySQLInterface:
 
     def get_event_by_id(self, event_id):
         return events.get_event_by_id(self._connector, event_id)
+
+    def get_event_by_event_page_url(self, event_page_url):
+        return events.get_event_by_event_page_url(self._connector, event_page_url)
 
     def insert_event(self, event_data):
         return events.insert_event(self._connector, event_data)

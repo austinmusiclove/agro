@@ -50,7 +50,7 @@ class EventDataManager:
                         screenshot_idx = db_event.get("screenshot_index")
                         screenshot_ref = screenshot_refs.get(screenshot_idx) if screenshot_idx is not None else None
                         db_event["image_ref"] = screenshot_ref
-                        db_event["venue_id"] = venue.get("id")
+                        if not db_event.get("venue_id"): db_event["venue_id"] = venue.get("id")
                         txn_data["screenshot"] = screenshot_ref
                         txn_data["data_index"] = db_event.get("data_index")
                         txn_data["scrape_url"] = db_event.get("scrape_url")
@@ -117,7 +117,6 @@ class EventDataManager:
         existing_by_url = {e["event_page_url"]: e for e in existing_events if e.get("event_page_url")}
 
         transactions = []
-        scraped_urls = set()
         matched_existing_ids = set()
 
         # Classify scraped events
@@ -125,9 +124,12 @@ class EventDataManager:
             event_page_url = event.get("event_page_url")
 
             match = None
-            if event_page_url:
+            if event_page_url and event_page_url in existing_by_url:
                 match = existing_by_url.get(event_page_url)
-                scraped_urls.add(event_page_url)
+            elif event_page_url:
+                match = self.mysql_interface.get_event_by_event_page_url(event_page_url)
+                if match:
+                    event["venue_id"] = match["venue_id"]
 
             if match:
                 matched_existing_ids.add(match["id"])
