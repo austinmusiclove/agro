@@ -5,7 +5,7 @@ from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_excep
 
 class DataExtractorInterface(ABC):
     @abstractmethod
-    def extract_event_list(self, markdown: str) -> dict:
+    def extract_event_list(self, markdown: str, base_url: str = None) -> dict:
         """
         Extracts a list of events from markdown content.
         Returns a dictionary containing the list of events and optional next page URL.
@@ -13,7 +13,7 @@ class DataExtractorInterface(ABC):
         pass
 
     @abstractmethod
-    def extract_event(self, markdown: str) -> dict:
+    def extract_event(self, markdown: str, base_url: str = None) -> dict:
         """
         Extracts a single event from markdown content.
         Returns a dictionary representing the extracted event.

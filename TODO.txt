@@ -1,8 +1,13 @@
 Event Data Manager
-    make sure it combines relative paths with the current scrape url to get the correct url (monks, cactus cafe)
-    make it so that staged transaction is replaced if pending review for the same event
-    scrape data from event page and get its hash during event list page scrape (hole in the wall)
+    scrape event page during event list scrape
+        when there is event page url, scrape it and merge the data together favoring the event page data
+        update the scrape hash and url and
+        or
+        after processing transactions, initiate scrapes for all event page urls individually and each one of those does it's own scrape and creates a staged transaction
+        maybe in staged transaction view it can show other ST for same event?
+        maybe make it so that staged transaction is replaced if pending review for the same event
     Skip data extraction if hash from previous scrape matches
+    Get data from event schema
     Make sure to use schema if fetcher returns any and skip extraction if there is sufficient data or include extraction as well and have both in suggested_transaction entry
 DataExtractor
     fix getting 2023 when year not clear

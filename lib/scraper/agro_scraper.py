@@ -1,5 +1,6 @@
 from .interface import ScraperInterface
 from lib.schemas.event import Event
+from urllib.parse import urlparse
 
 
 class AgroScraper(ScraperInterface):
@@ -17,6 +18,8 @@ class AgroScraper(ScraperInterface):
         current_url = url
         page_count = 0
 
+        parsed = urlparse(current_url)
+        base_url = f"{parsed.scheme}://{parsed.netloc}{parsed.path}"
 
         while current_url and page_count < max_pages:
             scraped_urls.add(current_url)
@@ -36,7 +39,7 @@ class AgroScraper(ScraperInterface):
                     screenshots.append(screenshot)
 
                 if markdown:
-                    extracted = self.data_extractor.extract_event_list(markdown)
+                    extracted = self.data_extractor.extract_event_list(markdown, base_url=base_url)
 
                     events_on_page = extracted.get("events", [])
                     for index, event_dict in enumerate(events_on_page):

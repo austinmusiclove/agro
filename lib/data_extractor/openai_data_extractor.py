@@ -1,4 +1,5 @@
 import os
+from urllib.parse import urljoin
 from openai import OpenAI, APIError, RateLimitError, Timeout
 
 from lib.schemas.event import Event
@@ -48,9 +49,13 @@ class OpenAiDataExtractor(DataExtractorInterface):
         )
         return response
 
-    def extract_event_list(self, markdown: str) -> dict:
-        system_prompt = """You are an expert at extracting structured event data from markdown content.
-Extract the events into the specified JSON schema format. All URLs must be absolute (start with http:// or https://). Never return relative paths."""
+    def extract_event_list(self, markdown: str, base_url: str = None) -> dict:
+        base_instruction = ""
+        if base_url:
+            base_instruction = f"The base URL for this page is {base_url}. If you encounter relative URLs (not starting with http:// or https://), convert them to absolute by prepending this base URL. "
+
+        system_prompt = f"""You are an expert at extracting structured event data from markdown content.
+{base_instruction}Extract the events into the specified JSON schema format. All URLs must be absolute (start with http:// or https://). Never return relative paths."""
 
         user_prompt = f"""Extract the list of events from the markdown content, as well as the link to the next page of events if one exists. Make sure to get every event. Do not skip events.
 
@@ -68,9 +73,13 @@ Markdown content:
 
         return event_list.model_dump()
 
-    def extract_event(self, markdown: str) -> dict:
-        system_prompt = """You are an expert at extracting structured event data from markdown content.
-Extract the event into the specified JSON schema format. All URLs must be absolute (start with http:// or https://). Never return relative paths."""
+    def extract_event(self, markdown: str, base_url: str = None) -> dict:
+        base_instruction = ""
+        if base_url:
+            base_instruction = f"The base URL for this page is {base_url}. If you encounter relative URLs (not starting with http:// or https://), convert them to absolute by prepending this base URL. "
+
+        system_prompt = f"""You are an expert at extracting structured event data from markdown content.
+{base_instruction}Extract the event into the specified JSON schema format. All URLs must be absolute (start with http:// or https://). Never return relative paths."""
 
         user_prompt = f"""Extract a single event from this markdown content.
 Return the data in the Event schema format.
