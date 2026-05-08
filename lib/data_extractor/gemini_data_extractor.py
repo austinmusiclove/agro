@@ -1,6 +1,7 @@
 import os
 import time
 import json
+from datetime import datetime
 from urllib.parse import urljoin
 from google import genai
 from google.genai import types
@@ -66,8 +67,14 @@ class GeminiDataExtractor(DataExtractorInterface):
         if base_url:
             base_instruction = f"The base URL for this page is {base_url}. If you encounter relative URLs (not starting with http:// or https://), convert them to absolute by prepending this base URL. "
 
+        now = datetime.now()
+        current_year = now.year
+        current_day_month = now.strftime("%B %d").lower() # e.g., "may 09"
+        date_year_instruction = f"Date year handling: If a date has a month and day but does not include a year, assume {current_year} if the date is after {current_day_month}. Otherwise use {current_year + 1}."
+
         system_prompt = f"""You are an expert at extracting structured event data from markdown content.
-{base_instruction}Extract the events into the specified JSON schema format. All URLs must be absolute (start with http:// or https://). Never return relative paths."""
+{base_instruction}{date_year_instruction}
+Extract the events into the specified JSON schema format. All URLs must be absolute (start with http:// or https://). Never return relative paths."""
 
         user_prompt = f"""Extract the list of events from the markdown content, as well as the link to the next page of events if one exists. Make sure to get every event. Do not skip events.
 
@@ -88,8 +95,14 @@ Markdown content:
         if base_url:
             base_instruction = f"The base URL for this page is {base_url}. If you encounter relative URLs (not starting with http:// or https://), convert them to absolute by prepending this base URL. "
 
+        now = datetime.now()
+        current_year = now.year
+        current_day_month = now.strftime("%B %d").lower() # e.g., "may 09"
+        date_year_instruction = f"Date year handling: If a date has a month and day but does not include a year, assume {current_year} if the date is after {current_day_month}. Otherwise use {current_year + 1}."
+
         system_prompt = f"""You are an expert at extracting structured event data from markdown content.
-{base_instruction}Extract the event into the specified JSON schema format. All URLs must be absolute (start with http:// or https://). Never return relative paths."""
+{base_instruction}{date_year_instruction}
+Extract the event into the specified JSON schema format. All URLs must be absolute (start with http:// or https://). Never return relative paths."""
 
         user_prompt = f"""Extract a single event from this markdown content.
 Return the data in the Event schema format.
