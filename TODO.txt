@@ -1,13 +1,17 @@
 Event Data Manager
     scrape event page during event list scrape
-        when there is event page url, scrape it and merge the data together favoring the event page data
-        update the scrape hash and url and
-        or
-        after processing transactions, initiate scrapes for all event page urls individually and each one of those does it's own scrape and creates a staged transaction
-        maybe in staged transaction view it can show other ST for same event?
-        maybe make it so that staged transaction is replaced if pending review for the same event
-    Skip data extraction if hash from previous scrape matches
-    Get data from event schema
+        option 1
+            event list scrape
+                for each event in event list scrape that has an event page url
+                    if create
+                        scrape event page and merge data in favoring the event page data
+                        include the event page hashes in the published event
+            sql
+                need to add event_page_html and markdown hashes to event sql
+                need to add event_page_screenshot and event_list_screenshot to event sql and remove image_ref
+    event page scrape
+        skip if hash matches
+        get data from event schema
     Make sure to use schema if fetcher returns any and skip extraction if there is sufficient data or include extraction as well and have both in suggested_transaction entry
 DataExtractor
     fix getting 2023 when year not clear
