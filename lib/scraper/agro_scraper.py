@@ -71,3 +71,34 @@ class AgroScraper(ScraperInterface):
         return {
             "events": all_events,
         }
+
+    def scrape_event_page(self, event: dict) -> dict:
+        event_page_url = event.get("event_page_url")
+        if not event_page_url:
+            raise ValueError("Event has no event_page_url")
+
+        result = self.fetcher.fetch(event_page_url, return_markdown=True, return_screenshot=True)
+
+        html = result.get("html")
+        markdown = result.get("markdown")
+        screenshot = result.get("screenshot")
+        html_hash = self._compute_hash(html)
+        markdown_hash = self._compute_hash(markdown)
+
+        parsed = urlparse(event_page_url)
+        base_url = f"{parsed.scheme}://{parsed.netloc}{parsed.path}"
+
+        event_data = self.data_extractor.extract_event(markdown, base_url=base_url)
+
+        event_id = event.get("id")
+        screenshot_ref = None
+        if screenshot and self.image_saver:
+            screenshot_ref = self.image_saver.save(screenshot, name_hint=f"event_{event_id}_page")
+
+        event_data["id"] = event_id
+        event_data["event_page_url"] = event_page_url
+        event_data["event_page_screenshot"] = screenshot_ref
+        event_data["event_page_html_hash"] = html_hash
+        event_data["event_page_markdown_hash"] = markdown_hash
+
+        return event_data

@@ -19,7 +19,6 @@ class EventDataManager:
 
         print(f"Starting event list scrape for venue: {venue.get('name', venue.get('id'))}")
         scraped_result = self.scraper.scrape_event_list_page(event_list_url, paginate=paginate, max_pages=4, venue=venue)
-
         events = scraped_result.get("events", [])
 
         if events:
@@ -54,16 +53,40 @@ class EventDataManager:
 
     def scrape_event_pages(self, venue_id=None, date=None):
         venues = self._get_venues(venue_id)
+        if not venues:
+            print("No venues found.")
+            return
         for venue in venues:
-            # Get all events from DB that have event page url and are not past
-            # for each event
-                # scrape to get structured data
-                # merge scraped data with db record
-            pass
-        pass
+            existing_events = self.mysql_interface.get_future_events_by_venue(venue.get("id"))
+            for event in existing_events:
+                self._scrape_event_page(event)
 
-    def scrape_event_page(self, event_page_url):
-        pass
+    def _scrape_event_page(self, event):
+        event_page_url = event.get("event_page_url")
+        if not event_page_url:
+            print(f"Event {event.get("id")} has no event_page_url.")
+            return
+
+        scraped_data = self.scraper.scrape_event_page(event)
+        txn_data = {
+            "transaction_type": 'update',
+            "current_data_id": event.get("id"),
+            "screenshot": scraped_data.get("event_page_screenshot"),
+            "scrape_url": scraped_data.get("event_page_url"),
+            "scrape_html_hash": scraped_data.get("event_page_html_hash"),
+            "scrape_markdown_hash": scraped_data.get("event_page_markdown_hash"),
+        }
+        self.mysql_interface.stage_transaction("events", scraped_data, txn_data)
+
+    def scrape_event_page_by_event_id(self, event_id):
+        event = self.mysql_interface.get_event_by_id(event_id)
+        if not event:
+            print(f"Event {event_id} not found.")
+            return
+        if event.get("status") != "published":
+            print(f"Event {event_id} is not published (status: {event.get('status')}). Skipping.")
+            return
+        self._scrape_event_page(event)
 
     def _get_venues(self, venue_id=None):
         if venue_id is not None:

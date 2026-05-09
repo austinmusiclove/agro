@@ -17,6 +17,14 @@ class ScraperInterface(ABC):
         """
         pass
 
+    @abstractmethod
+    def scrape_event_page(self, event: dict) -> dict:
+        """
+        Scrapes a single event page URL using the event's event_page_url.
+        Returns a single event dict with all fields including screenshot, hashes, and scraped data.
+        """
+        pass
+
     @staticmethod
     def _compute_hash(content: str) -> str:
         """Computes SHA256 hash of content. Returns None if content is None or empty."""
