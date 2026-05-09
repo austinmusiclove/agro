@@ -2,10 +2,11 @@ from .interface import ScraperInterface
 
 
 class ScraperFactory:
-    def __init__(self, config_loader, fetcher_factory=None, data_extractor_factory=None):
+    def __init__(self, config_loader, fetcher_factory=None, data_extractor_factory=None, image_saver=None):
         self._config_loader = config_loader
         self._fetcher_factory = fetcher_factory
         self._data_extractor_factory = data_extractor_factory
+        self._image_saver = image_saver
         self._default_implementation = config_loader.get_config("agro").get("scraper", {}).get("default", "agro")
 
     def create(self, implementation: str = None) -> ScraperInterface:
@@ -19,6 +20,6 @@ class ScraperFactory:
             if not self._fetcher_factory or not self._data_extractor_factory:
                 raise ValueError("AgroScraper requires fetcher_factory and data_extractor_factory")
             from .agro_scraper import AgroScraper
-            return AgroScraper(self._fetcher_factory, self._data_extractor_factory, self._config_loader)
+            return AgroScraper(self._fetcher_factory, self._data_extractor_factory, self._config_loader, self._image_saver)
         else:
             raise ValueError(f"Unknown scraper type requested: {implementation}")

@@ -4,10 +4,16 @@ from abc import ABC, abstractmethod
 
 class ScraperInterface(ABC):
     @abstractmethod
-    def scrape_event_list_page(self, url: str, paginate: bool = True, max_pages: int = 10) -> dict:
+    def __init__(self, fetcher_factory, data_extractor_factory, config_loader, image_saver):
+        self.fetcher = fetcher_factory.create()
+        self.data_extractor = data_extractor_factory.create()
+        self.image_saver = image_saver
+
+    @abstractmethod
+    def scrape_event_list_page(self, url: str, paginate: bool = True, max_pages: int = 10, venue_name: str = None) -> dict:
         """
         Scrapes a venue's event list page and optionally follows pagination links.
-        Returns a dict with 'events' (list of dicts) and 'screenshots' (list of bytes).
+        Returns a dict with 'events' (list of dicts) and 'screenshots' (list of refs or None).
         """
         pass
 

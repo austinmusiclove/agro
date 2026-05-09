@@ -4,14 +4,10 @@ from urllib.parse import urlparse
 
 
 class AgroScraper(ScraperInterface):
-    def __init__(self, fetcher_factory, data_extractor_factory, config_loader):
-        self._fetcher_factory        = fetcher_factory
-        self._data_extractor_factory = data_extractor_factory
-        self.fetcher                 = self._fetcher_factory.create()
-        self.data_extractor          = self._data_extractor_factory.create()
-        self._config_loader          = config_loader
+    def __init__(self, fetcher_factory, data_extractor_factory, config_loader, image_saver):
+        super().__init__(fetcher_factory, data_extractor_factory, config_loader, image_saver)
 
-    def scrape_event_list_page(self, url: str, paginate: bool = True, max_pages: int = 10) -> dict:
+    def scrape_event_list_page(self, url: str, paginate: bool = True, max_pages: int = 10, venue_name: str = None) -> dict:
         all_events = []
         screenshots = []
         scraped_urls = set()
@@ -36,7 +32,9 @@ class AgroScraper(ScraperInterface):
                 markdown_hash = self._compute_hash(markdown)
 
                 if screenshot:
-                    screenshots.append(screenshot)
+                    name_hint = venue_name.replace(" ", "_").lower() if venue_name else "event_list"
+                    img_ref = self.image_saver.save(screenshot, name_hint=f"{name_hint}_list_{page_count}")
+                    screenshots.append(img_ref)
 
                 if markdown:
                     extracted = self.data_extractor.extract_event_list(markdown, base_url=base_url)

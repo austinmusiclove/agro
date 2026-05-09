@@ -1,8 +1,7 @@
 class EventDataManager:
-    def __init__(self, scraper, mysql_interface, image_saver=None):
+    def __init__(self, scraper, mysql_interface):
         self.scraper = scraper
         self.mysql_interface = mysql_interface
-        self.image_saver = image_saver
 
     def scrape_event_list_pages(self, venue_id=None, paginate=False):
         venues = self._get_venues(venue_id)
@@ -10,7 +9,7 @@ class EventDataManager:
             print("No venues found.")
             return
         for venue in venues:
-            _scrape_event_list(venue, paginate)
+            self._scrape_event_list(venue, paginate)
 
     def _scrape_event_list(self, venue, paginate):
         event_list_url = venue.get("website_events_url")
@@ -19,7 +18,7 @@ class EventDataManager:
             return
 
         print(f"Starting event list scrape for venue: {venue.get('name', venue.get('id'))}")
-        scraped_result = self.scraper.scrape_event_list_page(event_list_url, paginate=paginate, max_pages=4)
+        scraped_result = self.scraper.scrape_event_list_page(event_list_url, paginate=paginate, max_pages=4, venue_name=venue.get("name"))
 
         events = scraped_result.get("events", [])
         screenshots = scraped_result.get("screenshots", [])
@@ -27,18 +26,8 @@ class EventDataManager:
         if events:
             print(f"Scraped {len(events)} events.")
 
-            # Save screenshots first and get refs
-            screenshot_refs = {}
-            venue_name = venue.get("name", "unknown").replace(" ", "_").lower()
-            if screenshots and self.image_saver:
-                for idx, screenshot_bytes in enumerate(screenshots):
-                    img_ref = self.image_saver.save(screenshot_bytes, name_hint=f"{venue_name}_event_list_{idx}")
-                    screenshot_refs[idx] = img_ref
-
-            # Get transactions and process
             existing_events = self.mysql_interface.get_future_events_by_venue(venue.get("id"))
             transactions = self._merge_events(existing_events, events)
-            # scrape event page urls
             print(f"Processing {len(transactions)} transactions...")
             for txn in transactions:
 
@@ -51,7 +40,7 @@ class EventDataManager:
                 if txn_type == "create" or txn_type == "update":
                     db_event = txn.get("event_data").copy()
                     screenshot_idx = db_event.get("screenshot_index")
-                    screenshot_ref = screenshot_refs.get(screenshot_idx) if screenshot_idx is not None else None
+                    screenshot_ref = screenshots[screenshot_idx] if screenshot_idx is not None and screenshot_idx < len(screenshots) else None
                     db_event["image_ref"] = screenshot_ref
                     if not db_event.get("venue_id"): db_event["venue_id"] = venue.get("id")
                     txn_data["screenshot"] = screenshot_ref

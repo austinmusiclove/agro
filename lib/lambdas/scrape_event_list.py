@@ -18,14 +18,14 @@ load_dotenv(override=True)
 config_loader              = YamlConfigLoader()
 fetcher_factory            = FetcherFactory(config_loader)
 data_extractor_factory     = DataExtractorFactory(config_loader)
-scraper_factory            = ScraperFactory(config_loader, fetcher_factory, data_extractor_factory)
-scraper                    = scraper_factory.create()
 image_saver_factory        = ImageSaverFactory(config_loader)
 image_saver                = image_saver_factory.create()
+scraper_factory            = ScraperFactory(config_loader, fetcher_factory, data_extractor_factory, image_saver)
+scraper                    = scraper_factory.create()
 mysql_connector_factory    = MySQLConnectorFactory(config_loader)
 mysql_connector            = mysql_connector_factory.create()
 mysql_interface            = MySQLInterface(config_loader, mysql_connector)
-event_data_manager         = EventDataManager(scraper, mysql_interface, image_saver)
+event_data_manager         = EventDataManager(scraper, mysql_interface)
 
 def scrape_event_list(event, context):
     # Safely get venue_id from the top-level event dict
