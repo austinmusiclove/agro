@@ -1,14 +1,7 @@
 Event Data Manager
     scrape event page during event list scrape
-        option 1
-            event list scrape
-                for each event in event list scrape that has an event page url
-                    if create
-                        scrape event page and merge data in favoring the event page data
-                        include the event page hashes in the published event
-            sql
-                need to add event_page_html and markdown hashes to event sql
-                need to add event_page_screenshot and event_list_screenshot to event sql and remove image_ref
+        scrape event page and merge data in favoring the event page data; event data manager 41
+        include the event page hashes in the published event
     event page scrape
         skip if hash matches
         get data from event schema

@@ -39,8 +39,8 @@ def get_future_events_count(connector, venue_id=None):
 def insert_event(connector, event_data):
     columns = [
         "title", "venue_id", "start_date", "end_date", "start_time", "end_time",
-        "ages", "price_range", "status", "data_source", "event_page_url", "ticket_url",
-        "image_ref", "image_url"
+        "ages", "price_range", "status", "event_page_url", "ticket_url", "image_url",
+        "data_source", "event_list_html_hash", "event_list_markdown_hash", "event_page_html_hash", "event_page_markdown_hash", "event_list_screenshot", "event_page_screenshot",
     ]
     values = [
         event_data.get("title"),
@@ -52,11 +52,16 @@ def insert_event(connector, event_data):
         event_data.get("ages"),
         event_data.get("price_range"),
         event_data.get("status", "staged"),
-        event_data.get("data_source"),
         event_data.get("event_page_url"),
         event_data.get("ticket_url"),
-        event_data.get("image_ref"),
         event_data.get("image_url"),
+        event_data.get("data_source"),
+        event_data.get("event_list_html_hash"),
+        event_data.get("event_list_markdown_hash"),
+        event_data.get("event_page_html_hash"),
+        event_data.get("event_page_markdown_hash"),
+        event_data.get("event_list_screenshot"),
+        event_data.get("event_page_screenshot"),
     ]
 
     placeholders = ", ".join(["?"] * len(columns))

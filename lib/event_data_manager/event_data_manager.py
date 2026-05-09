@@ -18,38 +18,37 @@ class EventDataManager:
             return
 
         print(f"Starting event list scrape for venue: {venue.get('name', venue.get('id'))}")
-        scraped_result = self.scraper.scrape_event_list_page(event_list_url, paginate=paginate, max_pages=4, venue_name=venue.get("name"))
+        scraped_result = self.scraper.scrape_event_list_page(event_list_url, paginate=paginate, max_pages=4, venue=venue)
 
         events = scraped_result.get("events", [])
-        screenshots = scraped_result.get("screenshots", [])
 
         if events:
             print(f"Scraped {len(events)} events.")
 
+            # Merge newly scraped evetns with existing events to determine which ones should be created and deleted (updates are not done during event list scrape)
             existing_events = self.mysql_interface.get_future_events_by_venue(venue.get("id"))
             transactions = self._merge_events(existing_events, events)
             print(f"Processing {len(transactions)} transactions...")
-            for txn in transactions:
 
-                db_event = None
+            for txn in transactions:
+                event_data = None
                 txn_type = txn.get("transaction_type")
                 txn_data = {
                     "transaction_type": txn_type,
                     "current_data_id": txn.get("existing_event_id"),
                 }
-                if txn_type == "create" or txn_type == "update":
-                    db_event = txn.get("event_data").copy()
-                    screenshot_idx = db_event.get("screenshot_index")
-                    screenshot_ref = screenshots[screenshot_idx] if screenshot_idx is not None and screenshot_idx < len(screenshots) else None
-                    db_event["image_ref"] = screenshot_ref
-                    if not db_event.get("venue_id"): db_event["venue_id"] = venue.get("id")
-                    txn_data["screenshot"] = screenshot_ref
-                    txn_data["data_index"] = db_event.get("data_index")
-                    txn_data["scrape_url"] = db_event.get("scrape_url")
-                    txn_data["scrape_html_hash"] = db_event.get("html_hash")
-                    txn_data["scrape_markdown_hash"] = db_event.get("markdown_hash")
+                if txn_type == "create":
+                    # scrape event page url if any
+                    # get event (which has new screenshot) and merge data favoring event page
+                    # change this event_data assignment to event_list_event_data and make event_page_event_data and merge them to assign event_data
+                    event_data = txn.get("event_data").copy()
+                    txn_data["screenshot"] = event_data["event_list_screenshot"]
+                    txn_data["data_index"] = event_data.get("data_index")
+                    txn_data["scrape_url"] = event_data.get("scrape_url")
+                    txn_data["scrape_html_hash"] = event_data.get("event_list_html_hash")
+                    txn_data["scrape_markdown_hash"] = event_data.get("event_list_markdown_hash")
 
-                self.mysql_interface.stage_transaction("events", db_event, txn_data)
+                self.mysql_interface.stage_transaction("events", event_data, txn_data)
         else:
             print(f"No events scraped for {venue.get('name', venue.get('id'))}")
 
@@ -86,42 +85,23 @@ class EventDataManager:
         """
         Compare scraped events against existing events in the database to determine what changes need to be made.
 
-        Matching logic:
-        - First tries to match by event_page_url
-        - If no event_page_url, matches by start_date
-        - If a scraped event matches an existing event: transaction_type = 'update'
-        - If a scraped event has no match: transaction_type = 'create'
-        - If an existing event has no match in scraped events: transaction_type = 'delete'
-
         Args:
             existing_events: List of existing event dicts
             scraped_events: List of event dicts from the scraper
 
         Returns:
             List of transaction dicts, each containing:
-                - transaction_type: 'create', 'update', or 'delete'
+                - transaction_type: 'create' or 'delete'
                 - existing_event_id: ID of matching existing event (None for create)
                 - event_data: Event dict for create/update, None for delete
         """
 
-        # Build lookup maps
-        existing_by_url = {e["event_page_url"]: e for e in existing_events if e.get("event_page_url")}
-
         transactions = []
         matched_existing_ids = set()
 
-        # Classify scraped events
+        # Add create transactions
         for event in scraped_events:
-            event_page_url = event.get("event_page_url")
-
-            match = None
-            if event_page_url and event_page_url in existing_by_url:
-                match = existing_by_url.get(event_page_url)
-            elif event_page_url:
-                match = self.mysql_interface.get_event_by_event_page_url(event_page_url)
-                if match:
-                    event["venue_id"] = match["venue_id"]
-
+            match = self._find_event_match(event, existing_events)
             if match:
                 matched_existing_ids.add(match["id"])
             else:
@@ -141,3 +121,14 @@ class EventDataManager:
                 })
 
         return transactions
+
+    def _find_event_match(self, event, existing_events):
+            match = None
+            event_page_url = event.get("event_page_url")
+            existing_by_url = {e["event_page_url"]: e for e in existing_events if e.get("event_page_url")}
+
+            if event_page_url and event_page_url in existing_by_url:
+                match = existing_by_url.get(event_page_url)
+            elif event_page_url:
+                match = self.mysql_interface.get_event_by_event_page_url(event_page_url)
+            return match

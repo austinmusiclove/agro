@@ -10,7 +10,7 @@ class ScraperInterface(ABC):
         self.image_saver = image_saver
 
     @abstractmethod
-    def scrape_event_list_page(self, url: str, paginate: bool = True, max_pages: int = 10, venue_name: str = None) -> dict:
+    def scrape_event_list_page(self, url: str, paginate: bool = True, max_pages: int = 10, venue: dict = None) -> dict:
         """
         Scrapes a venue's event list page and optionally follows pagination links.
         Returns a dict with 'events' (list of dicts) and 'screenshots' (list of refs or None).

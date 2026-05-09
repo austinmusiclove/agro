@@ -7,9 +7,8 @@ class AgroScraper(ScraperInterface):
     def __init__(self, fetcher_factory, data_extractor_factory, config_loader, image_saver):
         super().__init__(fetcher_factory, data_extractor_factory, config_loader, image_saver)
 
-    def scrape_event_list_page(self, url: str, paginate: bool = True, max_pages: int = 10, venue_name: str = None) -> dict:
+    def scrape_event_list_page(self, url: str, paginate: bool = True, max_pages: int = 10, venue: dict = None) -> dict:
         all_events = []
-        screenshots = []
         scraped_urls = set()
         current_url = url
         page_count = 0
@@ -31,22 +30,24 @@ class AgroScraper(ScraperInterface):
                 html_hash = self._compute_hash(html)
                 markdown_hash = self._compute_hash(markdown)
 
+                screenshot_url = None
                 if screenshot:
+                    venue_name = venue.get("name")
                     name_hint = venue_name.replace(" ", "_").lower() if venue_name else "event_list"
-                    img_ref = self.image_saver.save(screenshot, name_hint=f"{name_hint}_list_{page_count}")
-                    screenshots.append(img_ref)
+                    screenshot_url = self.image_saver.save(screenshot, name_hint=f"{name_hint}_list_{page_count}")
 
                 if markdown:
                     extracted = self.data_extractor.extract_event_list(markdown, base_url=base_url)
 
                     events_on_page = extracted.get("events", [])
                     for index, event_dict in enumerate(events_on_page):
-                        event_dict["screenshot_index"] = page_count
+                        if not event_dict.get("venue_id"): event_dict["venue_id"] = venue.get("id")
+                        event_dict["event_list_screenshot"] = screenshot_url
                         event_dict["data_source"] = "agro_scraper"
                         event_dict["scrape_url"] = current_url
                         event_dict["data_index"] = index
-                        event_dict["html_hash"] = html_hash
-                        event_dict["markdown_hash"] = markdown_hash
+                        event_dict["event_list_html_hash"] = html_hash
+                        event_dict["event_list_markdown_hash"] = markdown_hash
                         all_events.append(event_dict)
 
                     if paginate:
@@ -69,5 +70,4 @@ class AgroScraper(ScraperInterface):
 
         return {
             "events": all_events,
-            "screenshots": screenshots
         }
