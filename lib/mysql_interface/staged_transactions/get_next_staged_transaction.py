@@ -7,7 +7,7 @@ def get_next_staged_transaction(connector, transaction_id):
             e_staged.start_date > (SELECT e2.start_date FROM staged_transactions st2 LEFT JOIN events e2 ON st2.staged_data_id = e2.id WHERE st2.id = ?)
             OR (e_staged.start_date = (SELECT e2.start_date FROM staged_transactions st2 LEFT JOIN events e2 ON st2.staged_data_id = e2.id WHERE st2.id = ?) AND st.id > ?)
         )
-        ORDER BY e_staged.start_date ASC, st.id ASC
+        ORDER BY e_staged.venue_id, e_staged.start_date ASC, st.id ASC
         LIMIT 1
     """
     result = connector.execute_query(sql, [transaction_id, transaction_id, transaction_id])
