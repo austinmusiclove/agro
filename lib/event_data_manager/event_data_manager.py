@@ -83,13 +83,14 @@ class EventDataManager:
             self.mysql_interface.stage_transaction("events", scraped_data, txn_data)
 
         elif event_status == "staged":
-            scrape_result = self.scraper.scrape_event_page(event)
-            scraped_data = scrape_result.get('event')
-            if scraped_data:
-                updated_event_data = event | scraped_data
-                self.mysql_interface.update_event(event_id, updated_event_data)
             existing_txn = self.mysql_interface.get_staged_transaction_by_staged_data_id(event_id, "events")
-            self.mysql_interface.update_staged_transaction(existing_txn.get("id"), {'status': 'pending-review'})
+            if existing_txn.get("status") == "pending-scrape":
+                scrape_result = self.scraper.scrape_event_page(event)
+                scraped_data = scrape_result.get('event')
+                if scraped_data:
+                    updated_event_data = event | scraped_data
+                    self.mysql_interface.update_event(event_id, updated_event_data)
+                self.mysql_interface.update_staged_transaction(existing_txn.get("id"), {'status': 'pending-review'})
 
         else:
             print(f"Event {event.get("id")} has status {event_status}. Only published and staged status are supported.")

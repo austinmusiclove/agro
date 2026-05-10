@@ -1,5 +1,6 @@
 Event Data Manager
     event page scrape
+        make sure it sets event_page_url with current url and it knows ticket url could be the same page
         get data from event schema
         scrape event page during event list scrape
             async call lambda
