@@ -1,9 +1,12 @@
 Event Data Manager
     scrape event page during event list scrape
-        scrape event page and merge data in favoring the event page data; event data manager 41
-        include the event page hashes in the published event
+        change to que event page scrape and put staged transaction into different status other than pending-review while waiting for that scrape
+            create lambda entry point for scrape event page
+            async call lambda
+            set staged transaction status to pending-scrape if has event url to scrape
     event page scrape
         skip if hash matches
+        set status to pending review
         get data from event schema
     Make sure to use schema if fetcher returns any and skip extraction if there is sufficient data or include extraction as well and have both in suggested_transaction entry
 DataExtractor

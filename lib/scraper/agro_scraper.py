@@ -77,7 +77,11 @@ class AgroScraper(ScraperInterface):
         if not event_page_url:
             raise ValueError("Event has no event_page_url")
 
-        result = self.fetcher.fetch(event_page_url, return_markdown=True, return_screenshot=True)
+        try:
+            result = self.fetcher.fetch(event_page_url, return_markdown=True, return_screenshot=True)
+        except Exception as e:
+            print(f"Error scraping {event_page_url}: {e}")
+            return {}
 
         html = result.get("html")
         markdown = result.get("markdown")

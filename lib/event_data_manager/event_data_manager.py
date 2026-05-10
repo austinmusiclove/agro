@@ -37,11 +37,10 @@ class EventDataManager:
                     "current_data_id": txn.get("existing_event_id"),
                 }
                 if txn_type == "create":
-                    # scrape event page url if any
-                    # get event (which has new screenshot) and merge data favoring event page
-                    # change this event_data assignment to event_list_event_data and make event_page_event_data and merge them to assign event_data
-                    event_data = txn.get("event_data").copy()
-                    txn_data["screenshot"] = event_data["event_list_screenshot"]
+                    el_event_data = txn.get("event_data").copy()
+                    ep_event_data = self.scraper.scrape_event_page(el_event_data)
+                    event_data = el_event_data | ep_event_data
+                    txn_data["screenshot"] = event_data.get("event_list_screenshot")
                     txn_data["data_index"] = event_data.get("data_index")
                     txn_data["scrape_url"] = event_data.get("scrape_url")
                     txn_data["scrape_html_hash"] = event_data.get("event_list_html_hash")
