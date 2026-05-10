@@ -42,6 +42,3 @@ RUN playwright install chromium
 # Copy your code
 COPY lib ${LAMBDA_TASK_ROOT}/lib
 COPY config ${LAMBDA_TASK_ROOT}/config
-
-# Set the default command to your handler; this is overwritten for some functions
-CMD [ "lib.lambdas.scrape_event_list.scrape_event_list" ]
