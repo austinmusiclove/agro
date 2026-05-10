@@ -44,4 +44,4 @@ COPY lib ${LAMBDA_TASK_ROOT}/lib
 COPY config ${LAMBDA_TASK_ROOT}/config
 
 # Set the command to your handler
-CMD [ "lib.lambdas.scrape_event_list.scrape_event_list" ]
+#CMD [ "lib.lambdas.scrape_event_list.scrape_event_list" ]

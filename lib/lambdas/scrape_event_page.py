@@ -1,3 +1,4 @@
+import json
 from dotenv import load_dotenv
 from lib.config.yaml_config_loader import YamlConfigLoader
 from lib.scraper.factory import ScraperFactory
@@ -22,21 +23,23 @@ mysql_connector            = mysql_connector_factory.create()
 mysql_interface            = MySQLInterface(config_loader, mysql_connector)
 event_data_manager         = EventDataManager(scraper, mysql_interface)
 
-def scrape_event_list(event, context):
-    # Safely get venue_id from the top-level event dict
-    venue_id = event.get('venue_id')
+def scrape_event_page(event, context):
+    # Safely get event_id from the top-level event dict
+    event_id = event.get('event_id')
 
     # Explicitly cast to int if it's not None, otherwise keep it None
-    if venue_id is not None:
+    if event_id is not None:
         try:
-            venue_id = int(venue_id)
+            event_id = int(event_id)
         except ValueError:
-            venue_id = None # Fallback if someone passed a weird string
+            event_id = None
 
-    # Get paginate parameter (default False)
-    paginate = event.get('paginate', False)
-    # Ensure it's a boolean
-    if isinstance(paginate, str):
-        paginate = paginate.lower() == 'true'
+    if event_id is None:
+        return {
+            'statusCode': 400,
+            'body': json.dumps({
+                'error': 'event_id is required and must be a valid integer'
+            })
+        }
 
-    return event_data_manager.scrape_event_list_pages(venue_id, paginate=paginate)
+    return event_data_manager.scrape_event_page_by_event_id(event_id)

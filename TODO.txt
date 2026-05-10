@@ -5,6 +5,7 @@ Event Data Manager
             async call lambda
             set staged transaction status to pending-scrape if has event url to scrape
     event page scrape
+        find any staged transaction for the event in question and update the event data for that txn and change it to pending review
         skip if hash matches
         set status to pending review
         get data from event schema

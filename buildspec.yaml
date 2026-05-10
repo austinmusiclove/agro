@@ -35,11 +35,11 @@ phases:
       # ==========================================
       # CONTAINER-BASED LAMBDAS (Playwright)
       # ==========================================
-      - echo "Building Docker image for ScrapeEventList..."
+      - echo "Building Docker image for Scrape Event Lambdas..."
       # Build the Docker image from the project root, using the Dockerfile located in the docker/ directory
-      - docker buildx build --platform linux/amd64 --provenance=false -f docker/Dockerfile -t scrape-event-list .
+      - docker buildx build --platform linux/amd64 --provenance=false -f docker/Dockerfile -t scrape .
       # Tag the built image with our specific ECR repository URI
-      - docker tag scrape-event-list:latest 031621556164.dkr.ecr.us-east-2.amazonaws.com/agro/scrape-event-list:latest
+      - docker tag scrape:latest 031621556164.dkr.ecr.us-east-2.amazonaws.com/agro/scrape:latest
 
   post_build:
     commands:
@@ -66,10 +66,16 @@ phases:
       # DEPLOY CONTAINER-BASED LAMBDAS
       # ==========================================
       - echo "Pushing the Docker image to ECR..."
-      - docker push 031621556164.dkr.ecr.us-east-2.amazonaws.com/agro/scrape-event-list:latest
+      - docker push 031621556164.dkr.ecr.us-east-2.amazonaws.com/agro/scrape:latest
 
       - echo "Updating ScrapeEventList Lambda function to use the new Docker image..."
-      - aws lambda update-function-code --function-name ScrapeEventList --image-uri 031621556164.dkr.ecr.us-east-2.amazonaws.com/agro/scrape-event-list:latest --region us-east-2
+      - aws lambda update-function-code --function-name ScrapeEventList --image-uri 031621556164.dkr.ecr.us-east-2.amazonaws.com/agro/scrape:latest --region us-east-2
 
       - echo "Wait for ScrapeEventList Lambda function code to update..."
       - aws lambda wait function-updated --function-name ScrapeEventList --region us-east-2
+
+      #- echo "Updating ScrapeEventPage Lambda function to use the new Docker image..."
+      #- aws lambda update-function-code --function-name ScrapeEventPage --image-uri 031621556164.dkr.ecr.us-east-2.amazonaws.com/agro/scrape:latest --region us-east-2
+
+      #- echo "Wait for ScrapeEventPage Lambda function code to update..."
+      #- aws lambda wait function-updated --function-name ScrapeEventPage --region us-east-2
