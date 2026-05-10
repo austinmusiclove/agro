@@ -1,10 +1,11 @@
 def insert_staged_transaction(connector, transaction_data):
     columns = [
-        "target_table", "current_data_id", "staged_data_id",
+        "status", "target_table", "current_data_id", "staged_data_id",
         "transaction_type", "data_index", "screenshot",
         "scrape_url", "scrape_html_hash", "scrape_markdown_hash"
     ]
     values = [
+        transaction_data.get("status"),
         transaction_data.get("target_table"),
         transaction_data.get("current_data_id"),
         transaction_data.get("staged_data_id"),

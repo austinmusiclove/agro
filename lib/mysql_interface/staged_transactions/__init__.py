@@ -4,6 +4,7 @@ from .insert_staged_transaction import insert_staged_transaction
 from .update_staged_transaction import update_staged_transaction
 from .stage_transaction import stage_transaction
 from .get_next_staged_transaction import get_next_staged_transaction
+from .get_staged_transaction_by_staged_data_id import get_staged_transaction_by_staged_data_id
 
 __all__ = [
     "get_staged_transactions",
@@ -13,4 +14,5 @@ __all__ = [
     "update_staged_transaction",
     "stage_transaction",
     "get_next_staged_transaction",
+    "get_staged_transaction_by_staged_data_id",
 ]

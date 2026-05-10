@@ -42,4 +42,10 @@ def scrape_event_page(event, context):
             })
         }
 
-    return event_data_manager.scrape_event_page_by_event_id(event_id)
+    result = event_data_manager.scrape_event_page_by_event_id(event_id)
+    return {
+        'statusCode': 200,
+        'body': json.dumps({
+            'result': result
+        })
+    }

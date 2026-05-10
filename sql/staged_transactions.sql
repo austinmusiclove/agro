@@ -1,6 +1,6 @@
 CREATE TABLE staged_transactions (
     id SERIAL PRIMARY KEY,
-    status ENUM('pending-review', 'approved', 'rejected') NOT NULL,
+    status ENUM('pending-review', 'pending-scrape', 'approved', 'rejected') NOT NULL,
     target_table VARCHAR(50),
     current_data_id INT,
     staged_data_id INT,

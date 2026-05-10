@@ -88,21 +88,26 @@ class AgroScraper(ScraperInterface):
         screenshot = result.get("screenshot")
         html_hash = self._compute_hash(html)
         markdown_hash = self._compute_hash(markdown)
+        event_data = {}
 
-        parsed = urlparse(event_page_url)
-        base_url = f"{parsed.scheme}://{parsed.netloc}{parsed.path}"
+        # only perform data extraction if at least one hash does not match
+        if html_hash != event.get("event_page_html_hash") and markdown_hash != event.get("event_page_markdown_hash"):
+            parsed = urlparse(event_page_url)
+            base_url = f"{parsed.scheme}://{parsed.netloc}{parsed.path}"
 
-        event_data = self.data_extractor.extract_event(markdown, base_url=base_url)
+            event_data = self.data_extractor.extract_event(markdown, base_url=base_url)
 
-        event_id = event.get("id")
-        screenshot_ref = None
-        if screenshot and self.image_saver:
-            screenshot_ref = self.image_saver.save(screenshot, name_hint=f"event_{event_id}_page")
+            event_id = event.get("id")
+            screenshot_ref = None
+            if screenshot and self.image_saver:
+                screenshot_ref = self.image_saver.save(screenshot, name_hint=f"event_{event_id}_page")
 
-        event_data["id"] = event_id
-        event_data["event_page_url"] = event_page_url
-        event_data["event_page_screenshot"] = screenshot_ref
-        event_data["event_page_html_hash"] = html_hash
-        event_data["event_page_markdown_hash"] = markdown_hash
+            event_data["id"] = event_id
+            event_data["event_page_url"] = event_page_url
+            event_data["event_page_screenshot"] = screenshot_ref
+            event_data["event_page_html_hash"] = html_hash
+            event_data["event_page_markdown_hash"] = markdown_hash
 
-        return event_data
+        return {
+            "event": event_data
+        }

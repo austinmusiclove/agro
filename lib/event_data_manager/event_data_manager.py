@@ -37,9 +37,8 @@ class EventDataManager:
                     "current_data_id": txn.get("existing_event_id"),
                 }
                 if txn_type == "create":
-                    el_event_data = txn.get("event_data").copy()
-                    ep_event_data = self.scraper.scrape_event_page(el_event_data)
-                    event_data = el_event_data | ep_event_data
+                    event_data = txn.get("event_data").copy()
+                    txn_data["status"] = "pending-scrape" if event_data.get("event_page_url") else "pending-review"
                     txn_data["screenshot"] = event_data.get("event_list_screenshot")
                     txn_data["data_index"] = event_data.get("data_index")
                     txn_data["scrape_url"] = event_data.get("scrape_url")
@@ -47,6 +46,7 @@ class EventDataManager:
                     txn_data["scrape_markdown_hash"] = event_data.get("event_list_markdown_hash")
 
                 self.mysql_interface.stage_transaction("events", event_data, txn_data)
+                # TODO invoke scrape event page
         else:
             print(f"No events scraped for {venue.get('name', venue.get('id'))}")
 
@@ -61,29 +61,44 @@ class EventDataManager:
                 self._scrape_event_page(event)
 
     def _scrape_event_page(self, event):
+        event_id = event.get("id")
         event_page_url = event.get("event_page_url")
         if not event_page_url:
-            print(f"Event {event.get("id")} has no event_page_url.")
+            print(f"Event {event_id} has no event_page_url.")
             return
 
-        scraped_data = self.scraper.scrape_event_page(event)
-        txn_data = {
-            "transaction_type": 'update',
-            "current_data_id": event.get("id"),
-            "screenshot": scraped_data.get("event_page_screenshot"),
-            "scrape_url": scraped_data.get("event_page_url"),
-            "scrape_html_hash": scraped_data.get("event_page_html_hash"),
-            "scrape_markdown_hash": scraped_data.get("event_page_markdown_hash"),
-        }
-        self.mysql_interface.stage_transaction("events", scraped_data, txn_data)
+        event_status = event.get("status")
+        if event_status == "published":
+            scrape_result = self.scraper.scrape_event_page(event)
+            scraped_data = scrape_result.get("event")
+            txn_data = {
+                "status": "pending-review",
+                "transaction_type": "update",
+                "current_data_id": event_id,
+                "screenshot": scraped_data.get("event_page_screenshot"),
+                "scrape_url": scraped_data.get("event_page_url"),
+                "scrape_html_hash": scraped_data.get("event_page_html_hash"),
+                "scrape_markdown_hash": scraped_data.get("event_page_markdown_hash"),
+            }
+            self.mysql_interface.stage_transaction("events", scraped_data, txn_data)
+
+        elif event_status == "staged":
+            scrape_result = self.scraper.scrape_event_page(event)
+            scraped_data = scrape_result.get('event')
+            updated_event_data = event | scraped_data
+            mysql_interface.update_event(event_id, updated_event_data)
+            existing_txn = self.mysql_interface.get_staged_transaction_by_data_id(scraped_data.get("id"), "events")
+            mysql_interface.update_staged_transaction(existing_txn.get("id"), {'status': 'pending-review'})
+
+        else:
+            print(f"Event {event.get("id")} has status {event_status}. Only published and staged status are supported.")
+            return
+
 
     def scrape_event_page_by_event_id(self, event_id):
         event = self.mysql_interface.get_event_by_id(event_id)
         if not event:
             print(f"Event {event_id} not found.")
-            return
-        if event.get("status") != "published":
-            print(f"Event {event_id} is not published (status: {event.get('status')}). Skipping.")
             return
         self._scrape_event_page(event)
 

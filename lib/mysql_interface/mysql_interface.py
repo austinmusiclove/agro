@@ -58,6 +58,9 @@ class MySQLInterface:
     def get_next_staged_transaction(self, transaction_id):
         return staged_transactions.get_next_staged_transaction(self._connector, transaction_id)
 
+    def get_staged_transaction_by_staged_data_id(self, staged_data_id, target_table):
+        return staged_transactions.get_staged_transaction_by_staged_data_id(self._connector, staged_data_id, target_table)
+
     def insert_staged_transaction(self, transaction_data):
         return staged_transactions.insert_staged_transaction(self._connector, transaction_data)
 
