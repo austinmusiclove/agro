@@ -1,4 +1,5 @@
 from .interface import ScraperInterface
+from .json_ld_extractor import extract_event_schema
 from lib.schemas.event import Event
 from urllib.parse import urlparse
 
@@ -93,11 +94,13 @@ class AgroScraper(ScraperInterface):
 
         # only perform data extraction if at least one hash does not match
         if html_hash != event.get("event_page_html_hash") and markdown_hash != event.get("event_page_markdown_hash"):
+
+            schema_data = extract_event_schema(html)
+
             parsed = urlparse(event_page_url)
             base_url = f"{parsed.scheme}://{parsed.netloc}{parsed.path}"
 
             event_data = self.data_extractor.extract_event(markdown, base_url=base_url, event_page_url=event_page_url)
-            event_data["venue_id"] = event.get("venue_id")
 
             event_id = event.get("id")
             screenshot_ref = None
@@ -109,6 +112,7 @@ class AgroScraper(ScraperInterface):
             event_data["event_page_screenshot"] = screenshot_ref
             event_data["event_page_html_hash"] = html_hash
             event_data["event_page_markdown_hash"] = markdown_hash
+            event_data = event | event_data | schema_data
 
         return {
             "event": event_data
