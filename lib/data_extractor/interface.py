@@ -13,7 +13,7 @@ class DataExtractorInterface(ABC):
         pass
 
     @abstractmethod
-    def extract_event(self, markdown: str, base_url: str = None) -> dict:
+    def extract_event(self, markdown: str, base_url: str = None, event_page_url: str = None) -> dict:
         """
         Extracts a single event from markdown content.
         Returns a dictionary representing the extracted event.

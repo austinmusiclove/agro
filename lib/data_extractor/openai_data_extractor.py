@@ -80,10 +80,14 @@ Markdown content:
 
         return event_list.model_dump()
 
-    def extract_event(self, markdown: str, base_url: str = None) -> dict:
+    def extract_event(self, markdown: str, base_url: str = None, event_page_url: str = None) -> dict:
         base_instruction = ""
         if base_url:
             base_instruction = f"The base URL for this page is {base_url}. If you encounter relative URLs (not starting with http:// or https://), convert them to absolute by prepending this base URL. "
+
+        event_page_instruction = ""
+        if event_page_url:
+            event_page_instruction = f"The URL of this event page is {event_page_url}. "
 
         now = datetime.now()
         current_year = now.year
@@ -91,7 +95,7 @@ Markdown content:
         date_year_instruction = f"Date year handling: If a date has a month and day but does not include a year, assume {current_year} if the date is after {current_day_month}. Otherwise use {current_year + 1}."
 
         system_prompt = f"""You are an expert at extracting structured event data from markdown content.
-{base_instruction}{date_year_instruction}
+{base_instruction}{event_page_instruction}{date_year_instruction}
 Extract the event into the specified JSON schema format. All URLs must be absolute (start with http:// or https://). Never return relative paths."""
 
         user_prompt = f"""Extract a single event from this markdown content.

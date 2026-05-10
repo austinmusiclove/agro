@@ -96,7 +96,8 @@ class AgroScraper(ScraperInterface):
             parsed = urlparse(event_page_url)
             base_url = f"{parsed.scheme}://{parsed.netloc}{parsed.path}"
 
-            event_data = self.data_extractor.extract_event(markdown, base_url=base_url)
+            event_data = self.data_extractor.extract_event(markdown, base_url=base_url, event_page_url=event_page_url)
+            event_data["venue_id"] = event.get("venue_id")
 
             event_id = event.get("id")
             screenshot_ref = None
