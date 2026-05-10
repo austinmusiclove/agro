@@ -64,10 +64,6 @@ def approve_transaction(mysql_interface, logger, transaction_id, override_data=N
                 for key, value in override_data.items():
                     update_data[key] = value
 
-            # Remove id, and alias fields from update_data to avoid updating the primary key and fields that don't exist
-            update_data.pop('id', None)
-            update_data.pop('venue_name', None)
-
             mysql_interface.update_event(current_data_id, update_data)
 
             mysql_interface.update_staged_transaction(transaction_id, { 'status': 'approved' })

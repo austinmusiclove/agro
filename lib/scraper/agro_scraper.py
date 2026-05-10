@@ -73,22 +73,23 @@ class AgroScraper(ScraperInterface):
         }
 
     def scrape_event_page(self, event: dict) -> dict:
+        event_data = {}
         event_page_url = event.get("event_page_url")
         if not event_page_url:
-            raise ValueError("Event has no event_page_url")
+            print(f"Event {event.get("id")} has no event_page_url")
+            return { "event": event_data }
 
         try:
             result = self.fetcher.fetch(event_page_url, return_markdown=True, return_screenshot=True)
         except Exception as e:
             print(f"Error scraping {event_page_url}: {e}")
-            return {}
+            return { "event": event_data }
 
         html = result.get("html")
         markdown = result.get("markdown")
         screenshot = result.get("screenshot")
         html_hash = self._compute_hash(html)
         markdown_hash = self._compute_hash(markdown)
-        event_data = {}
 
         # only perform data extraction if at least one hash does not match
         if html_hash != event.get("event_page_html_hash") and markdown_hash != event.get("event_page_markdown_hash"):

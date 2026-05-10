@@ -1,5 +1,13 @@
 from lib.helpers.helper import format_time
 
+EVENT_COLUMNS = [
+    "title", "venue_id", "start_date", "end_date", "start_time", "end_time",
+    "ages", "price_range", "status", "event_page_url", "ticket_url", "image_url",
+    "data_source", "event_list_html_hash", "event_list_markdown_hash",
+    "event_page_html_hash", "event_page_markdown_hash",
+    "event_list_screenshot", "event_page_screenshot",
+]
+
 
 def get_event_by_id(connector, event_id):
     sql = """
@@ -37,11 +45,7 @@ def get_future_events_count(connector, venue_id=None):
 
 
 def insert_event(connector, event_data):
-    columns = [
-        "title", "venue_id", "start_date", "end_date", "start_time", "end_time",
-        "ages", "price_range", "status", "event_page_url", "ticket_url", "image_url",
-        "data_source", "event_list_html_hash", "event_list_markdown_hash", "event_page_html_hash", "event_page_markdown_hash", "event_list_screenshot", "event_page_screenshot",
-    ]
+    columns = EVENT_COLUMNS[:]
     values = [
         event_data.get("title"),
         event_data.get("venue_id"),
@@ -83,9 +87,8 @@ def get_event_by_event_page_url(connector, event_page_url):
 
 
 def update_event(connector, event_id, event_data):
-    # Remove fields that shouldn't be updated
     fields_to_update = {k: v for k, v in event_data.items()
-                       if k not in ['id', 'created_at', 'updated_at']}
+                        if k in EVENT_COLUMNS}
 
     if not fields_to_update:
         return 0

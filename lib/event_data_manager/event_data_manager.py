@@ -86,9 +86,9 @@ class EventDataManager:
             scrape_result = self.scraper.scrape_event_page(event)
             scraped_data = scrape_result.get('event')
             updated_event_data = event | scraped_data
-            mysql_interface.update_event(event_id, updated_event_data)
+            self.mysql_interface.update_event(event_id, updated_event_data)
             existing_txn = self.mysql_interface.get_staged_transaction_by_data_id(scraped_data.get("id"), "events")
-            mysql_interface.update_staged_transaction(existing_txn.get("id"), {'status': 'pending-review'})
+            self.mysql_interface.update_staged_transaction(existing_txn.get("id"), {'status': 'pending-review'})
 
         else:
             print(f"Event {event.get("id")} has status {event_status}. Only published and staged status are supported.")
