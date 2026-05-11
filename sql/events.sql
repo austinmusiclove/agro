@@ -12,7 +12,7 @@ CREATE TABLE events (
     ages VARCHAR(50), -- e.g., "21+", "All Ages"
     price_range VARCHAR(100),
 
-    status ENUM('pending-review', 'published', 'disabled', 'staged') DEFAULT 'pending-review',
+    status ENUM('pending-review', 'published', 'disabled', 'staged', 'processed') DEFAULT 'pending-review',
 
     event_page_url TEXT,
     ticket_url TEXT,
