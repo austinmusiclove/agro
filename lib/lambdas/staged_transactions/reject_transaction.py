@@ -18,6 +18,7 @@ def reject_transaction(mysql_interface, logger, transaction_id):
             }
 
         mysql_interface.update_staged_transaction(transaction_id, {'status': 'rejected'})
+        mysql_interface.update_event(transaction.get('staged_data_id'), {'status': 'processed'})
 
         return {
             'statusCode': 200,

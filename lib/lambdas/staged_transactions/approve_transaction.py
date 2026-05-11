@@ -48,6 +48,7 @@ def approve_transaction(mysql_interface, logger, transaction_id, override_data=N
                 'status': 'approved',
                 "current_data_id": published_event_id
             })
+            mysql_interface.update_event(transaction.get('staged_data_id'), {'status': 'processed'})
 
         elif transaction_type == 'update':
             if not current_data_id:
@@ -67,6 +68,7 @@ def approve_transaction(mysql_interface, logger, transaction_id, override_data=N
             mysql_interface.update_event(current_data_id, update_data)
 
             mysql_interface.update_staged_transaction(transaction_id, { 'status': 'approved' })
+            mysql_interface.update_event(transaction.get('staged_data_id'), {'status': 'processed'})
 
             published_event_id = current_data_id
 

@@ -24,28 +24,31 @@ mysql_interface            = MySQLInterface(config_loader, mysql_connector)
 event_data_manager         = EventDataManager(scraper, mysql_interface)
 
 def scrape_event_page(event, context):
-    # Safely get event_id from the top-level event dict
-    event_id = event.get('event_id')
-
-    # Explicitly cast to int if it's not None, otherwise keep it None
-    if event_id is not None:
+    # 1. SQS sends a list of records
+    for record in event['Records']:
         try:
-            event_id = int(event_id)
-        except ValueError:
-            event_id = None
+            # 2. The message body is a string, you must parse it
+            body = json.loads(record['body'])
+            event_id = body.get('event_id')
 
-    if event_id is None:
-        return {
-            'statusCode': 400,
-            'body': json.dumps({
-                'error': 'event_id is required and must be a valid integer'
-            })
-        }
+            # 3. Your existing integer logic
+            if event_id is not None:
+                event_id = int(event_id)
+            else:
+                print("No event_id found in message body")
+                continue # Skip this message
 
-    result = event_data_manager.scrape_event_page_by_event_id(event_id)
+            # 4. Run your logic
+            result = event_data_manager.scrape_event_page_by_event_id(event_id)
+            print(f"Successfully processed {event_id}")
+
+        except Exception as e:
+            print(f"Error processing message: {str(e)}")
+            # In SQS triggers, if you want the message to stay in the queue to retry,
+            # you must raise an exception here.
+            raise e
+
     return {
         'statusCode': 200,
-        'body': json.dumps({
-            'result': result
-        })
+        'body': 'Processed batch successfully'
     }
