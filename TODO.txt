@@ -1,11 +1,8 @@
 Event Data Manager
-    event page scrape
-        make sure it sets event_page_url with current url and it knows ticket url could be the same page
-        get data from event schema
-        scrape event page during event list scrape
-            async call lambda
-            add sqs queue
+    call lambda from sqs
+    add schema into event data and maybe staged transaction data and display in front end
     Make sure to use schema if fetcher returns any and skip extraction if there is sufficient data or include extraction as well and have both in suggested_transaction entry
+    make sure it skips when hashes match; make sure they match when expected
 DataExtractor
     fix getting 2023 when year not clear
     Get description of event

@@ -29,3 +29,5 @@ mysql:
   region: "us-east-2"
   resource_arn: "arn:aws:rds:us-east-2:031621556164:cluster:database-1"
   secret_arn: "arn:aws:secretsmanager:us-east-2:031621556164:secret:rds-db-credentials/database-1/admin/1776094332489-CFUt6k"
+sqs:
+  scrape_event_queue_url: "https://sqs.us-east-2.amazonaws.com/031621556164/AgroEventPageScrapeQueue"

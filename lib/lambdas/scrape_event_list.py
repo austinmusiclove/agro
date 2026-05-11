@@ -7,6 +7,7 @@ from lib.image_saver.factory import ImageSaverFactory
 from lib.mysql_interface.mysql_interface import MySQLInterface
 from lib.mysql_interface.mysql_connector.factory import MySQLConnectorFactory
 from lib.event_data_manager.event_data_manager import EventDataManager
+from lib.sqs_interface import SQSInterface
 
 load_dotenv(override=True)
 
@@ -20,7 +21,8 @@ scraper                    = scraper_factory.create()
 mysql_connector_factory    = MySQLConnectorFactory(config_loader)
 mysql_connector            = mysql_connector_factory.create()
 mysql_interface            = MySQLInterface(config_loader, mysql_connector)
-event_data_manager         = EventDataManager(scraper, mysql_interface)
+sqs_interface              = SQSInterface(config_loader)
+event_data_manager         = EventDataManager(scraper, mysql_interface, sqs_interface=sqs_interface if sqs_interface.is_configured() else None)
 
 def scrape_event_list(event, context):
     # Safely get venue_id from the top-level event dict

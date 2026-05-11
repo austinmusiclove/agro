@@ -1,7 +1,8 @@
 class EventDataManager:
-    def __init__(self, scraper, mysql_interface):
+    def __init__(self, scraper, mysql_interface, *, sqs_interface=None):
         self.scraper = scraper
         self.mysql_interface = mysql_interface
+        self.sqs_interface = sqs_interface
 
     def scrape_event_list_pages(self, venue_id=None, paginate=False):
         venues = self._get_venues(venue_id)
@@ -45,8 +46,9 @@ class EventDataManager:
                     txn_data["scrape_html_hash"] = event_data.get("event_list_html_hash")
                     txn_data["scrape_markdown_hash"] = event_data.get("event_list_markdown_hash")
 
-                self.mysql_interface.stage_transaction("events", event_data, txn_data)
-                # TODO invoke scrape event page
+                result = self.mysql_interface.stage_transaction("events", event_data, txn_data)
+                if self.sqs_interface and self.sqs_interface.is_configured() and result.get("staged_data_id"):
+                    self.sqs_interface.send_event_id(result["staged_data_id"])
         else:
             print(f"No events scraped for {venue.get('name', venue.get('id'))}")
 
