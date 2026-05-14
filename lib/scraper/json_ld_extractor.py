@@ -13,6 +13,8 @@ def extract_event_schema(html: str) -> dict:
         event = _find_event(data)
         if event:
             _extract_fields(event, schema_data)
+            if 'page_schema' not in schema_data:
+                schema_data['page_schema'] = json.dumps(event)
 
     return schema_data
 

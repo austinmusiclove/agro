@@ -5,7 +5,7 @@ EVENT_COLUMNS = [
     "ages", "price_range", "status", "event_page_url", "ticket_url", "image_url",
     "data_source", "event_list_html_hash", "event_list_markdown_hash",
     "event_page_html_hash", "event_page_markdown_hash",
-    "event_list_screenshot", "event_page_screenshot",
+    "event_list_screenshot", "event_page_screenshot", "page_schema",
 ]
 
 
@@ -66,6 +66,7 @@ def insert_event(connector, event_data):
         event_data.get("event_page_markdown_hash"),
         event_data.get("event_list_screenshot"),
         event_data.get("event_page_screenshot"),
+        event_data.get("page_schema"),
     ]
 
     placeholders = ", ".join(["?"] * len(columns))
