@@ -1,11 +1,12 @@
 import json
 import math
 
-def get_staged_transactions(mysql_interface, logger, target_table, page=1, page_size=20):
+def get_staged_transactions(mysql_interface, logger, target_table, page=1, page_size=20, status=None):
     try:
+        status = status or 'pending-review'
         offset = (page - 1) * page_size
-        records = mysql_interface.get_staged_transactions(target_table, limit=page_size, offset=offset)
-        total = mysql_interface.get_staged_transactions_count(target_table)
+        records = mysql_interface.get_staged_transactions(target_table, limit=page_size, offset=offset, status=status)
+        total = mysql_interface.get_staged_transactions_count(target_table, status=status)
 
         return {
             'statusCode': 200,

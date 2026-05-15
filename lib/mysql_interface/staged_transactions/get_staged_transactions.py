@@ -2,7 +2,7 @@ from lib.mysql_interface.events import events
 from lib.mysql_interface.venues import venues
 
 
-def get_staged_transactions(connector, target_table, limit=None, offset=None):
+def get_staged_transactions(connector, target_table, limit=None, offset=None, status='pending-review'):
     limit_clause = ""
     if limit is not None:
         limit_clause = f"LIMIT ? OFFSET ?"
@@ -24,22 +24,22 @@ def get_staged_transactions(connector, target_table, limit=None, offset=None):
         LEFT JOIN venues vs ON e_staged.venue_id = vs.id
         LEFT JOIN venues vc ON e_current.venue_id = vc.id
         WHERE st.target_table = ?
-        AND st.status = 'pending-review'
+        AND st.status = ?
         ORDER BY e_staged.venue_id, e_staged.start_date ASC, st.id ASC
         {limit_clause};
     """
-    params = [target_table]
+    params = [target_table, status]
     if limit is not None:
         params.extend([limit, offset or 0])
     return connector.execute_query(sql, params)
 
 
-def get_staged_transactions_count(connector, target_table):
+def get_staged_transactions_count(connector, target_table, status='pending-review'):
     sql = """
         SELECT COUNT(*) as total
         FROM staged_transactions
         WHERE target_table = ?
-        AND status = 'pending-review';
+        AND status = ?;
     """
-    result = connector.execute_query(sql, [target_table])
+    result = connector.execute_query(sql, [target_table, status])
     return result[0]["total"] if result else 0

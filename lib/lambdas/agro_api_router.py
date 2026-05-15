@@ -29,7 +29,8 @@ def router(event, context):
             query_params = event.get('queryStringParameters') or {}
             page = int(query_params.get('page', 1))
             page_size = int(query_params.get('page_size', 20))
-            return get_staged_transactions.get_staged_transactions(mysql_interface, logger, 'events', page, page_size)
+            status = query_params.get('status')
+            return get_staged_transactions.get_staged_transactions(mysql_interface, logger, 'events', page, page_size, status)
 
     if resource == '/events/future':
         if method == 'GET':

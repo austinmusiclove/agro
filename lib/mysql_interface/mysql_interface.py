@@ -46,11 +46,11 @@ class MySQLInterface:
     def update_event(self, event_id, event_data):
         return events.update_event(self._connector, event_id, event_data)
 
-    def get_staged_transactions(self, target_table, limit=None, offset=None):
-        return staged_transactions.get_staged_transactions(self._connector, target_table, limit, offset)
+    def get_staged_transactions(self, target_table, limit=None, offset=None, status='pending-review'):
+        return staged_transactions.get_staged_transactions(self._connector, target_table, limit, offset, status)
 
-    def get_staged_transactions_count(self, target_table):
-        return staged_transactions.get_staged_transactions_count(self._connector, target_table)
+    def get_staged_transactions_count(self, target_table, status='pending-review'):
+        return staged_transactions.get_staged_transactions_count(self._connector, target_table, status)
 
     def get_staged_transaction_with_data(self, transaction_id):
         return staged_transactions.get_staged_transaction_with_data(self._connector, transaction_id)
