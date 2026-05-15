@@ -70,28 +70,35 @@ class EventDataManager:
             return
 
         event_status = event.get("status")
+
+        # if event is published, check for update and create a new staged transaction to review if there is one
         if event_status == "published":
             scrape_result = self.scraper.scrape_event_page(event)
             scraped_data = scrape_result.get("event")
-            txn_data = {
-                "status": "pending-review",
-                "transaction_type": "update",
-                "current_data_id": event_id,
-                "screenshot": scraped_data.get("event_page_screenshot"),
-                "scrape_url": scraped_data.get("event_page_url"),
-                "scrape_html_hash": scraped_data.get("event_page_html_hash"),
-                "scrape_markdown_hash": scraped_data.get("event_page_markdown_hash"),
-            }
-            self.mysql_interface.stage_transaction("events", scraped_data, txn_data)
+            is_match = self._events_match(scraped_data, event)
+            if scraped_data and not is_match:
+                txn_data = {
+                    "status": "pending-review",
+                    "transaction_type": "update",
+                    "current_data_id": event_id,
+                    "screenshot": scraped_data.get("event_page_screenshot"),
+                    "scrape_url": scraped_data.get("event_page_url"),
+                    "scrape_html_hash": scraped_data.get("event_page_html_hash"),
+                    "scrape_markdown_hash": scraped_data.get("event_page_markdown_hash"),
+                }
+                self.mysql_interface.stage_transaction("events", scraped_data, txn_data)
 
+        # if event is staged, check for update and udpate the staged transaction associated with it if it is pending-scrape or pending-review
         elif event_status == "staged":
             existing_txn = self.mysql_interface.get_staged_transaction_by_staged_data_id(event_id, "events")
-            if existing_txn.get("status") == "pending-scrape":
+            if existing_txn.get("status") == "pending-scrape" or existing_txn.get("status") == "pending-review":
                 scrape_result = self.scraper.scrape_event_page(event)
                 scraped_data = scrape_result.get('event')
-                if scraped_data:
-                    updated_event_data = event | scraped_data
+                updated_event_data = event | scraped_data
+                is_match = self._events_match(updated_event_data, event)
+                if scraped_data and not is_match:
                     self.mysql_interface.update_event(event_id, updated_event_data)
+            if existing_txn.get("status") == "pending-scrape":
                 self.mysql_interface.update_staged_transaction(existing_txn.get("id"), {'status': 'pending-review'})
 
         else:
@@ -118,7 +125,7 @@ class EventDataManager:
         fields_to_check = [
             "title", "start_date", "end_date", "start_time", "end_time",
             "ages", "price_range", "image_url", "ticket_url",
-            "event_page_url"
+            "event_page_url", "page_schema"
         ]
         return all(scraped_event.get(f) == existing_event.get(f) for f in fields_to_check)
 
