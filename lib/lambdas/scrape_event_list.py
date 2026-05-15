@@ -1,3 +1,4 @@
+import json
 from dotenv import load_dotenv
 from lib.config.yaml_config_loader import YamlConfigLoader
 from lib.scraper.factory import ScraperFactory
@@ -25,20 +26,26 @@ sqs_interface              = SQSInterface(config_loader)
 event_data_manager         = EventDataManager(scraper, mysql_interface, sqs_interface=sqs_interface if sqs_interface.is_configured() else None)
 
 def scrape_event_list(event, context):
-    # Safely get venue_id from the top-level event dict
-    venue_id = event.get('venue_id')
-
-    # Explicitly cast to int if it's not None, otherwise keep it None
-    if venue_id is not None:
+    for record in event['Records']:
         try:
-            venue_id = int(venue_id)
-        except ValueError:
-            venue_id = None # Fallback if someone passed a weird string
+            body = json.loads(record['body'])
+            venue_id = body.get('venue_id')
 
-    # Get paginate parameter (default False)
-    paginate = event.get('paginate', False)
-    # Ensure it's a boolean
-    if isinstance(paginate, str):
-        paginate = paginate.lower() == 'true'
+            if venue_id is not None:
+                venue_id = int(venue_id)
 
-    return event_data_manager.scrape_event_list_pages(venue_id, paginate=paginate)
+            paginate = body.get('paginate', False)
+            if isinstance(paginate, str):
+                paginate = paginate.lower() == 'true'
+
+            event_data_manager.scrape_event_list_pages(venue_id, paginate=paginate)
+            print(f"Successfully processed venue {venue_id}")
+
+        except Exception as e:
+            print(f"Error processing message: {str(e)}")
+            raise e
+
+    return {
+        'statusCode': 200,
+        'body': 'Processed batch successfully'
+    }

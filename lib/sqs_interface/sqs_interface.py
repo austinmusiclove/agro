@@ -24,10 +24,10 @@ class SQSInterface:
             MessageBody=json.dumps({"event_id": event_id})
         )
 
-    def send_event_list_scrape(self, venue_id: int) -> dict | None:
+    def send_event_list_scrape(self, venue_id: int, paginate: bool = False) -> dict | None:
         if not self._client or not self._event_list_queue_url:
             return None
         return self._client.send_message(
             QueueUrl=self._event_list_queue_url,
-            MessageBody=json.dumps({"venue_id": venue_id})
+            MessageBody=json.dumps({"venue_id": venue_id, "paginate": paginate})
         )
