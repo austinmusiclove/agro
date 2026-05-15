@@ -33,6 +33,8 @@ def scrape_event_list(event, context):
 
             if venue_id is not None:
                 venue_id = int(venue_id)
+            else:
+                raise Exception("No venue_id provided")
 
             paginate = body.get('paginate', False)
             if isinstance(paginate, str):
