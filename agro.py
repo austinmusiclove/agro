@@ -33,6 +33,9 @@ def main():
     scrape_parser = subparsers.add_parser("scrape-event-page", help="Scrape a single event page by event ID")
     scrape_parser.add_argument("--event-id", type=int, required=True, help="Event ID of the event to scrape")
 
+    queue_parser = subparsers.add_parser("queue-event-list-scrape", help="Queue a venue event list scrape via SQS")
+    queue_parser.add_argument("--venue-id", type=int, required=True, help="Venue ID to scrape")
+
     args = parser.parse_args()
 
     config_overrides = {}
@@ -62,6 +65,8 @@ def main():
         event_data_manager.scrape_event_pages(venue_id=args.venue_id, date=args.date)
     elif args.command == "scrape-event-page":
         event_data_manager.scrape_event_page_by_event_id(args.event_id)
+    elif args.command == "queue-event-list-scrape":
+        sqs_interface.send_event_list_scrape(args.venue_id)
 
 
 if __name__ == "__main__":
