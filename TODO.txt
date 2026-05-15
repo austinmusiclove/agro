@@ -1,4 +1,6 @@
 Event Data Manager
+    Venue issues
+        cherrywood coffeehouse is producing duplicate events; only some duplicated random amount of times
     Make sure to use schema if fetcher returns any and skip extraction if there is sufficient data or include extraction as well and have both in suggested_transaction entry
         only probably useful when i install the schema on someones site
         need to see if it is possible to put all the info in schema. probably is
