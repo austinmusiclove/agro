@@ -14,5 +14,5 @@ def get_next_staged_transaction(connector, transaction_id):
         ORDER BY e_staged.venue_id, e_staged.start_date ASC, st.id ASC
         LIMIT 1
     """
-    result = connector.execute_query(sql, [transaction_id, transaction_id, transaction_id, transaction_id, transaction_id])
+    result = connector.execute_query(sql, [transaction_id] * 6)
     return result[0].get('id') if result else None
