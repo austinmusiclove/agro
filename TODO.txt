@@ -1,7 +1,5 @@
 Scraper Workflow
     Scrape event list basic version
-        Create an extra staged transaction with new status, event-list-scrape
-            move next staged transaction to same file as get transactions
         Make sure event list scrape can be done twice in a row with out duplicate things happening
             after match procedure, with updates and creates, check for existing staged event matches
             at one time there should never been more than one staged event for the same event; there can be one published and one staged

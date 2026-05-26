@@ -49,17 +49,17 @@ class MySQLInterface:
     def publish_event_from_schema(self, schema_data, context_event):
         return events.publish_event_from_schema(self._connector, schema_data, context_event)
 
-    def get_staged_transactions(self, target_table, limit=None, offset=None, status='pending-review'):
-        return staged_transactions.get_staged_transactions(self._connector, target_table, limit, offset, status)
+    def get_staged_transactions(self, target_table, limit=None, offset=None, status='pending-review', transaction_type=None):
+        return staged_transactions.get_staged_transactions(self._connector, target_table, limit, offset, status, transaction_type)
 
-    def get_staged_transactions_count(self, target_table, status='pending-review'):
-        return staged_transactions.get_staged_transactions_count(self._connector, target_table, status)
+    def get_staged_transactions_count(self, target_table, status='pending-review', transaction_type=None):
+        return staged_transactions.get_staged_transactions_count(self._connector, target_table, status, transaction_type)
 
     def get_staged_transaction_with_data(self, transaction_id):
         return staged_transactions.get_staged_transaction_with_data(self._connector, transaction_id)
 
-    def get_next_staged_transaction(self, transaction_id, target_table):
-        return staged_transactions.get_next_staged_transaction(self._connector, transaction_id, target_table)
+    def get_next_staged_transaction(self, transaction_id, target_table, status='pending-review', transaction_type=None):
+        return staged_transactions.get_next_staged_transaction(self._connector, transaction_id, target_table, status, transaction_type)
 
     def get_staged_transaction_by_staged_data_id(self, staged_data_id, target_table):
         return staged_transactions.get_staged_transaction_by_staged_data_id(self._connector, staged_data_id, target_table)
