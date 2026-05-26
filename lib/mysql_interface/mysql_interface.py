@@ -64,6 +64,12 @@ class MySQLInterface:
     def get_staged_transaction_by_staged_data_id(self, staged_data_id, target_table):
         return staged_transactions.get_staged_transaction_by_staged_data_id(self._connector, staged_data_id, target_table)
 
+    def find_existing_staged_transaction(self, target_table, transaction, transaction_data):
+        return staged_transactions.find_existing_staged_transaction(self._connector, target_table, transaction, transaction_data)
+
+    def reject_staged_transaction(self, staged_transaction):
+        return staged_transactions.reject_staged_transaction(self._connector, staged_transaction)
+
     def insert_staged_transaction(self, transaction_data):
         return staged_transactions.insert_staged_transaction(self._connector, transaction_data)
 

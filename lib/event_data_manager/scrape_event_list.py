@@ -31,6 +31,10 @@ def _scrape_event_list(self, venue, paginate):
                 txn_data["scrape_html_hash"] = event_data.get("event_list_html_hash")
                 txn_data["scrape_markdown_hash"] = event_data.get("event_list_markdown_hash")
 
+            # check for existing staged transaction for this event and if it
+            stale_txn = self.mysql_interface.find_existing_staged_transaction("events", txn_data, event_data)
+            if stale_txn:
+                self.mysql_interface.reject_staged_transaction(stale_txn)
             result = self.mysql_interface.stage_transaction("events", event_data, txn_data)
             if self.sqs_interface and self.sqs_interface.is_configured() and result.get("staged_data_id"):
                 self.sqs_interface.send_event_id(result["staged_data_id"])
@@ -59,6 +63,7 @@ def _merge_events(self, existing_events, scraped_events):
         match = self._find_event_match(event, existing_events)
         if match:
             matched_existing_ids.add(match["id"])
+            # skip adding update to transactions so that updates only happen when updating an existing published event in the db not during an event list scrape
         else:
             transactions.append({
                 "transaction_type": "create",

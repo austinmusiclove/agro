@@ -80,3 +80,47 @@ def get_next_staged_transaction(connector, transaction_id, target_table, status=
     """
     result = connector.execute_query(sql, [status, target_table] + type_params + [transaction_id] * 6)
     return result[0].get('id') if result else None
+
+
+def _find_staged_by_current_id(connector, target_table, transaction_type, current_data_id):
+    sql = """
+        SELECT st.*
+        FROM staged_transactions st
+        WHERE st.target_table = ?
+        AND st.transaction_type = ?
+        AND st.current_data_id = ?
+        AND st.status IN ('pending-review', 'pending-scrape')
+        LIMIT 1
+    """
+    result = connector.execute_query(sql, [target_table, transaction_type, current_data_id])
+    return result[0] if result else None
+
+
+def _find_staged_by_url(connector, target_table, transaction_type, event_page_url):
+    sql = f"""
+        SELECT st.*
+        FROM staged_transactions st
+        LEFT JOIN {target_table} e ON st.staged_data_id = e.id
+        WHERE st.target_table = ?
+        AND st.transaction_type = ?
+        AND st.status IN ('pending-review', 'pending-scrape')
+        AND e.event_page_url = ?
+        LIMIT 1
+    """
+    result = connector.execute_query(sql, [target_table, transaction_type, event_page_url])
+    return result[0] if result else None
+
+
+def find_existing_staged_transaction(connector, target_table, transaction, transaction_data):
+    transaction_type = transaction.get("transaction_type")
+    current_data_id = transaction.get("current_data_id")
+    event_page_url = transaction_data.get("event_page_url") if transaction_data else None
+
+    if transaction_type == "delete":
+        if not current_data_id:
+            return None
+        return _find_staged_by_current_id(connector, target_table, transaction_type, current_data_id)
+
+    if not event_page_url:
+        return None
+    return _find_staged_by_url(connector, target_table, transaction_type, event_page_url)

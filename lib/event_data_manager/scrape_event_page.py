@@ -21,6 +21,10 @@ def _scrape_event_page(self, event):
                 "scrape_html_hash": scraped_data.get("event_page_html_hash"),
                 "scrape_markdown_hash": scraped_data.get("event_page_markdown_hash"),
             }
+            # check for existing staged transaction for this event and if it
+            stale_txn = self.mysql_interface.find_existing_staged_transaction("events", txn_data, scraped_data)
+            if stale_txn:
+                self.mysql_interface.reject_staged_transaction(stale_txn)
             self.mysql_interface.stage_transaction("events", scraped_data, txn_data)
 
     elif event_status == "staged":
