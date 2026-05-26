@@ -10,6 +10,7 @@ class AgroScraper(ScraperInterface):
 
     def scrape_event_list_page(self, url: str, paginate: bool = True, max_pages: int = 10, venue: dict = None) -> dict:
         all_events = []
+        all_pages = []
         scraped_urls = set()
         current_url = url
         page_count = 0
@@ -36,6 +37,13 @@ class AgroScraper(ScraperInterface):
                     venue_name = venue.get("name")
                     name_hint = venue_name.replace(" ", "_").lower() if venue_name else "event_list"
                     screenshot_url = self.image_saver.save(screenshot, name_hint=f"{name_hint}_list_{page_count}")
+
+                all_pages.append({
+                    "scrape_url": current_url,
+                    "screenshot": screenshot_url,
+                    "scrape_html_hash": html_hash,
+                    "scrape_markdown_hash": markdown_hash,
+                })
 
                 if markdown:
                     extracted = self.data_extractor.extract_event_list(markdown, base_url=base_url)
@@ -71,6 +79,7 @@ class AgroScraper(ScraperInterface):
 
         return {
             "events": all_events,
+            "pages": all_pages,
         }
 
     def scrape_event_page(self, event: dict) -> dict:

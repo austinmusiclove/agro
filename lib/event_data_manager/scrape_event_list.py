@@ -34,6 +34,19 @@ def _scrape_event_list(self, venue, paginate):
             result = self.mysql_interface.stage_transaction("events", event_data, txn_data)
             if self.sqs_interface and self.sqs_interface.is_configured() and result.get("staged_data_id"):
                 self.sqs_interface.send_event_id(result["staged_data_id"])
+
+        pages = scraped_result.get("pages", [])
+        for page in pages:
+            self.mysql_interface.insert_staged_transaction({
+                "status": "pending-review",
+                "transaction_type": "multiple",
+                "target_table": "events-multiple",
+                "screenshot": page.get("screenshot"),
+                "scrape_url": page.get("scrape_url"),
+                "scrape_html_hash": page.get("scrape_html_hash"),
+                "scrape_markdown_hash": page.get("scrape_markdown_hash"),
+            })
+
     else:
         print(f"No events scraped for {venue.get('name', venue.get('id'))}")
 

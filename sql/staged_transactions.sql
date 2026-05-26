@@ -5,7 +5,7 @@ CREATE TABLE staged_transactions (
     current_data_id INT,
     staged_data_id INT,
 
-    transaction_type ENUM('create', 'update', 'delete') NOT NULL,
+    transaction_type ENUM('create', 'update', 'delete', 'multiple') NOT NULL,
     data_index INT,
 
     screenshot TEXT, -- S3 Object Id
