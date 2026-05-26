@@ -1,11 +1,7 @@
-from lib.mysql_interface.events import events
-from lib.mysql_interface.venues import venues
-
-
 def get_staged_transactions(connector, target_table, limit=None, offset=None, status='pending-review'):
     limit_clause = ""
     if limit is not None:
-        limit_clause = f"LIMIT ? OFFSET ?"
+        limit_clause = "LIMIT ? OFFSET ?"
 
     sql = f"""
         SELECT
@@ -19,8 +15,8 @@ def get_staged_transactions(connector, target_table, limit=None, offset=None, st
             vs.name as staged_venue_name,
             vc.name as current_venue_name
         FROM staged_transactions st
-        LEFT JOIN events e_current ON st.current_data_id = e_current.id
-        LEFT JOIN events e_staged ON st.staged_data_id = e_staged.id
+        LEFT JOIN {target_table} e_current ON st.current_data_id = e_current.id
+        LEFT JOIN {target_table} e_staged ON st.staged_data_id = e_staged.id
         LEFT JOIN venues vs ON e_staged.venue_id = vs.id
         LEFT JOIN venues vc ON e_current.venue_id = vc.id
         WHERE st.target_table = ?
@@ -43,3 +39,24 @@ def get_staged_transactions_count(connector, target_table, status='pending-revie
     """
     result = connector.execute_query(sql, [target_table, status])
     return result[0]["total"] if result else 0
+
+
+def get_next_staged_transaction(connector, transaction_id, target_table):
+    sql = f"""
+        SELECT st.id FROM staged_transactions st
+        LEFT JOIN {target_table} e_staged ON st.staged_data_id = e_staged.id
+        WHERE st.status = 'pending-review'
+        AND st.target_table = ?
+        AND (
+            e_staged.venue_id > (SELECT e2.venue_id FROM staged_transactions st2 LEFT JOIN {target_table} e2 ON st2.staged_data_id = e2.id WHERE st2.id = ?)
+            OR (e_staged.venue_id = (SELECT e2.venue_id FROM staged_transactions st2 LEFT JOIN {target_table} e2 ON st2.staged_data_id = e2.id WHERE st2.id = ?)
+                AND e_staged.start_date > (SELECT e2.start_date FROM staged_transactions st2 LEFT JOIN {target_table} e2 ON st2.staged_data_id = e2.id WHERE st2.id = ?))
+            OR (e_staged.venue_id = (SELECT e2.venue_id FROM staged_transactions st2 LEFT JOIN {target_table} e2 ON st2.staged_data_id = e2.id WHERE st2.id = ?)
+                AND e_staged.start_date = (SELECT e2.start_date FROM staged_transactions st2 LEFT JOIN {target_table} e2 ON st2.staged_data_id = e2.id WHERE st2.id = ?)
+                AND st.id > ?)
+        )
+        ORDER BY e_staged.venue_id, e_staged.start_date ASC, st.id ASC
+        LIMIT 1
+    """
+    result = connector.execute_query(sql, [target_table] + [transaction_id] * 6)
+    return result[0].get('id') if result else None

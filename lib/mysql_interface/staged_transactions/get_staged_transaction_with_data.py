@@ -48,7 +48,7 @@ def get_staged_transaction_with_data(connector, transaction_id):
     else:
         transaction['venue_future_events'] = []
 
-    next_id = get_next_staged_transaction.get_next_staged_transaction(connector, transaction_id)
+    next_id = get_next_staged_transaction.get_next_staged_transaction(connector, transaction_id, transaction.get('target_table'))
     if next_id:
         transaction['next_transaction_id'] = next_id
 

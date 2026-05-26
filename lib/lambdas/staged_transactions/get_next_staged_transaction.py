@@ -1,9 +1,9 @@
 import json
 
 
-def get_next_staged_transaction(mysql_interface, logger, transaction_id):
+def get_next_staged_transaction(mysql_interface, logger, transaction_id, target_table):
     try:
-        next_id = mysql_interface.get_next_staged_transaction(transaction_id)
+        next_id = mysql_interface.get_next_staged_transaction(transaction_id, target_table)
 
         return {
             'statusCode': 200,

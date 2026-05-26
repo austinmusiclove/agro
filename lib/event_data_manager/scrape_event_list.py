@@ -40,7 +40,7 @@ def _scrape_event_list(self, venue, paginate):
             self.mysql_interface.insert_staged_transaction({
                 "status": "pending-review",
                 "transaction_type": "multiple",
-                "target_table": "events-multiple",
+                "target_table": "events",
                 "screenshot": page.get("screenshot"),
                 "scrape_url": page.get("scrape_url"),
                 "scrape_html_hash": page.get("scrape_html_hash"),
