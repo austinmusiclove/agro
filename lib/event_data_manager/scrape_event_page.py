@@ -43,6 +43,7 @@ def _scrape_event_page(self, event):
                 is_match = self._events_match(updated_event_data, schema_data)
                 if is_match:
                     self.mysql_interface.update_staged_transaction(existing_txn.get("id"), {'current_data_id': new_event_id, 'status': 'approved'})
+                    self.mysql_interface.update_event(event_id, {'status': 'processed'})
                 else:
                     self.mysql_interface.update_staged_transaction(existing_txn.get("id"), {'current_data_id': new_event_id, 'status': 'pending-review'})
 
