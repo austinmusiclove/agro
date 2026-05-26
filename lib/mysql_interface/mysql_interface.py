@@ -46,6 +46,9 @@ class MySQLInterface:
     def update_event(self, event_id, event_data):
         return events.update_event(self._connector, event_id, event_data)
 
+    def publish_event_from_schema(self, schema_data, context_event):
+        return events.publish_event_from_schema(self._connector, schema_data, context_event)
+
     def get_staged_transactions(self, target_table, limit=None, offset=None, status='pending-review'):
         return staged_transactions.get_staged_transactions(self._connector, target_table, limit, offset, status)
 

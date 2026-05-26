@@ -99,3 +99,23 @@ def update_event(connector, event_id, event_data):
 
     query = f"UPDATE events SET {set_clause} WHERE id = ?"
     return connector.execute_update(query, values)
+
+
+def publish_event_from_schema(connector, schema_data, context_event):
+    event_data = {
+        "title": context_event.get("title"),
+        "venue_id": context_event.get("venue_id"),
+        "start_date": schema_data.get("start_date") or context_event.get("start_date"),
+        "end_date": schema_data.get("end_date") or context_event.get("end_date"),
+        "start_time": context_event.get("start_time"),
+        "end_time": context_event.get("end_time"),
+        "image_url": schema_data.get("image_url") or context_event.get("image_url"),
+        "price_range": schema_data.get("price_range") or context_event.get("price_range"),
+        "event_page_url": context_event.get("event_page_url"),
+        "ticket_url": context_event.get("ticket_url"),
+        "data_source": context_event.get("data_source"),
+        "status": "published",
+        "page_schema": schema_data.get("page_schema"),
+    }
+
+    return insert_event(connector, event_data)

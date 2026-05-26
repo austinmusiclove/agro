@@ -1,8 +1,5 @@
 Scraper Workflow
     Scrape event list basic version
-        If has event schema then publish basic version of event
-            add a published event with the basic info from the schema
-            keep the staged transaction there if there if there are more changes to add
         Create an extra staged transaction with new status, event-list-scrape
         Make sure event list scrape can be done twice in a row with out duplicate things happening
             after match procedure, with updates and creates, check for existing staged event matches
