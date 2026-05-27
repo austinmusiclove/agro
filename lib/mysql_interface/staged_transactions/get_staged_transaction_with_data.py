@@ -11,6 +11,31 @@ def get_staged_transaction_with_data(connector, transaction_id):
     if not transaction:
         return None
 
+    if transaction.get("transaction_type") == "multiple":
+        return _get_transactions_by_screenshot(connector, transaction)
+
+    return _enrich_transaction_with_data(connector, transaction)
+
+
+def _get_transactions_by_screenshot(connector, transaction):
+    screenshot = transaction.get("screenshot")
+    if not screenshot:
+        transaction["transactions"] = []
+        return transaction
+
+    sql = "SELECT * FROM staged_transactions WHERE screenshot = ? AND id != ?"
+    results = connector.execute_query(sql, [screenshot, transaction.get("id")])
+
+    enriched = [
+        _enrich_transaction_with_data(connector, txn)
+        for txn in results
+    ]
+
+    transaction["transactions"] = enriched
+    return transaction
+
+
+def _enrich_transaction_with_data(connector, transaction):
     if transaction.get('staged_data_id'):
         target_table = transaction.get('target_table')
         data_id = transaction.get('staged_data_id')
@@ -48,7 +73,7 @@ def get_staged_transaction_with_data(connector, transaction_id):
     else:
         transaction['venue_future_events'] = []
 
-    next_id = get_next_staged_transaction.get_next_staged_transaction(connector, transaction_id, transaction.get('target_table'))
+    next_id = get_next_staged_transaction.get_next_staged_transaction(connector, transaction.get('id'), transaction.get('target_table'))
     if next_id:
         transaction['next_transaction_id'] = next_id
 
