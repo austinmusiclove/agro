@@ -1,5 +1,4 @@
 Scraper Workflow
-    Don't extract event page on first time if there is schema
     Scrape event list basic version
         Create a way to review all from one page at once
             Create api that takes the id from that event list scrape and uses the event list screenshot to find the staged transactions to return
@@ -9,14 +8,15 @@ Scraper Workflow
                 does not alter the status of the staged transactions
                 this will result in processed status for the event-list-scrape staged transaction
 Event Data Manager
+    Add description from llm and schema
     Venue issues
         cherrywood coffeehouse is producing duplicate events; only some duplicated random amount of times
     Make sure to use schema if fetcher returns any and skip extraction if there is sufficient data or include extraction as well and have both in suggested_transaction entry
         only probably useful when i install the schema on someones site
         need to see if it is possible to put all the info in schema. probably is
 DataExtractor
+    Don't extract event page on first time if there is schema
     Get description of event
-    Extract all schema and return it as well
     Classification algo extractor to replace LLM extractors
 Manual review app
     create web app for reviewing and approving or rejecting or modifying each suggestion (that way i can get a VA to do it at some point)
