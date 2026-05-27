@@ -45,7 +45,7 @@ def _scrape_event_page(self, event):
                     self.mysql_interface.update_staged_transaction(existing_txn.get("id"), {'current_data_id': new_event_id, 'status': 'approved'})
                     self.mysql_interface.update_event(event_id, {'status': 'processed'})
                 else:
-                    self.mysql_interface.update_staged_transaction(existing_txn.get("id"), {'current_data_id': new_event_id, 'status': 'pending-review'})
+                    self.mysql_interface.update_staged_transaction(existing_txn.get("id"), {'current_data_id': new_event_id, 'transaction_type': 'update', 'status': 'pending-review'})
 
             # if there is no schema, update the staged transaction to pending-review for manual review
             elif existing_txn.get("status") == "pending-scrape":
