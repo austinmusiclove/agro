@@ -21,21 +21,33 @@ def _get_transactions_by_screenshot(connector, transaction):
     screenshot = transaction.get("screenshot")
     if not screenshot:
         transaction["transactions"] = []
+        transaction["venue_future_events"] = {}
         return transaction
 
     sql = "SELECT * FROM staged_transactions WHERE screenshot = ? AND id != ?"
     results = connector.execute_query(sql, [screenshot, transaction.get("id")])
 
     enriched = [
-        _enrich_transaction_with_data(connector, txn)
+        _enrich_transaction_with_data(connector, txn, venue_events=False)
         for txn in results
     ]
 
+    venue_ids = set()
+    for child in enriched:
+        vid = _get_venue_id(child)
+        if vid:
+            venue_ids.add(vid)
+
+    venue_future_events = {}
+    for vid in venue_ids:
+        venue_future_events[vid] = events.get_future_events_by_venue(connector, vid)
+
     transaction["transactions"] = enriched
+    transaction["venue_future_events"] = venue_future_events
     return transaction
 
 
-def _enrich_transaction_with_data(connector, transaction):
+def _enrich_transaction_with_data(connector, transaction, venue_events=True):
     if transaction.get('staged_data_id'):
         target_table = transaction.get('target_table')
         data_id = transaction.get('staged_data_id')
@@ -62,19 +74,26 @@ def _enrich_transaction_with_data(connector, transaction):
         if record:
             transaction['current_data'] = record
 
-    venue_id = None
-    if transaction.get('staged_data') and transaction['staged_data'].get('venue_id'):
-        venue_id = transaction['staged_data']['venue_id']
-    elif transaction.get('current_data') and transaction['current_data'].get('venue_id'):
-        venue_id = transaction['current_data']['venue_id']
-
-    if venue_id:
-        transaction['venue_future_events'] = events.get_future_events_by_venue(connector, venue_id)
-    else:
-        transaction['venue_future_events'] = []
+    if venue_events:
+        transaction['venue_future_events'] = _get_venue_future_events(connector, transaction)
 
     next_id = get_next_staged_transaction(connector, transaction.get('id'), transaction.get('target_table'))
     if next_id:
         transaction['next_transaction_id'] = next_id
 
     return transaction
+
+
+def _get_venue_future_events(connector, transaction):
+    venue_id = _get_venue_id(transaction)
+    if venue_id:
+        return {venue_id: events.get_future_events_by_venue(connector, venue_id)}
+    return {}
+
+
+def _get_venue_id(transaction):
+    if transaction.get('staged_data') and transaction['staged_data'].get('venue_id'):
+        return transaction['staged_data']['venue_id']
+    if transaction.get('current_data') and transaction['current_data'].get('venue_id'):
+        return transaction['current_data']['venue_id']
+    return None
