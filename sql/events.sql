@@ -26,6 +26,7 @@ CREATE TABLE events (
     event_list_screenshot TEXT, -- S3 url
     event_page_screenshot TEXT, -- S3 url
     page_schema TEXT COMMENT 'Raw JSON-LD schema.org data',
+    description TEXT,
 
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP

@@ -6,6 +6,7 @@ EVENT_COLUMNS = [
     "data_source", "event_list_html_hash", "event_list_markdown_hash",
     "event_page_html_hash", "event_page_markdown_hash",
     "event_list_screenshot", "event_page_screenshot", "page_schema",
+    "description",
 ]
 
 EVENT_COLUMN_MAX_LENGTHS = {
@@ -35,7 +36,7 @@ def get_event_by_id(connector, event_id):
 def get_future_events_by_venue(connector, venue_id=None, limit=None, offset=None):
     venue_clause = "venue_id = ? AND " if venue_id is not None else ""
     limit_clause = "LIMIT ? OFFSET ?" if limit is not None else ""
-    sql = f"""SELECT e.id, e.title, e.venue_id, e.start_date, e.end_date, e.start_time, e.end_time, e.ages, e.price_range, e.event_page_url, e.ticket_url, e.image_url, v.name as venue_name
+    sql = f"""SELECT e.id, e.title, e.venue_id, e.start_date, e.end_date, e.start_time, e.end_time, e.ages, e.price_range, e.event_page_url, e.ticket_url, e.image_url, e.description, v.name as venue_name
               FROM events e
               LEFT JOIN venues v ON e.venue_id = v.id
               WHERE {venue_clause}start_date >= CURDATE() - INTERVAL 1 DAY AND status = 'published'
@@ -80,6 +81,7 @@ def insert_event(connector, event_data):
         event_data.get("event_list_screenshot"),
         event_data.get("event_page_screenshot"),
         event_data.get("page_schema"),
+        event_data.get("description"),
     ]
 
     values = [
@@ -139,6 +141,7 @@ def publish_event_from_schema(connector, schema_data, context_event):
         "data_source": context_event.get("data_source"),
         "status": "published",
         "page_schema": schema_data.get("page_schema"),
+        "description": schema_data.get("description"),
     }
 
     return insert_event(connector, event_data)
