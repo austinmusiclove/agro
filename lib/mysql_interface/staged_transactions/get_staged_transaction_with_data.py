@@ -73,7 +73,7 @@ def _enrich_transaction_with_data(connector, transaction):
     else:
         transaction['venue_future_events'] = []
 
-    next_id = get_next_staged_transaction.get_next_staged_transaction(connector, transaction.get('id'), transaction.get('target_table'))
+    next_id = get_next_staged_transaction(connector, transaction.get('id'), transaction.get('target_table'))
     if next_id:
         transaction['next_transaction_id'] = next_id
 
