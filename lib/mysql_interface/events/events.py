@@ -8,6 +8,19 @@ EVENT_COLUMNS = [
     "event_list_screenshot", "event_page_screenshot", "page_schema",
 ]
 
+EVENT_COLUMN_MAX_LENGTHS = {
+    "title": 255,
+    "ages": 50,
+    "price_range": 100,
+    "data_source": 100,
+}
+
+
+def _truncate(value, max_length):
+    if isinstance(value, str) and max_length:
+        return value[:max_length]
+    return value
+
 
 def get_event_by_id(connector, event_id):
     sql = """
@@ -69,6 +82,11 @@ def insert_event(connector, event_data):
         event_data.get("page_schema"),
     ]
 
+    values = [
+        _truncate(v, EVENT_COLUMN_MAX_LENGTHS.get(col))
+        for col, v in zip(columns, values)
+    ]
+
     placeholders = ", ".join(["?"] * len(columns))
     columns_str = ", ".join(columns)
 
@@ -93,6 +111,11 @@ def update_event(connector, event_id, event_data):
 
     if not fields_to_update:
         return 0
+
+    fields_to_update = {
+        k: _truncate(v, EVENT_COLUMN_MAX_LENGTHS.get(k))
+        for k, v in fields_to_update.items()
+    }
 
     set_clause = ", ".join([f"{col} = ?" for col in fields_to_update.keys()])
     values = list(fields_to_update.values()) + [event_id]
