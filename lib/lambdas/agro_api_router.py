@@ -9,6 +9,7 @@ from lib.lambdas.staged_transactions import get_staged_transactions
 from lib.lambdas.staged_transactions import approve_transaction
 from lib.lambdas.staged_transactions import reject_transaction
 from lib.lambdas.staged_transactions import reject_transactions_bulk
+from lib.lambdas.staged_transactions import approve_transactions_bulk
 from lib.lambdas.events import get_future_events
 
 config_loader           = YamlConfigLoader(config_overrides={})
@@ -50,8 +51,7 @@ def router(event, context):
         if method == 'POST':
             path_params = event.get('pathParameters')
             transaction_id = path_params.get('id')
-            body = event.get('body')
-            override_data = json.loads(body) if body else {}
+            override_data = json.loads(event.get('body')) if event.get('body') else {}
             return approve_transaction.approve_transaction(mysql_interface, logger, transaction_id, override_data)
 
     if resource == '/staged-transactions/{id}/reject':
@@ -68,6 +68,14 @@ def router(event, context):
             data = json.loads(body)
             transaction_ids = data.get('ids', [])
             return reject_transactions_bulk.reject_transactions_bulk(mysql_interface, logger, transaction_ids)
+
+    if resource == '/staged-transactions/approve':
+        if method == 'POST':
+            body = event.get('body')
+            if not body:
+                return {'statusCode': 400, 'body': json.dumps({'error': 'Request body required'})}
+            data = json.loads(body)
+            return approve_transactions_bulk.approve_transactions_bulk(mysql_interface, logger, data)
 
     return {
         'statusCode': 404,

@@ -1,11 +1,3 @@
-Scraper Workflow
-    Scrape event list basic version
-        Create a way to review all from one page at once
-            Send multi event staged transaction from same api
-            Create bulk approve procedure
-                this creates a published event for each event or updates the existing published event
-                does not alter the status of the staged transactions
-                this will result in processed status for the event-list-scrape staged transaction
 Event Data Manager
     Venue issues
         cherrywood coffeehouse is producing duplicate events; only some duplicated random amount of times

@@ -3,7 +3,7 @@ import json
 
 def reject_transaction(mysql_interface, logger, transaction_id):
     try:
-        transaction = mysql_interface.get_staged_transaction_with_data(transaction_id)
+        transaction = mysql_interface.get_staged_transaction_by_id(transaction_id)
 
         if not transaction:
             return {
@@ -17,7 +17,7 @@ def reject_transaction(mysql_interface, logger, transaction_id):
                 'body': json.dumps({'error': f'Transaction {transaction_id} has already been processed (status: {transaction.get("status")})'})
             }
 
-        mysql_interface.reject_staged_transaction(transaction)
+        mysql_interface.reject_staged_transaction(transaction_id)
 
         return {
             'statusCode': 200,
