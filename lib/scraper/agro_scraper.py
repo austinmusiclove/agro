@@ -122,7 +122,7 @@ class AgroScraper(ScraperInterface):
             event_data["event_page_screenshot"] = screenshot_ref
             event_data["event_page_html_hash"] = html_hash
             event_data["event_page_markdown_hash"] = markdown_hash
-            event_data = event | event_data | schema_data
+            event_data = event_data | schema_data | event
 
         return {
             "event": event_data,
