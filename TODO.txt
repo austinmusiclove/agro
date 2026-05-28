@@ -1,3 +1,5 @@
+Lambdas
+    when there is an error it needs to clear the message
 Event Data Manager
     Venue issues
         cherrywood coffeehouse is producing duplicate events; only some duplicated random amount of times

@@ -36,7 +36,7 @@ def get_event_by_id(connector, event_id):
 def get_future_events_by_venue(connector, venue_id=None, limit=None, offset=None):
     venue_clause = "venue_id = ? AND " if venue_id is not None else ""
     limit_clause = "LIMIT ? OFFSET ?" if limit is not None else ""
-    sql = f"""SELECT e.id, e.title, e.venue_id, e.start_date, e.end_date, e.start_time, e.end_time, e.ages, e.price_range, e.event_page_url, e.ticket_url, e.image_url, e.description, v.name as venue_name
+    sql = f"""SELECT e.id, e.title, e.venue_id, e.start_date, e.end_date, e.start_time, e.end_time, e.ages, e.price_range, e.event_page_url, e.ticket_url, e.image_url, e.description, e.status, v.name as venue_name
               FROM events e
               LEFT JOIN venues v ON e.venue_id = v.id
               WHERE {venue_clause}start_date >= CURDATE() - INTERVAL 1 DAY AND status = 'published'

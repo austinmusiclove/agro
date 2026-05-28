@@ -30,6 +30,8 @@ def _scrape_event_list(self, venue, paginate):
                 txn_data["scrape_url"] = event_data.get("scrape_url")
                 txn_data["scrape_html_hash"] = event_data.get("event_list_html_hash")
                 txn_data["scrape_markdown_hash"] = event_data.get("event_list_markdown_hash")
+            elif txn_type == "delete":
+                txn_data["status"] = "pending-review"
 
             result = self.mysql_interface.stage_transaction("events", event_data, txn_data)
             if self.sqs_interface and self.sqs_interface.is_configured() and result.get("staged_data_id"):
