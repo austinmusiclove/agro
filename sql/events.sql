@@ -1,6 +1,8 @@
 CREATE TABLE events (
     id SERIAL PRIMARY KEY,
+    event_type VARCHAR(100),
     title VARCHAR(255) NOT NULL,
+    description TEXT,
     venue_id INT, -- Foreign key to a venues table
     -- stage_id INT, -- Foreign key to a stages table
 
@@ -26,7 +28,6 @@ CREATE TABLE events (
     event_list_screenshot TEXT, -- S3 url
     event_page_screenshot TEXT, -- S3 url
     page_schema TEXT COMMENT 'Raw JSON-LD schema.org data',
-    description TEXT,
 
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP

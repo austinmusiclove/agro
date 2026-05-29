@@ -60,6 +60,6 @@ def _events_match(self, scraped_event, existing_event):
     fields_to_check = [
         "title", "start_date", "end_date", "start_time", "end_time",
         "ages", "price_range", "image_url", "ticket_url",
-        "event_page_url", "page_schema", "description"
+        "event_page_url", "page_schema", "description", "event_type"
     ]
     return all(scraped_event.get(f) == existing_event.get(f) for f in fields_to_check)

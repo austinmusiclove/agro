@@ -75,6 +75,12 @@ def _extract_fields(event: dict, schema_data: dict) -> None:
     if event.get('description'):
         schema_data['description'] = event['description']
 
+    event_type = event.get('@type')
+    if isinstance(event_type, list):
+        event_type = event_type[0] if event_type else None
+    if event_type == 'MusicEvent':
+        schema_data['event_type'] = 'live_music'
+
     offers = event.get('offers')
     if offers:
         prices = _extract_prices(offers)

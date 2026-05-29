@@ -44,6 +44,7 @@ class Event(BaseModel):
     ages: Optional[Literal["21+", "18+", "All Ages"]] = Field(default=None, description="Age requirement for the event if any")
     price_range: Optional[str] = Field(default=None, description="Price or price range for the event.")
     event_page_url: OptionalAbsoluteUrl = Field(description="Absolute URL to the event details page. Must start with http:// or https://. Never return a relative path like /events/123.")
+    event_type: Literal["live_music", "other"] = Field(description="Category of the event.")
     description: Optional[str] = Field(default=None, description="Description of the event.")
     ticket_url: OptionalAbsoluteUrl = Field(description="Absolute URL to the ticket purchase page. Must start with http:// or https://. Never return a relative path.")
 
