@@ -15,6 +15,8 @@ def _scrape_event_list(self, venue, paginate):
         transactions = self._merge_events(existing_events, events)
         print(f"Processing {len(transactions)} transactions...")
 
+        screenshots_with_creates = set()
+
         for txn in transactions:
             event_data = None
             txn_type = txn.get("transaction_type")
@@ -26,6 +28,7 @@ def _scrape_event_list(self, venue, paginate):
                 event_data = txn.get("event_data").copy()
                 txn_data["status"] = "pending-scrape" if event_data.get("event_page_url") else "pending-review"
                 txn_data["screenshot"] = event_data.get("event_list_screenshot")
+                screenshots_with_creates.add(event_data.get("event_list_screenshot"))
                 txn_data["data_index"] = event_data.get("data_index")
                 txn_data["scrape_url"] = event_data.get("scrape_url")
                 txn_data["scrape_html_hash"] = event_data.get("event_list_html_hash")
@@ -39,11 +42,17 @@ def _scrape_event_list(self, venue, paginate):
 
         pages = scraped_result.get("pages", [])
         for page in pages:
+            # skip if there were no transactions associated with this page
+            screenshot = page.get("screenshot")
+            if not screenshot:
+                continue
+            if screenshot not in screenshots_with_creates:
+                continue
             self.mysql_interface.insert_staged_transaction({
                 "status": "pending-review",
                 "transaction_type": "multiple",
                 "target_table": "events",
-                "screenshot": page.get("screenshot"),
+                "screenshot": screenshot,
                 "scrape_url": page.get("scrape_url"),
                 "scrape_html_hash": page.get("scrape_html_hash"),
                 "scrape_markdown_hash": page.get("scrape_markdown_hash"),
