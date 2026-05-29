@@ -18,14 +18,13 @@ def _scrape_event_list(self, venue, paginate):
         screenshots_with_creates = set()
 
         for txn in transactions:
-            event_data = None
+            event_data = txn.get("event_data").copy()
             txn_type = txn.get("transaction_type")
             txn_data = {
                 "transaction_type": txn_type,
                 "current_data_id": txn.get("existing_event_id"),
             }
             if txn_type == "create":
-                event_data = txn.get("event_data").copy()
                 txn_data["status"] = "pending-scrape" if event_data.get("event_page_url") else "pending-review"
                 txn_data["screenshot"] = event_data.get("event_list_screenshot")
                 screenshots_with_creates.add(event_data.get("event_list_screenshot"))
@@ -35,6 +34,8 @@ def _scrape_event_list(self, venue, paginate):
                 txn_data["scrape_markdown_hash"] = event_data.get("event_list_markdown_hash")
             elif txn_type == "delete":
                 txn_data["status"] = "pending-review"
+                txn_data["scrape_url"] = event_data.get("scrape_url")
+                txn_data["screenshot"] = event_data.get("event_list_screenshot")
 
             result = self.mysql_interface.stage_transaction("events", event_data, txn_data)
             if self.sqs_interface and self.sqs_interface.is_configured() and result.get("staged_data_id"):
@@ -83,7 +84,7 @@ def _merge_events(self, existing_events, scraped_events):
             transactions.append({
                 "transaction_type": "delete",
                 "existing_event_id": existing["id"],
-                "event_data": None
+                "event_data": existing,
             })
 
     return transactions

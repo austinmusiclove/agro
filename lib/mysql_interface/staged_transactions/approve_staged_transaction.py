@@ -15,7 +15,7 @@ def approve_staged_transaction(connector, staged_transaction_id, override_data=N
     staged_data_id = staged_transaction.get('staged_data_id')
 
     if override_data is not None:
-        staged_data = override_data
+        staged_data = staged_data | override_data
 
     if transaction_type == 'create':
         published_data = staged_data.copy()
