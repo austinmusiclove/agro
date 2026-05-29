@@ -37,6 +37,9 @@ def main():
     queue_parser.add_argument("--venue-id", type=int, required=True, help="Venue ID to scrape")
     queue_parser.add_argument("-p", "--paginate", action="store_true", help="Enable pagination for event list scraping")
 
+    queue_all_parser = subparsers.add_parser("queue-scrape-all-event-lists", help="Queue event list scrape for every venue with a website_events_url")
+    queue_all_parser.add_argument("-p", "--paginate", action="store_true", help="Enable pagination for event list scraping")
+
     args = parser.parse_args()
 
     config_overrides = {}
@@ -68,6 +71,11 @@ def main():
         event_data_manager.scrape_event_page_by_event_id(args.event_id)
     elif args.command == "queue-scrape-event-list":
         sqs_interface.send_event_list_scrape(args.venue_id, paginate=args.paginate)
+    elif args.command == "queue-scrape-all-event-lists":
+        result = sqs_interface.send_all_event_list_scrapes(mysql_interface, paginate=args.paginate)
+        print(f"Sent {result['sent']} messages out of {result['total']} venues")
+        if result['errors']:
+            print(f"Errors: {result['errors']}")
 
 
 if __name__ == "__main__":

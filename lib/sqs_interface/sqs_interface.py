@@ -31,3 +31,20 @@ class SQSInterface:
             QueueUrl=self._event_list_queue_url,
             MessageBody=json.dumps({"venue_id": venue_id, "paginate": paginate})
         )
+
+    def send_all_event_list_scrapes(self, mysql_interface, paginate=False) -> dict:
+        if not self._client or not self._event_list_queue_url:
+            return {'sent': 0, 'total': 0, 'errors': []}
+
+        venues = mysql_interface.get_all_venues()
+        sent = 0
+        errors = []
+        for venue in venues:
+            if venue.get('website_events_url'):
+                try:
+                    self.send_event_list_scrape(venue['id'], paginate=paginate)
+                    sent += 1
+                except Exception as e:
+                    errors.append({'venue_id': venue['id'], 'error': str(e)})
+
+        return {'sent': sent, 'total': len(venues), 'errors': errors}
