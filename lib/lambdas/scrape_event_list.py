@@ -45,7 +45,7 @@ def scrape_event_list(event, context):
 
         except Exception as e:
             print(f"Error processing message: {str(e)}")
-            raise e
+            print(f"Message body: {record.get('body')}")
 
     return {
         'statusCode': 200,

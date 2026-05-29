@@ -1,5 +1,3 @@
-Lambdas
-    when there is an error it needs to clear the message
 Event Data Manager
     Venue issues
         cherrywood coffeehouse is producing duplicate events; only some duplicated random amount of times
@@ -29,6 +27,7 @@ CLI
     create cli to write a image bytes file and html and markdown file for a url
     create cli to convert bytes file to image
 Fetcher
+    Be able to hit the load more button like on friends bar website
     Tests
         rename sample screenshot to proper website page
         test create screen shot for two other pages
