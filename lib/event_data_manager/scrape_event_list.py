@@ -91,10 +91,16 @@ def _merge_events(self, existing_events, scraped_events):
 
 
 def _find_event_match(self, event, existing_events):
-    # Try to match based on event_page_url
     event_page_url = event.get("event_page_url")
+    # If no event page url then try to match events with no event page url and same title and start_date
     if not event_page_url:
-        return None
+        scraped_title = event.get("title")
+        scraped_date = event.get("start_date")
+        if scraped_title and scraped_date:
+            for existing in existing_events:
+                if (not existing.get("event_page_url") and existing.get("title") == scraped_title and existing.get("start_date") == scraped_date):
+                    return existing
+    # Try to match based on event_page_url
     existing_by_url = {}
     for e in existing_events:
         url = e.get("event_page_url")
