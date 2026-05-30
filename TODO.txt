@@ -1,5 +1,10 @@
-Not getting images from emos
+Get data from ticketmaster api when available
+Need to add scrape url and screenshot to deletes
+Duplicates in 04 center
 Producing too many deletes
+    cactus cafe
+    04 center
+    cherrywood
 Make sure hashes are getting saved on event list scrape, publish from schema, and publish from override data in approve
 Add door time to event
 Event Data Manager

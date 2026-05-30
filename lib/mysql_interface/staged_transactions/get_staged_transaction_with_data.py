@@ -44,6 +44,11 @@ def _get_transactions_by_screenshot(connector, transaction):
 
     transaction["transactions"] = enriched
     transaction["venue_future_events"] = venue_future_events
+
+    next_id = get_next_staged_transaction(connector, transaction.get('id'), transaction.get('target_table'))
+    if next_id:
+        transaction['next_transaction_id'] = next_id
+
     return transaction
 
 
