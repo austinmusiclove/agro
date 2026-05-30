@@ -34,7 +34,7 @@ def _scrape_event_list(self, venue, paginate):
                 txn_data["scrape_markdown_hash"] = event_data.get("event_list_markdown_hash")
             elif txn_type == "delete":
                 txn_data["status"] = "pending-review"
-                txn_data["scrape_url"] = event_data.get("scrape_url")
+                txn_data["scrape_url"] = event_list_url
                 txn_data["screenshot"] = event_data.get("event_list_screenshot")
 
             result = self.mysql_interface.stage_transaction("events", event_data, txn_data)
@@ -91,12 +91,27 @@ def _merge_events(self, existing_events, scraped_events):
 
 
 def _find_event_match(self, event, existing_events):
-    match = None
+    # Try to match based on event_page_url
     event_page_url = event.get("event_page_url")
-    existing_by_url = {e["event_page_url"]: e for e in existing_events if e.get("event_page_url")}
+    if not event_page_url:
+        return None
+    existing_by_url = {}
+    for e in existing_events:
+        url = e.get("event_page_url")
+        if url:
+            existing_by_url.setdefault(url, []).append(e)
+    matches = existing_by_url.get(event_page_url, [])
+    if not matches:
+        return self.mysql_interface.get_event_by_event_page_url(event_page_url)
+    if len(matches) == 1:
+        return matches[0]
 
-    if event_page_url and event_page_url in existing_by_url:
-        match = existing_by_url.get(event_page_url)
-    elif event_page_url:
-        match = self.mysql_interface.get_event_by_event_page_url(event_page_url)
-    return match
+    # If there are multiple event_page_url matches, match based on start_date
+    scraped_date = event.get("start_date")
+    if scraped_date:
+        for existing in matches:
+            if existing.get("start_date") == scraped_date:
+                return existing
+
+    # As a last resort check the db for event_page_url matches on published events
+    return self.mysql_interface.get_event_by_event_page_url(event_page_url)
